@@ -1,14 +1,14 @@
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link, useNavigate } from "react-router-dom";
 
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Navbar } from "@/components/Navbar";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -54,7 +54,7 @@ const Register = () => {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Crear Cuenta</CardTitle>
             <CardDescription>
-              Regístrate para comenzar a usar Turnify
+              Regístrate para comenzar a usar TurnosYa
             </CardDescription>
           </CardHeader>
           <CardContent>

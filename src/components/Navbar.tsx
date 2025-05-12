@@ -20,7 +20,7 @@ export const Navbar = ({ currentUser, onLogout }: NavbarProps) => {
           <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path fillRule="evenodd" d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0117.25 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H6a3 3 0 01-3-3V7.5a3 3 0 013-3h.75V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5zm-15-3.75A.75.75 0 016 6.75h12a.75.75 0 01.75.75v.75H5.25v-.75z" clipRule="evenodd" />
           </svg>
-          TurnoYa
+          TurnosYa
         </Link>
 
         {/* Desktop Navigation */}

@@ -1,5 +1,4 @@
-
-import { Business, Service, Booking, User, ScheduleSettings } from '../types';
+import { Booking, Business, ScheduleSettings, Service, User } from '../types';
 
 export const mockBusinesses: Business[] = [
   {
@@ -104,7 +103,7 @@ export const mockUsers: User[] = [
   {
     id: '1',
     name: 'Admin General',
-    email: 'admin@turnify.com',
+    email: 'admin@TurnosYa.com',
     phone: '+1234567890',
     role: 'admin',
   },

@@ -96,11 +96,11 @@ const RegisterBusiness = () => {
           <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow">
             <h1 className="text-3xl font-bold mb-2">Registra tu Negocio</h1>
             <p className="text-gray-600 mb-6">
-              Completa el formulario para comenzar a gestionar tus reservas con Turnify
+              Completa el formulario para comenzar a gestionar tus reservas con TurnosYa
             </p>
 
             <Alert className="mb-6">
-              <AlertTitle>¡Bienvenido a Turnify!</AlertTitle>
+              <AlertTitle>¡Bienvenido a TurnosYa!</AlertTitle>
               <AlertDescription>
                 Al registrar tu negocio, podrás comenzar a gestionar tus reservas, 
                 administrar horarios y recibir pagos en línea. El proceso de verificación 

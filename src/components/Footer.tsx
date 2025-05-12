@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 
 export const Footer = () => {
@@ -9,7 +8,7 @@ export const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-semibold text-booking-primary mb-4">Turnify</h3>
+            <h3 className="text-lg font-semibold text-booking-primary mb-4">TurnosYa</h3>
             <p className="text-sm text-gray-600">
               Plataforma de reservas online para todo tipo de negocios.
               Gestiona tus citas de manera eficiente.
@@ -71,7 +70,7 @@ export const Footer = () => {
                 <svg className="w-4 h-4 mr-2 text-booking-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                contacto@turnify.com
+                contacto@TurnosYa.com
               </li>
               <li className="flex items-center text-sm text-gray-600">
                 <svg className="w-4 h-4 mr-2 text-booking-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -102,7 +101,7 @@ export const Footer = () => {
         
         <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col md:flex-row justify-between">
           <p className="text-xs text-gray-500">
-            &copy; {currentYear} Turnify. Todos los derechos reservados.
+            &copy; {currentYear} TurnosYa. Todos los derechos reservados.
           </p>
           <div className="mt-4 md:mt-0 flex space-x-6">
             <Link to="/privacy" className="text-xs text-gray-500 hover:text-booking-primary">

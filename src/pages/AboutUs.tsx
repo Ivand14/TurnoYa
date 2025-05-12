@@ -23,7 +23,7 @@ const AboutPage = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Sobre Turnify
+                Sobre TurnosYa
               </h1>
               <p className="text-lg text-gray-600 mb-8">
                 Simplificando la gestión de turnos para todo tipo de negocios
@@ -40,7 +40,7 @@ const AboutPage = () => {
                 Nuestra Misión
               </h2>
               <p className="text-gray-600 mb-6">
-                En Turnify, nuestra misión es transformar la manera en que los negocios gestionan sus reservas y citas. Creemos que cada minuto cuenta, tanto para los dueños de negocios como para sus clientes, y estamos dedicados a crear herramientas que ahorren tiempo y aumenten la eficiencia.
+                En TurnosYa, nuestra misión es transformar la manera en que los negocios gestionan sus reservas y citas. Creemos que cada minuto cuenta, tanto para los dueños de negocios como para sus clientes, y estamos dedicados a crear herramientas que ahorren tiempo y aumenten la eficiencia.
               </p>
               <p className="text-gray-600">
                 Desarrollamos soluciones tecnológicas intuitivas y accesibles para permitir que negocios de todos los tamaños ofrezcan una experiencia de reserva profesional y sin complicaciones. Desde barberías y centros de belleza hasta instalaciones deportivas, nuestro objetivo es simplificar la gestión de turnos para todos.
@@ -66,7 +66,7 @@ const AboutPage = () => {
                   <h3 className="text-lg font-semibold mb-2">Ana Rodríguez</h3>
                   <p className="text-booking-primary font-medium mb-3">CEO & Fundadora</p>
                   <p className="text-gray-600 text-sm">
-                    Con más de 10 años de experiencia en el sector tecnológico, Ana fundó Turnify con la visión de revolucionar la gestión de turnos.
+                    Con más de 10 años de experiencia en el sector tecnológico, Ana fundó TurnosYa con la visión de revolucionar la gestión de turnos.
                   </p>
                 </CardContent>
               </Card>
@@ -113,13 +113,13 @@ const AboutPage = () => {
               </h2>
               <div className="prose max-w-none text-gray-600">
                 <p>
-                  Turnify comenzó en 2023 cuando nuestra fundadora, Ana Rodríguez, experimentó de primera mano las dificultades que enfrentan los pequeños negocios para gestionar sus reservas. Después de esperar más de una hora en una barbería debido a un sistema de reservas desorganizado, decidió que tenía que haber una solución mejor.
+                  TurnosYa comenzó en 2023 cuando nuestra fundadora, Ana Rodríguez, experimentó de primera mano las dificultades que enfrentan los pequeños negocios para gestionar sus reservas. Después de esperar más de una hora en una barbería debido a un sistema de reservas desorganizado, decidió que tenía que haber una solución mejor.
                 </p>
                 <p className="mt-4">
-                  Junto con un pequeño equipo de desarrolladores y diseñadores, Ana comenzó a construir lo que eventualmente se convertiría en Turnify. La visión era clara: crear una plataforma que fuera lo suficientemente flexible para adaptarse a diferentes tipos de negocios, pero lo suficientemente simple para que cualquiera pudiera usarla.
+                  Junto con un pequeño equipo de desarrolladores y diseñadores, Ana comenzó a construir lo que eventualmente se convertiría en TurnosYa. La visión era clara: crear una plataforma que fuera lo suficientemente flexible para adaptarse a diferentes tipos de negocios, pero lo suficientemente simple para que cualquiera pudiera usarla.
                 </p>
                 <p className="mt-4">
-                  Hoy, Turnify ayuda a cientos de negocios a gestionar eficientemente sus reservas, ahorrando tiempo tanto a ellos como a sus clientes. Y esto es solo el comienzo de nuestro viaje.
+                  Hoy, TurnosYa ayuda a cientos de negocios a gestionar eficientemente sus reservas, ahorrando tiempo tanto a ellos como a sus clientes. Y esto es solo el comienzo de nuestro viaje.
                 </p>
               </div>
             </div>
@@ -135,14 +135,14 @@ const AboutPage = () => {
               </h2>
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="item-1">
-                  <AccordionTrigger>¿Para qué tipos de negocios es adecuado Turnify?</AccordionTrigger>
+                  <AccordionTrigger>¿Para qué tipos de negocios es adecuado TurnosYa?</AccordionTrigger>
                   <AccordionContent>
-                    Turnify está diseñado para ser versátil y adaptarse a diversos tipos de negocios. Es ideal para barberías, salones de belleza, centros de estética, consultorios médicos, canchas deportivas, y cualquier otro negocio que funcione con sistema de reservas o citas.
+                    TurnosYa está diseñado para ser versátil y adaptarse a diversos tipos de negocios. Es ideal para barberías, salones de belleza, centros de estética, consultorios médicos, canchas deportivas, y cualquier otro negocio que funcione con sistema de reservas o citas.
                   </AccordionContent>
                 </AccordionItem>
                 
                 <AccordionItem value="item-2">
-                  <AccordionTrigger>¿Cómo puedo registrar mi negocio en Turnify?</AccordionTrigger>
+                  <AccordionTrigger>¿Cómo puedo registrar mi negocio en TurnosYa?</AccordionTrigger>
                   <AccordionContent>
                     El proceso es muy sencillo. Solo debes hacer clic en "Registrar mi negocio" en nuestra página principal, completar el formulario con los datos de tu negocio, y seguir los pasos para configurar tus servicios y horarios disponibles.
                   </AccordionContent>
@@ -165,7 +165,7 @@ const AboutPage = () => {
                 <AccordionItem value="item-5">
                   <AccordionTrigger>¿Tienen una aplicación móvil?</AccordionTrigger>
                   <AccordionContent>
-                    Actualmente, Turnify es una aplicación web optimizada para dispositivos móviles. Estamos desarrollando aplicaciones nativas para iOS y Android que estarán disponibles próximamente.
+                    Actualmente, TurnosYa es una aplicación web optimizada para dispositivos móviles. Estamos desarrollando aplicaciones nativas para iOS y Android que estarán disponibles próximamente.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
