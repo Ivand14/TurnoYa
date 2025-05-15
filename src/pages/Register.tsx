@@ -1,3 +1,5 @@
+import {  } from "@/context/login.state";
+
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -6,8 +8,8 @@ import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Navbar } from "@/components/Navbar";
+import { registro_usuario } from "@/apis/users_apis";
 import { toast } from "sonner";
-import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 
 const Register = () => {
@@ -17,7 +19,7 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { register } = useAuth();
+
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,12 +36,14 @@ const Register = () => {
     
     try {
       setLoading(true);
-      await register(name, email, password);
+      await registro_usuario(email, password, name);
       toast.success("Registro exitoso");
       navigate("/dashboard");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Error desconocido";
-      toast.error(`Error al registrarse: ${errorMessage}`);
+      console.log(error)
+      const errorMessage = error.response?.data?.details || "Error desconocido";
+      const mensajeError = errorMessage === "User already registered" ? "Email ya está registrado" : errorMessage;
+      toast.error(`Error al registrarse: ${mensajeError}`);
     } finally {
       setLoading(false);
     }

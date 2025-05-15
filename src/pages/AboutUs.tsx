@@ -9,14 +9,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import React from "react";
-import { useAuth } from "@/context/AuthContext";
 
 const AboutPage = () => {
-  const { currentUser, logout } = useAuth();
+ 
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar currentUser={currentUser} onLogout={logout} />
+      <Navbar   />
       <main className="flex-grow">
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-gray-50 to-white py-16 md:py-24">

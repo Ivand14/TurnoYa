@@ -2,14 +2,14 @@
 export type BusinessType = 'barbershop' | 'beauty' | 'sports' | 'other';
 
 export interface Business {
-  id: string;
-  name: string;
-  type: BusinessType;
-  description: string;
-  logo?: string;
-  address?: string;
-  phone?: string;
+  businessName: string;
+  ownerName: string;
   email: string;
+  phone: string;
+  address: string;
+  businessType: string;
+  description: string;
+  logo: string;
 }
 
 export interface Service {
@@ -74,11 +74,21 @@ export interface WeekSchedule {
 
 export interface ScheduleSettings {
   businessId: string;
-  workDays: number[]; // 0-6, donde 0 es domingo
+  workDays: number[]; // 0-6 donde 0 es domingo
   workHours: {
     start: string; // formato 'HH:MM'
     end: string; // formato 'HH:MM'
   };
   slotDuration: number; // en minutos
   breakBetweenSlots: number; // en minutos
+}
+
+export interface firebaseSettings{
+  apiKey: string;
+  authDomain: string;
+  projectId: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  appId: string;
+  measurementId: string;
 }

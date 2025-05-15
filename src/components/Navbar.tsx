@@ -1,17 +1,24 @@
+import {  } from "@/context/login.state";
+
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 import { Button } from "@/components/ui/button";
-import { Link } from 'react-router-dom';
 import { User } from '@/types';
+import { current_user } from "@/context/currentUser";
+import { logout } from "@/lib/utils";
 import { useState } from 'react';
 
-interface NavbarProps {
-  currentUser?: User | null;
-  onLogout?: () => void;
-}
-
-export const Navbar = ({ currentUser, onLogout }: NavbarProps) => {
+export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const{isLogged} = current_user()
+
+  const navigate = useNavigate();
+
+  const handleLogOut = () => {
+    logout()
+    navigate("/login")
+  }
 
   return (
     <header className="bg-white shadow-sm">
@@ -29,14 +36,12 @@ export const Navbar = ({ currentUser, onLogout }: NavbarProps) => {
           <Link to="/businesses" className="text-gray-700 hover:text-booking-primary">Negocios</Link>
           <Link to="/about" className="text-gray-700 hover:text-booking-primary">Sobre Nosotros</Link>
           
-          {currentUser ? (
+          {isLogged ? (
             <>
               <Link to="/dashboard" className="text-gray-700 hover:text-booking-primary">
                 Dashboard
               </Link>
-              <Button onClick={onLogout} variant="outline">
-                Cerrar Sesión
-              </Button>
+              <Button variant="outline" className="text-gray-700 hover:text-booking-primary" onClick={handleLogOut}>Cerrar Sesion</Button>
             </>
           ) : (
             <>
@@ -84,7 +89,7 @@ export const Navbar = ({ currentUser, onLogout }: NavbarProps) => {
                   Sobre Nosotros
                 </Link>
                 
-                {currentUser ? (
+                {isLogged ? (
                   <>
                     <Link 
                       to="/dashboard" 
@@ -93,16 +98,11 @@ export const Navbar = ({ currentUser, onLogout }: NavbarProps) => {
                     >
                       Dashboard
                     </Link>
-                    <Button 
-                      onClick={() => {
-                        onLogout?.();
-                        setIsOpen(false);
-                      }} 
-                      variant="outline" 
-                      className="mt-2"
-                    >
-                      Cerrar Sesión
-                    </Button>
+                  
+                    
+                    <Button variant="outline" className="w-full" onClick={handleLogOut}>Cerrar Sesion</Button>
+                    
+                    
                   </>
                 ) : (
                   <div className="flex flex-col gap-2 px-4 mt-2">

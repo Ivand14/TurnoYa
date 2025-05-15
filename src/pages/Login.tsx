@@ -1,24 +1,26 @@
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link, useNavigate } from "react-router-dom";
 
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Navbar } from "@/components/Navbar";
+import { current_user } from "@/context/currentUser";
+import { login_usuario } from "@/apis/users_apis";
 import { toast } from "sonner";
-import { useAuth } from "@/context/AuthContext";
+import { useLoginStore } from "@/context/login.state";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { email, password, setEmail, setPassword, setLoading, resetForm, loading } = useLoginStore();
+  const{setIsLogged,isLogged} = current_user()
+  console.log("isLogged",isLogged)
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     
     if (!email || !password) {
       toast.error("Por favor complete todos los campos");
@@ -27,10 +29,12 @@ const Login = () => {
     
     try {
       setLoading(true);
-      await login(email, password);
+      await login_usuario(email,password)
       toast.success("Inicio de sesión exitoso");
+      setIsLogged(true)
       navigate("/dashboard");
     } catch (error) {
+      console.log(error)
       toast.error("Error al iniciar sesión: credenciales incorrectas");
     } finally {
       setLoading(false);

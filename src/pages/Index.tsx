@@ -1,3 +1,5 @@
+import {  } from "@/context/login.state";
+
 import { BusinessCard } from "@/components/BusinessCard";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
@@ -6,18 +8,17 @@ import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { mockBusinesses } from "@/data/mockData";
 import { toast } from "sonner";
-import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 
 const Index = () => {
-  const { currentUser, logout } = useAuth();
+
   const [email, setEmail] = useState("");
   
   const featuredBusinesses = mockBusinesses.slice(0, 3);
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar currentUser={currentUser} onLogout={logout} />
+      <Navbar  />
       
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-booking-primary to-booking-secondary py-20 text-white">
@@ -196,7 +197,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {featuredBusinesses.map((business) => (
               <BusinessCard 
-                key={business.id} 
+                // key={business.id} 
                 business={business} 
                 onClick={() => {}} // En una implementación real, esto llevaría a la página del negocio
               />

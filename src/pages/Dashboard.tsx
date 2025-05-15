@@ -1,60 +1,62 @@
+import {  } from "@/context/login.state";
 
-import { useState, useEffect } from "react";
-import { Navigate } from "react-router-dom";
-import { format, startOfWeek, endOfWeek, addDays, parseISO } from "date-fns";
-import { es } from "date-fns/locale";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "@/components/Calendar";
-import { BookingCard } from "@/components/BookingCard";
-import { useAuth } from "@/context/AuthContext";
-import { Booking } from "@/types";
-import { mockBookings, mockServices } from "@/data/mockData";
-import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { addDays, endOfWeek, format, parseISO, startOfWeek } from "date-fns";
+import { mockBookings, mockServices } from "@/data/mockData";
+import { useEffect, useState } from "react";
+
+import { Booking } from "@/types";
+import { BookingCard } from "@/components/BookingCard";
+import { Calendar } from "@/components/Calendar";
+import { Footer } from "@/components/Footer";
+import { Navbar } from "@/components/Navbar";
+import { Navigate } from "react-router-dom";
+import { current_user } from "@/context/currentUser";
+import { es } from "date-fns/locale";
+import { toast } from "sonner";
 
 const Dashboard = () => {
-  const { currentUser, logout } = useAuth();
+
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
   const [pastBookings, setPastBookings] = useState<Booking[]>([]);
+  const{setIsLogged,isLogged} = current_user()
 
   // Redirigir si no hay usuario logueado
-  if (!currentUser) {
+  if (!isLogged) {
     return <Navigate to="/login" />;
   }
 
   // Filtrar reservas según el tipo de usuario
   useEffect(() => {
+    if (!isLogged) return; // 🔹 Evita ejecutar el código si no hay usuario
+  
     const now = new Date();
-    
-    let filteredBookings: Booking[] = [];
-    
-    if (currentUser.role === 'business') {
-      // Para negocios, mostrar reservas de su negocio
-      filteredBookings = mockBookings.filter(booking => booking.businessId === currentUser.businessId);
-    } else if (currentUser.role === 'customer') {
-      // Para clientes, mostrar sus propias reservas
-      filteredBookings = mockBookings.filter(booking => booking.userId === currentUser.id);
-    } else if (currentUser.role === 'admin') {
-      // Para administradores, mostrar todas las reservas
-      filteredBookings = mockBookings;
-    }
-    
+    // let filteredBookings: Booking[] = [];
+  
+    // if (currentUser.role === "business") {
+    //   filteredBookings = mockBookings.filter(booking => booking.businessId === currentUser.businessId);
+    // } else if (currentUser.role === "customer") {
+    //   filteredBookings = mockBookings.filter(booking => booking.userId === currentUser.id);
+    // } else if (currentUser.role === "admin") {
+    //   filteredBookings = mockBookings;
+    // }
+  
     // Dividir en próximas y pasadas
-    const upcoming = filteredBookings.filter(booking => new Date(booking.start) > now);
-    const past = filteredBookings.filter(booking => new Date(booking.start) <= now);
-    
+    // const upcoming = filteredBookings.filter(booking => new Date(booking.start) > now);
+    // const past = filteredBookings.filter(booking => new Date(booking.start) <= now);
+  
     // Ordenar por fecha
-    upcoming.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
-    past.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());
-    
-    setBookings(filteredBookings);
-    setUpcomingBookings(upcoming);
-    setPastBookings(past);
-  }, [currentUser]);
+    // upcoming.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+    // past.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());
+  
+    // setBookings(filteredBookings);
+    // setUpcomingBookings(upcoming);
+    // setPastBookings(past);
+  }, [isLogged]); // 🔹 useEffect solo se ejecutará cuando `currentUser` cambie
+  
 
   // Filtrar reservas para la fecha seleccionada
   const bookingsForSelectedDate = bookings.filter(booking => {
@@ -118,7 +120,7 @@ const Dashboard = () => {
     const start = startOfWeek(selectedDate, { weekStartsOn: 1 }); // Lunes
     const end = endOfWeek(selectedDate, { weekStartsOn: 1 }); // Domingo
     
-    let days = [];
+    const days = [];
     let day = start;
     
     while (day <= end) {
@@ -133,7 +135,7 @@ const Dashboard = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar currentUser={currentUser} onLogout={logout} />
+      <Navbar  />
       
       <main className="flex-1 container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
