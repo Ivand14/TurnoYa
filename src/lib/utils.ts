@@ -13,7 +13,7 @@ export function cn(...inputs: ClassValue[]) {
 export const logout = async() => {
   const auth = getAuth(app)
   await signOut(auth).then(()=>{
-    localStorage.removeItem('user');
+    localStorage.removeItem('sessionId');
     toast.success("Has cerrado sesion");
   }).catch((error)=>{
     console.log(error)

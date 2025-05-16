@@ -37,7 +37,7 @@
 
   
 //   // Si no existe el negocio, redirigir
-//   if (!business) {
+//   if (!businessId) {
 //     return <Navigate to="/businesses" />;
 //   }
   
@@ -115,7 +115,7 @@
 
 //   return (
 //     <div className="flex flex-col min-h-screen">
-//       <Navbar currentUser={currentUser} />
+//       <Navbar  />
       
 //       <main className="flex-1">
 //         {/* Cabecera del negocio */}

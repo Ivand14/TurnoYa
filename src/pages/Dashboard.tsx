@@ -22,8 +22,7 @@ const Dashboard = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
   const [pastBookings, setPastBookings] = useState<Booking[]>([]);
-  const{setIsLogged,isLogged} = current_user()
-
+  const { setIsLogged, isLogged,user,setUser } = current_user();
   // Redirigir si no hay usuario logueado
   if (!isLogged) {
     return <Navigate to="/login" />;
@@ -133,12 +132,13 @@ const Dashboard = () => {
 
   const weekDays = getCurrentWeek();
 
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar  />
       
       <main className="flex-1 container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-6">Dashboard de {user.name}</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* Estadísticas */}

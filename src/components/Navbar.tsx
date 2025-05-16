@@ -11,11 +11,13 @@ import { useState } from 'react';
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const{isLogged} = current_user()
+  const{setIsLogged,isLogged,setUser} = current_user()
 
   const navigate = useNavigate();
 
   const handleLogOut = () => {
+    setIsLogged(false)
+    setUser(null)
     logout()
     navigate("/login")
   }

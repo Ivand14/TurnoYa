@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { getAuth } from 'firebase/auth';
 
 interface LoginState {
     email: string;
@@ -19,3 +20,5 @@ export const useLoginStore = create<LoginState>((set) => ({
     setLoading: (loading: boolean) => set({ loading }),
     resetForm: () => set({ email: '', password: '' }), // Implementación de resetForm
 }));
+
+

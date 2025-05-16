@@ -2,13 +2,14 @@ import {  } from "@/context/login.state";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useNavigate } from "react-router-dom";
+import { registro_usuario, singInWhithGoogle } from "@/apis/users_apis";
 
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Navbar } from "@/components/Navbar";
-import { registro_usuario } from "@/apis/users_apis";
+import { current_user } from "@/context/currentUser";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -19,6 +20,7 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { setIsLogged, isLogged } = current_user();
 
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,7 +40,7 @@ const Register = () => {
       setLoading(true);
       await registro_usuario(email, password, name);
       toast.success("Registro exitoso");
-      navigate("/dashboard");
+      navigate("/login");
     } catch (error) {
       console.log(error)
       const errorMessage = error.response?.data?.details || "Error desconocido";
@@ -46,6 +48,15 @@ const Register = () => {
       toast.error(`Error al registrarse: ${mensajeError}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLoginGoogle = async() => {
+    const loginGoogle = await singInWhithGoogle();
+    console.log(loginGoogle)
+    if(loginGoogle.success === true){
+      setIsLogged(true)
+      navigate("/dashboard");
     }
   };
 
@@ -117,9 +128,9 @@ const Register = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <Button variant="outline" type="button" disabled className="w-full">
-                  <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+              <div className=" gap-4">
+                <Button variant="outline" type="button"  className="w-full" onClick={handleLoginGoogle}>
+                  <svg className=" h-5 mr-2" viewBox="0 0 24 24">
                     <path
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                       fill="#4285F4"
@@ -139,12 +150,7 @@ const Register = () => {
                   </svg>
                   Google
                 </Button>
-                <Button variant="outline" type="button" disabled className="w-full">
-                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M13.601 2.326A7.854 7.854 0 0 0 12 2.25c-.988 0-1.945.185-2.835.532C6.887 3.648 5.294 6.128 5.294 9c0 1.646.396 3.194 1.101 4.566.176.324.37.645.552.996.181.341.3.681.36 1.038h4.159c.96-.962.164-1.04.24-1.24.176-.469.264-.875.264-1.24 0-.165-.024-.327-.072-.477-.003-.013-.01-.035-.022-.058a4.003 4.003 0 0 1-.196-.655l-.278-1.114a10.01 10.01 0 0 0-.171-.584c-.02-.067-.055-.21-.152-.423-.106-.254-.198-.427-.278-.516-.718-.816-1.402-.865-1.93-.865-.152 0-.299.005-.443.015l-.122.012a1.51 1.51 0 0 0-.121.013l-.091.012-.06.01-.035.007-.03.006c-.036.008-.069.015-.102.023a9.74 9.74 0 0 0-.353.09c-.158.043-.332.096-.518.156-.193.061-.424.139-.63.213a7.85 7.85 0 0 0-1.519.753c-.226.133-.407.248-.558.35-.177.12-.332.228-.466.325l-.276.215-.342.303a36.56 36.56 0 0 0-.4.421c-.595.67-1.143 1.359-1.62 2.070-.07.136-.15.29-.22.433l-.137.285-.17.36c-.066.121-.11.255-.147.349-.124.31-.239.636-.327.953l-.068.251c-.054.921-.054 1.589.088 2.816.217 1.898.978 3.506 2.26 4.779.742.735 1.606 1.236 2.558 1.487.951.25 1.98.233 2.9-.068a6.02 6.02 0 0 0 2.53-1.667c.694-.827 1.11-1.83 1.336-2.9.135-.755.192-1.486.19-2.201-.002-.575-.034-1.115-.114-1.612a9.539 9.539 0 0 0-.337-1.345 7.35 7.35 0 0 0-.195-.6z" />
-                  </svg>
-                  WhatsApp
-                </Button>
+                
               </div>
               
               <p className="text-xs text-gray-500 text-center mt-4">

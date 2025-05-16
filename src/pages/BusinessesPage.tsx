@@ -21,22 +21,22 @@
 //   const [selectedType, setSelectedType] = useState<BusinessType | "all">("all");
 //   const navigate = useNavigate();
 
-//   // Filtrar negocios según búsqueda y tipo
-//   // const filteredBusinesses = useMemo(() => {
-//   //   return mockBusinesses.filter(business => {
-//   //     // Filtro por tipo
-//   //     if (selectedType !== "all" && business.type !== selectedType) {
-//   //       return false;
-//   //     }
+// //   Filtrar negocios según búsqueda y tipo
+//   const filteredBusinesses = useMemo(() => {
+//     return mockBusinesses.filter(business => {
+//       // Filtro por tipo
+//       if (selectedType !== "all" && business.type !== selectedType) {
+//         return false;
+//       }
       
-//   //     // Filtro por término de búsqueda
-//   //     if (searchTerm && !business.name.toLowerCase().includes(searchTerm.toLowerCase())) {
-//   //       return false;
-//   //     }
+//       // Filtro por término de búsqueda
+//       if (searchTerm && !business.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+//         return false;
+//       }
       
-//   //     return true;
-//   //   });
-//   // }, [searchTerm, selectedType]);
+//       return true;
+//     });
+//   }, [searchTerm, selectedType]);
 
 //   return (
 //     <div className="flex flex-col min-h-screen">
