@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Logged } from "@/context/logged";
 import { Navbar } from "@/components/Navbar";
 import { current_user } from "@/context/currentUser";
 import { toast } from "sonner";
@@ -20,7 +21,7 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { setIsLogged, isLogged } = current_user();
+  const{setIsLogged,isLogged} = Logged()
 
   
   const handleSubmit = async (e: React.FormEvent) => {

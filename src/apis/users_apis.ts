@@ -84,7 +84,7 @@ export const getUser = async(id: string) => {
             }
         } )
         
-        return response.data.user_data
+        return response.data
 
     } catch (error) {
         console.log(error)

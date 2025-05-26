@@ -13,7 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Logged } from "@/context/logged";
 import { Navbar } from "@/components/Navbar";
+import { compnay_logged } from "@/context/current_company";
 import { current_user } from "@/context/currentUser";
 import { toast } from "sonner";
 import { useLoginStore } from "@/context/login.state";
@@ -29,7 +31,9 @@ const Login = () => {
     resetForm,
     loading
   } = useLoginStore();
-  const { setIsLogged, isLogged,user,setUser } = current_user();
+  const { user,setUser } = current_user();
+  const{setIsLogged,isLogged} = Logged()
+  const{setCompany} = compnay_logged()
 
   console.log(isLogged)
 
@@ -44,17 +48,23 @@ const Login = () => {
     try {
       setLoading(true);
       const userlogin = await login_usuario(email, password);
+      
       if (userlogin.success === true) {
         setIsLogged(true);
         const userData = await getUser(userlogin.sessionId)
-        if (userData) {
-          setUser(userData);
+        console.log(userData.user_data)
+        if (userData.user_data) {
+          setUser(userData.user_data);
+          navigate("/dashboard");
            // Guarda los datos en el contexto de Zustand
+        }else if(userData.company_data){
+          setCompany(userData.company_data)
+          navigate(`/admin-dashboard/${userData.company_data.id}`);
         }
         toast.success("Inicio de sesión exitoso");
       }
       resetForm();
-      navigate("/dashboard");
+      
     } catch (error) {
       console.log(error);
       toast.error("Error al iniciar sesión: credenciales incorrectas");
@@ -69,8 +79,8 @@ const Login = () => {
     if(loginGoogle.success === true){
       setIsLogged(true)
       const userData = await getUser(loginGoogle.sessionId)
-      if (userData) {
-        setUser(userData); // Guarda los datos en el contexto de Zustand
+      if (userData.user_data) {
+        setUser(userData.user_data); // Guarda los datos en el contexto de Zustand
       }
       navigate("/dashboard");
     }

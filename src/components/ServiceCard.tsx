@@ -1,7 +1,7 @@
-
-import { Service } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
+import { Service } from "@/types";
 
 interface ServiceCardProps {
   service: Service;
@@ -13,7 +13,7 @@ export const ServiceCard = ({ service, onReserve }: ServiceCardProps) => {
     <Card className="overflow-hidden">
       <CardHeader className="p-4 pb-2 flex flex-row justify-between items-center">
         <div>
-          <CardTitle className="text-lg">{service.name}</CardTitle>
+          <CardTitle className="text-lg">{service.name_service}</CardTitle>
           <div className="flex items-center mt-1 text-sm text-gray-500">
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />

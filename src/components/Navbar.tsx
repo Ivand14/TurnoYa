@@ -4,20 +4,25 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 import { Button } from "@/components/ui/button";
+import { Logged } from "@/context/logged";
 import { User } from '@/types';
+import { compnay_logged } from "@/context/current_company";
 import { current_user } from "@/context/currentUser";
 import { logout } from "@/lib/utils";
 import { useState } from 'react';
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const{setIsLogged,isLogged,setUser} = current_user()
+  const{setUser} = current_user()
+  const{setIsLogged,isLogged} = Logged()
+  const{setCompany} = compnay_logged()
 
   const navigate = useNavigate();
 
   const handleLogOut = () => {
     setIsLogged(false)
     setUser(null)
+    setCompany(null)
     logout()
     navigate("/login")
   }

@@ -1,7 +1,7 @@
-
-import { Business } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Badge } from "@/components/ui/badge";
+import { Business } from "@/types";
 
 interface BusinessCardProps {
   business: Business;
@@ -36,15 +36,15 @@ export const BusinessCard = ({ business, onClick }: BusinessCardProps) => {
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100">
-              {business.logo && <img src={business.logo} alt={business.name} className="w-full h-full object-cover" />}
+              {business.logo && <img src={business.logo} alt={business.company_name} className="w-full h-full object-cover" />}
             </div>
             <div>
-              <CardTitle className="text-lg">{business.name}</CardTitle>
+              <CardTitle className="text-lg">{business.company_name}</CardTitle>
               <CardDescription className="text-xs">{business.email}</CardDescription>
             </div>
           </div>
-          <Badge className={getBusinessTypeColor(business.type)}>
-            {getBusinessTypeLabel(business.type)}
+          <Badge className={getBusinessTypeColor(business.company_type)}>
+            {getBusinessTypeLabel(business.company_type)}
           </Badge>
         </div>
       </CardHeader>

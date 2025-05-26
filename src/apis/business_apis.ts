@@ -1,6 +1,7 @@
 import { API_URL } from "./api_url";
 import { Business } from '@/types';
 import axios from "axios";
+import { toast } from "sonner";
 
 export const register_business = async (
     businessName: string,
@@ -14,7 +15,7 @@ export const register_business = async (
     password: string
 ) => {
     try {
-        const url = `${API_URL}/register-company`;
+        const url = `${API_URL}/register_company`;
 
 
         // Crear `FormData` para manejar la subida del archivo
@@ -32,14 +33,51 @@ export const register_business = async (
         formData.append("logo", logo);
 
         console.log(formData)
+        console.log(businessName,
+            ownerName,
+            email,
+            phone,
+            address,
+            businessType,
+            description,
+            logo, // Archivo correctamente tipado
+            password)
+
 
         // Enviar la solicitud con `multipart/form-data`
-        return await axios.post(url, formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
+        const response = await axios.post(url, formData, {
+            "headers": {
+                "Content-Type": "multipart/form-data"
+            }
         });
+        console.log(response)
+        return response
+    } catch (error) {
+        console.log(error.response.data)
+        return error.response.data
+    }
+};
+
+
+
+export const getAllBusiness = async() => {
+    try {
+        const url = `${API_URL}/all_business`;
+        const response = await axios.get(`${url}`)
+        console.log(response)
+        return response
     } catch (error) {
         console.log(error)
     }
-};
+}
+
+export const getBusinessId = async(id:string) => {
+    try {
+        const url = `${API_URL}/business/${id}`;
+        const response = await axios.get(url)
+        return response
+    } catch (error) {
+        console.log(error)
+        return error
+    }
+}

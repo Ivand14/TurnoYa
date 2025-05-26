@@ -1,21 +1,23 @@
-
 export type BusinessType = 'barbershop' | 'beauty' | 'sports' | 'other';
 
 export interface Business {
-  businessName: string;
-  ownerName: string;
-  email: string;
-  phone: string;
   address: string;
-  businessType: string;
+  company_name: string;
+  company_type: string;
   description: string;
+  email: string;
+  id: string;
   logo: string;
+  owner: string;
+  phone: string;
+  rol: string;
+  services?: Service[];
 }
 
 export interface Service {
-  id: string;
+  id?: string;
   businessId: string;
-  name: string;
+  name_service: string;
   description: string;
   duration: number; // en minutos
   price: number;
@@ -83,7 +85,7 @@ export interface ScheduleSettings {
   breakBetweenSlots: number; // en minutos
 }
 
-export interface firebaseSettings{
+export interface firebaseSettings {
   apiKey: string;
   authDomain: string;
   projectId: string;
