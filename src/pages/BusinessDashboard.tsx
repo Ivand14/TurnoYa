@@ -20,7 +20,6 @@ import {
   delete_service,
   get_services
 } from "@/apis/services.api";
-import { mockEmployees, mockSchedules } from "@/data/dashboardData";
 import { useEffect, useState } from "react";
 
 import { Calendar } from "@/components/Calendar";
@@ -38,6 +37,7 @@ import StatsOverview from "@/components/dashboarBusiness/StatsOverview";
 import UpcomingBookings from "@/components/dashboarBusiness/UpcomingBookings";
 import { compnay_logged } from "@/context/current_company";
 import { getDashboardStats } from "@/utils/dashboardUtils";
+import { get_booking } from "@/apis/booking_apis";
 import { mockBookings } from "@/data/mockData";
 import { set } from "date-fns";
 import { toast } from "sonner";
@@ -49,6 +49,7 @@ import { toast } from "sonner";
 const BusinessDashboard = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [allBookings, setAllBookings] = useState<Booking[]>([]);
   const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [schedulesHrs, setSchedulesHrs] = useState<Schedule[]>([]);
@@ -59,6 +60,7 @@ const BusinessDashboard = () => {
   const { setIsLogged, isLogged } = Logged();
   const [services, setServices] = useState<Service[]>([]);
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
+  
 
   const fetchData = async () => {
     try {
@@ -66,17 +68,18 @@ const BusinessDashboard = () => {
       const schedulesResponse = await get_all_sch(businessId);
       const businessHrsResponse = await get_all_businessHrs(businessId);
       const businessServices = await get_services(businessId);
+      const businessBooking = await get_booking(businessId)
 
       setEmployees(employeesResponse.data.details);
       setSchedules(schedulesResponse.data.details);
       setSchedulesHrs(businessHrsResponse.data.details);
       setServices(businessServices.data.details);
+      setAllBookings(businessBooking.details)
     } catch (error) {
       console.error("Error al obtener datos:", error);
     }
   };
 
-  console.log(services);
 
   // Form state for new employee
   const [newEmployee, setNewEmployee] = useState({
@@ -97,13 +100,15 @@ const BusinessDashboard = () => {
     isBusinessHours: false
   });
 
+  console.log(allBookings)
+
   // Fetch bookings for the business
   useEffect(() => {
-    fetchData();
+
     const now = new Date();
 
     // Filtrar reservas por empresa
-    const businessBookings = mockBookings.filter(
+    const businessBookings = allBookings.filter(
       (booking) => booking.businessId === company.id
     );
 
@@ -120,8 +125,11 @@ const BusinessDashboard = () => {
     setBookings(businessBookings);
     setUpcomingBookings(upcoming);
 
-    fetchData();
-  }, [company, businessId]);
+  }, [allBookings]);
+
+  useEffect(()=>{
+    fetchData()
+  },[businessId])
 
   // Redirect if not a business user
   if (!isLogged || !company || company.rol !== "business") {
@@ -323,7 +331,10 @@ const BusinessDashboard = () => {
       description: serviceData.description,
       duration: serviceData.duration,
       price: serviceData.price,
-      active: serviceData.active
+      active: serviceData.active,
+      capacity: serviceData.capacity | 0,
+      requiresSpecificEmployee: serviceData.requiresSpecificEmployee,
+      allowedEmployeeIds: serviceData.allowedEmployeeIds || []
     };
     const response = await create_service(newService);
     console.log(response)
@@ -408,11 +419,13 @@ const BusinessDashboard = () => {
             <ServiceForm
               businessId={businessId || ""}
               onSubmit={handleAddService}
+              employees = {employees}
             />
 
             <ServiceList
               services={services}
               onDelete={handleDeleteService}
+              employees={employees}
             />
           </TabsContent>
 

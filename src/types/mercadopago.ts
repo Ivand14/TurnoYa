@@ -15,7 +15,7 @@ export interface MercadoPagoItem {
 
 export interface MercadoPagoPayer {
     name: string;
-    surname: string;
+    surname?: string;
     email: string;
     phone?: {
         area_code: string;

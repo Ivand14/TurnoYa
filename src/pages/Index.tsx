@@ -1,20 +1,33 @@
 import {  } from "@/context/login.state";
 
+import { useEffect, useState } from "react";
+
+import { Business } from "@/types";
 import { BusinessCard } from "@/components/BusinessCard";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
-import { mockBusinesses } from "@/data/mockData";
+import { getAllBusiness } from "@/apis/business_apis";
 import { toast } from "sonner";
-import { useState } from "react";
 
 const Index = () => {
 
   const [email, setEmail] = useState("");
+  const[business,setBusiness] = useState<Business[]>([])
+
+  const fetchData = async() => {
+    const response = await getAllBusiness()
+    setBusiness(response.data.data)
+  }
+
+  useEffect(()=>{
+    fetchData()
+  },[])
+
   
-  const featuredBusinesses = mockBusinesses.slice(0, 3);
+  const featuredBusinesses = business.slice(0, 3);
 
   return (
     <div className="flex flex-col min-h-screen">

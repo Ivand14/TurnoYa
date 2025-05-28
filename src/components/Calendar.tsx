@@ -1,9 +1,9 @@
+import { addDays, addMonths, endOfMonth, format, isSameDay, isSameMonth, startOfMonth, startOfWeek, subMonths } from "date-fns";
 
-import { useState } from "react";
-import { format, startOfWeek, addDays, isSameMonth, isSameDay, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
-import { es } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Day } from "@/types";
+import { es } from "date-fns/locale";
+import { useState } from "react";
 
 interface CalendarProps {
   selectedDate: Date;

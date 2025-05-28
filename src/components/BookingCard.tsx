@@ -1,10 +1,10 @@
-
 import { Booking, Service } from "@/types";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { es } from "date-fns/locale";
+import { format } from "date-fns";
 
 interface BookingCardProps {
   booking: Booking;
@@ -57,7 +57,7 @@ export const BookingCard = ({ booking, service, onCancel }: BookingCardProps) =>
     <Card className="overflow-hidden">
       <CardHeader className="p-4 pb-2 bg-gray-50">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg">{service?.name || 'Reserva'}</CardTitle>
+          <CardTitle className="text-lg">{service?.name_service || 'Reserva'}</CardTitle>
           <Badge className={getStatusColor(booking.status)}>
             {getStatusLabel(booking.status)}
           </Badge>

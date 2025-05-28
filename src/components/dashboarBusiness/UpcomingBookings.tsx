@@ -1,8 +1,8 @@
+import { Booking, Service } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useEffect, useState } from "react";
 
-import { Booking } from "@/types";
 import { BookingCard } from "@/components/BookingCard";
-import React from "react";
 import { getServiceForBooking } from "@/utils/dashboardUtils";
 
 interface UpcomingBookingsProps {
@@ -14,6 +14,25 @@ const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({
   bookings,
   onCancelBooking
 }) => {
+  const [services, setServices] = useState<Record<string, Service>>({});
+
+  useEffect(() => {
+    const loadServices = async () => {
+      const servicesMap: Record<string, Service> = {};
+      for (const booking of bookings) {
+        const service = await getServiceForBooking(booking);
+        if (service) {
+          servicesMap[booking.serviceId] = service;
+        }
+      }
+      setServices(servicesMap);
+    };
+    loadServices();
+  }, [bookings]);
+
+  console.log(bookings)
+  console.log(services)
+
   return (
     <Card>
       <CardHeader>
@@ -26,7 +45,7 @@ const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({
               <BookingCard
                 key={booking.id}
                 booking={booking}
-                service={getServiceForBooking(booking)}
+                service={services[booking.serviceId]}
                 onCancel={onCancelBooking}
               />
             ))}

@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PaymentForm } from "@/components/PaymentForm";
 import { Textarea } from "@/components/ui/textarea";
+import { current_user } from "@/context/currentUser";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -28,7 +29,7 @@ interface BookingData {
   start: string;
   end: string;
   paymentData?: PaymentData;
-  paymentStatus?: 'pending' | 'paid' | 'refunded';
+  paymentStatus?: "pending" | "paid" | "refunded";
 }
 
 interface BookingFormProps {
@@ -46,7 +47,7 @@ interface BookingFormProps {
 interface PaymentData {
   preferenceId: string;
   paymentUrl: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
 }
 
 export const BookingForm = ({
@@ -77,7 +78,6 @@ export const BookingForm = ({
       date: selectedDate.toISOString().split("T")[0],
       start: selectedSlot.start.toISOString(),
       end: selectedSlot.end.toISOString()
-      
     };
 
     setFormData(bookingData);
@@ -128,47 +128,17 @@ export const BookingForm = ({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Reservar {service.name_service}</DialogTitle>
-          <DialogDescription>
-            Complete sus datos para continuar con el pago
-          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(submitForm)} className="space-y-4 py-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name">Nombre completo</Label>
-              <Input
-                id="name"
-                {...register("name", { required: "Este campo es obligatorio" })}
-                placeholder="Ingrese su nombre"
-              />
-              {errors.name && (
-                <p className="mt-1 text-xs text-red-600">
-                  {errors.name.message as string}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                {...register("email", {
-                  required: "Este campo es obligatorio",
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Email inválido"
-                  }
-                })}
-                placeholder="su@email.com"
-              />
-              {errors.email && (
-                <p className="mt-1 text-xs text-red-600">
-                  {errors.email.message as string}
-                </p>
-              )}
-            </div>
+          <div>
+            <Label htmlFor="notes">Notas adicionales (opcional)</Label>
+            <Textarea
+              id="notes"
+              {...register("notes")}
+              placeholder="Agregue cualquier información adicional que necesitemos saber"
+              rows={3}
+            />
           </div>
 
           <div>
@@ -189,16 +159,6 @@ export const BookingForm = ({
                 {errors.phone.message as string}
               </p>
             )}
-          </div>
-
-          <div>
-            <Label htmlFor="notes">Notas adicionales (opcional)</Label>
-            <Textarea
-              id="notes"
-              {...register("notes")}
-              placeholder="Agregue cualquier información adicional que necesitemos saber"
-              rows={3}
-            />
           </div>
 
           <div className="bg-gray-50 p-4 rounded-md">

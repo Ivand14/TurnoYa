@@ -22,6 +22,9 @@ export interface Service {
   duration: number; // en minutos
   price: number;
   active: boolean;
+  capacity?: number;
+  requiresSpecificEmployee?: boolean;
+  allowedEmployeeIds?: string[];
 }
 
 export interface TimeSlot {
@@ -83,6 +86,7 @@ export interface ScheduleSettings {
   };
   slotDuration: number; // en minutos
   breakBetweenSlots: number; // en minutos
+  days_business?:string[];
 }
 
 export interface firebaseSettings {

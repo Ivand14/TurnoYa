@@ -16,6 +16,12 @@ export const get_all_employees = async (businessId: string) => {
     return response
 }
 
+export const get_employee_id = async (id: string) => {
+    const url = `${API_URL}/get_employee_id/${id}`
+    const response = await axios.get(url)
+    return response
+}
+
 export const create_schedule = async (schedule: Schedule) => {
     const url = `${API_URL}/schedule`
     const response = await axios.post(url, schedule)
@@ -78,6 +84,7 @@ export const delete_business_hours = async (id: string) => {
 export const get_all_businessHrs = async (businessId: string) => {
     const url = `${API_URL}/all_business_hours/${businessId}`
     const response = await axios.get(url)
+
     return response
 }
 

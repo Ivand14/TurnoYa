@@ -1,12 +1,11 @@
 import {} from "@/context/login.state";
 
+import { Booking, Service } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { addDays, endOfWeek, format, parseISO, startOfWeek } from "date-fns";
-import { mockBookings, mockServices } from "@/data/mockData";
 import { useEffect, useState } from "react";
 
-import { Booking } from "@/types";
 import { BookingCard } from "@/components/BookingCard";
 import { Calendar } from "@/components/Calendar";
 import { Footer } from "@/components/Footer";
@@ -15,11 +14,15 @@ import { Navbar } from "@/components/Navbar";
 import { Navigate } from "react-router-dom";
 import { current_user } from "@/context/currentUser";
 import { es } from "date-fns/locale";
+import { getServiceForBooking } from "@/utils/dashboardUtils";
+import { get_user_booking } from "@/apis/booking_apis";
+import { mockBookings } from "@/data/mockData";
 import { toast } from "sonner";
 
 const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [services, setServices] = useState<Record<string, Service>>({});
   const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
   const [pastBookings, setPastBookings] = useState<Booking[]>([]);
   const { user, setUser } = current_user();
@@ -28,11 +31,20 @@ const Dashboard = () => {
   if (!isLogged || !user || user.rol !== "user") {
     return <Navigate to="/login" />;
   }
+
+  const fetchData = async() => { 
+    const bookingResponse = await get_user_booking(user.id)
+    if(bookingResponse.status === 200){
+      setBookings(bookingResponse.details)
+    }
+  }
+
+  console.log(bookings)
   
   // Filtrar reservas según el tipo de usuario
   useEffect(() => {
     
-
+    fetchData()
     const now = new Date();
     // let filteredBookings: Booking[] = [];
 
@@ -55,7 +67,21 @@ const Dashboard = () => {
     // setBookings(filteredBookings);
     // setUpcomingBookings(upcoming);
     // setPastBookings(past);
-  }, [isLogged]); // 🔹 useEffect solo se ejecutará cuando `currentUser` cambie
+  }, [user]); // 🔹 useEffect solo se ejecutará cuando `currentUser` cambie
+
+  useEffect(() => {
+    const loadServices = async () => {
+      const servicesMap: Record<string, Service> = {};
+      for (const booking of bookings) {
+        const service = await getServiceForBooking(booking);
+        if (service) {
+          servicesMap[booking.serviceId] = service;
+        }
+      }
+      setServices(servicesMap);
+    };
+    loadServices();
+  }, [bookings]);
 
   // Filtrar reservas para la fecha seleccionada
   const bookingsForSelectedDate = bookings.filter((booking) => {
@@ -89,11 +115,6 @@ const Dashboard = () => {
     );
 
     toast.success("Reserva cancelada correctamente");
-  };
-
-  // Encontrar servicio correspondiente a una reserva
-  const getServiceForBooking = (booking: Booking) => {
-    return mockServices.find((service) => service.id === booking.serviceId);
   };
 
   // Resumen de estadísticas
@@ -209,7 +230,7 @@ const Dashboard = () => {
                       <BookingCard
                         key={booking.id}
                         booking={booking}
-                        service={getServiceForBooking(booking)}
+                        service={services[booking.serviceId]}
                         onCancel={handleCancelBooking}
                       />
                     ))}
@@ -244,7 +265,7 @@ const Dashboard = () => {
                     <BookingCard
                       key={booking.id}
                       booking={booking}
-                      service={getServiceForBooking(booking)}
+                      service={services[booking.serviceId]}
                       onCancel={handleCancelBooking}
                     />
                   ))}
@@ -263,7 +284,7 @@ const Dashboard = () => {
                     <BookingCard
                       key={booking.id}
                       booking={booking}
-                      service={getServiceForBooking(booking)}
+                      service={services[booking.serviceId]}
                       onCancel={handleCancelBooking}
                     />
                   ))}

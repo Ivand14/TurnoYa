@@ -8,7 +8,8 @@ export interface Employee {
     phone?: string;
     position: string;
     status: string;
-    businessId: string
+    businessId: string;
+    allowedEmployeeIds?:string[];
 }
 
 // Schedule type definition

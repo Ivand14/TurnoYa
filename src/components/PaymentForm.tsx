@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { CreatePreferenceRequest } from "@/types/mercadopago";
 import { Separator } from "@/components/ui/separator";
 import { Service } from "@/types";
+import { current_user } from "@/context/currentUser";
 import { mercadoPagoService } from "@/services/mercadoPagoService";
 import { toast } from "sonner";
 
@@ -39,13 +40,12 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
 }) => {
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+  const { user } = current_user();
 
   const handleCreatePayment = async () => {
     setIsCreatingPayment(true);
 
     try {
-      const [firstName, ...lastNameParts] = bookingData.name.split(" ");
-      const lastName = lastNameParts.join(" ") || "";
 
       const phoneNumber = bookingData.phone?.replace(/[^\d]/g, "") || "";
       const areaCode = phoneNumber.substring(0, 3) || "011";
@@ -63,9 +63,8 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           }
         ],
         payer: {
-          name: firstName,
-          surname: lastName,
-          email: bookingData.email,
+          name: user?.name,
+          email: user?.email,
           phone: {
             area_code: areaCode,
             number: number
@@ -149,7 +148,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
 
             <div className="flex justify-between">
               <span className="text-gray-600">Cliente:</span>
-              <span className="font-medium">{bookingData.name}</span>
+              <span className="font-medium">{user?.name}</span>
             </div>
 
             <div className="flex justify-between">

@@ -15,7 +15,6 @@ import { Input } from "@/components/ui/input";
 import { Navbar } from "@/components/Navbar";
 import { compnay_logged } from "@/context/current_company";
 import { getAllBusiness } from "@/apis/business_apis";
-import { mockBusinesses } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
 
 const BusinessesPage = () => {

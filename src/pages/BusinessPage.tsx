@@ -9,6 +9,7 @@ import {
 } from "@/types";
 import { Navigate, useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { createBooking, get_booking } from "@/apis/booking_apis";
 import { getAllBusiness, getBusinessId } from "@/apis/business_apis";
 import {
   mockBookings,
@@ -58,37 +59,55 @@ const BusinessPage = () => {
     workDays: [],
     workHours: { start: "09:00", end: "17:00" },
     slotDuration: 30,
-    breakBetweenSlots: 5
+    breakBetweenSlots: 5,
+    days_business: []
   });
   const [loading, setLoading] = useState(true);
   const { user } = current_user();
   const [schedulesHrs, setSchedulesHrs] = useState<Schedule[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
 
   const scheduleData = businessSchedules.filter(
     (s) => s.businessId === businessId
   );
 
-
   const scheduleInfo = () => {
-
     const days_business = [];
     const workDays = [];
-    scheduleData.map((sch) => {
+    let startTime = "09:00";
+    let endTime = "17:00";
+
+    const dayMap: Record<string, number> = {
+      Domingo: 0,
+      Lunes: 1,
+      Martes: 2,
+      Miércoles: 3,
+      Jueves: 4,
+      Viernes: 5,
+      Sábado: 6
+    };
+
+    schedulesHrs.forEach((sch) => {
       days_business.push(sch.day);
+      if (dayMap[sch.day] !== undefined) {
+        workDays.push(dayMap[sch.day]);
+      }
+
+      // Asignar horas de inicio y fin
+      if (sch.startTime) startTime = sch.startTime;
+      if (sch.endTime) endTime = sch.endTime;
     });
 
-    for (let index = 0; index < days_business.length; index++) {
-      const day = days_business[index];
-      workDays.push(day - 1);
-    }
+    const days = days_business.sort((a, b) => dayMap[a] - dayMap[b]);
 
     setScheduleSettings({
       businessId: businessId || "",
       workDays: workDays,
-      workHours: { start: "09:00", end: "17:00" },
+      workHours: { start: startTime, end: endTime },
       slotDuration: 30,
-      breakBetweenSlots: 5
+      breakBetweenSlots: 0,
+      days_business: days
     });
   };
 
@@ -100,13 +119,18 @@ const BusinessPage = () => {
       const business_schedule =
         responseBusiness?.data?.details.business_schedules;
       const businessHrsResponse = await get_all_businessHrs(businessId);
+
       if (business) {
         setDataBusiness(business);
         setBusinessSchedules(business_schedule);
         setSchedulesHrs(businessHrsResponse.data.details);
+        // orderDays()
       }
       const businessServices = await get_services(businessId);
       setServices(businessServices.data.details);
+
+      const allBookings = await get_booking(businessId);
+      setBookings(allBookings.details);
     } catch (error) {
       console.error("Error fetching business:", error);
     } finally {
@@ -114,17 +138,35 @@ const BusinessPage = () => {
     }
   };
 
+  const orderDays = () => {
+    const dayMap: Record<string, number> = {
+      Domingo: 0,
+      Lunes: 1,
+      Martes: 2,
+      Miércoles: 3,
+      Jueves: 4,
+      Viernes: 5,
+      Sábado: 6
+    };
+
+    // Ordenar el array de objetos por el día
+    const sortedSchedules = [...schedulesHrs].sort(
+      (a, b) => dayMap[a.day] - dayMap[b.day]
+    );
+
+    setSchedulesHrs(sortedSchedules);
+  };
+
   useEffect(() => {
     if (!businessId) return;
     fetchData();
+    scheduleInfo();
   }, [businessId]);
 
   // Si no existe el negocio, redirigir
   if (!businessId) {
     return <Navigate to="/businesses" />;
   }
-
-  console.log(dataBusiness)
 
   if (!scheduleSettings) {
     return (
@@ -138,11 +180,13 @@ const BusinessPage = () => {
   // Obtener horarios reservados para la fecha seleccionada
   const getBookedTimeSlotsForDate = (date: Date): TimeSlot[] => {
     const dateString = format(date, "yyyy-MM-dd");
+    const serviceId = selectedService.id
 
-    return mockBookings
+    return bookings
       .filter(
         (booking) =>
           booking.businessId === businessId &&
+          booking.serviceId === serviceId &&
           booking.date === dateString &&
           booking.status !== "cancelled"
       )
@@ -157,7 +201,6 @@ const BusinessPage = () => {
   // Manejar la selección de servicio
   const handleSelectService = (serviceId: string) => {
     const service = services.find((s) => s.id === serviceId);
-    console.log(service)
     if (service) {
       setSelectedService(service);
       // Reset del slot seleccionado cuando se cambia el servicio
@@ -165,11 +208,11 @@ const BusinessPage = () => {
     }
   };
 
-  console.log(selectedService)
-
   // Manejar la selección de horario
-  const handleSelectTimeSlot = (start: Date, end: Date) => {
+  const handleSelectTimeSlot = async (start: Date, end: Date) => {
     setSelectedSlot({ start, end });
+
+    console.log("selectedSlot", selectedSlot);
 
     if (selectedService) {
       setBookingFormOpen(true);
@@ -179,14 +222,14 @@ const BusinessPage = () => {
   };
 
   // Crear una reserva
-  const handleCreateBooking = (formData: BookingFormData) => {
+  const handleCreateBooking = async (formData: BookingFormData) => {
     const newBooking: Booking = {
       id: `booking-${Date.now()}`,
       businessId: businessId,
       serviceId: selectedService?.id || "",
       userId: user?.id || "guest",
-      userName: formData.name,
-      userEmail: formData.email,
+      userName: user?.name,
+      userEmail: user?.email,
       userPhone: formData.phone,
       date: selectedDate.toISOString().split("T")[0],
       start: selectedSlot?.start.toISOString() || "",
@@ -196,12 +239,14 @@ const BusinessPage = () => {
       notes: formData.notes
     };
 
-    //En una app real, esto enviaría la reserva a la API
-    console.log("Nueva reserva:", newBooking);
+    const responseBooking = await createBooking(newBooking);
 
-    toast.success("¡Reserva creada con éxito!");
-    setBookingFormOpen(false);
-    setSelectedSlot(null);
+    if (responseBooking.status === 200) {
+      toast.success("¡Reserva creada con éxito!");
+      setBookings([...bookings, newBooking]);
+      setBookingFormOpen(false);
+      setSelectedSlot(null);
+    }
   };
 
   return (
@@ -402,7 +447,9 @@ const BusinessPage = () => {
                           <h3 className="text-sm font-medium text-gray-500 mb-1">
                             Servicio:
                           </h3>
-                          <p className="font-medium">{selectedService.name_service}</p>
+                          <p className="font-medium">
+                            {selectedService.name_service}
+                          </p>
                         </div>
 
                         <div>
@@ -449,7 +496,7 @@ const BusinessPage = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="info">
+            <TabsContent value="info" key={businessId}>
               <div className="max-w-3xl mx-auto">
                 <h2 className="text-2xl font-semibold mb-4">
                   Acerca de {dataBusiness?.company_name}

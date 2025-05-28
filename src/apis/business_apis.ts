@@ -1,7 +1,5 @@
 import { API_URL } from "./api_url";
-import { Business } from '@/types';
 import axios from "axios";
-import { toast } from "sonner";
 
 export const register_business = async (
     businessName: string,
@@ -50,7 +48,6 @@ export const register_business = async (
                 "Content-Type": "multipart/form-data"
             }
         });
-        console.log(response)
         return response
     } catch (error) {
         console.log(error.response.data)
@@ -64,7 +61,6 @@ export const getAllBusiness = async() => {
     try {
         const url = `${API_URL}/all_business`;
         const response = await axios.get(`${url}`)
-        console.log(response)
         return response
     } catch (error) {
         console.log(error)

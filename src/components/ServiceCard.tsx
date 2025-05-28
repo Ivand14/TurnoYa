@@ -9,6 +9,7 @@ interface ServiceCardProps {
 }
 
 export const ServiceCard = ({ service, onReserve }: ServiceCardProps) => {
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="p-4 pb-2 flex flex-row justify-between items-center">
