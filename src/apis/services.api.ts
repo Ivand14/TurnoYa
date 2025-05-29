@@ -1,4 +1,5 @@
 import { API_URL } from "./api_url";
+import { Employee } from "@/types/dashboard";
 import { Service } from "@/types";
 import axios from "axios";
 
@@ -35,4 +36,10 @@ export const delete_service = async(id: string) => {
     } catch (error) {
         console.log(error)
     }
+}
+
+export const patchService = async(data:Service,serviceId:string) =>{
+    const url = `${API_URL}/update_service_card/${serviceId}`
+    const response = await axios.patch(url,data)
+    return response
 }

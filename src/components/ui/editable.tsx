@@ -1,22 +1,17 @@
 import * as Dialog from "@radix-ui/react-dialog";
 
-import {
-  get_all_employees,
-  get_employee_id
-} from "@/apis/employee_schedule.apis";
+import { get_services, patchService } from "@/apis/services.api";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import { EditableForm } from "../editableForm";
+import EditableForm from './../editableForm';
 import { Employee } from "@/types/dashboard";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Service } from "@/types";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "./textarea";
-import { get_services } from "@/apis/services.api";
+import {
+    get_employee_id
+} from "@/apis/employee_schedule.apis";
+import { toast } from "sonner";
 
 interface editProps {
     service: Service;
@@ -25,8 +20,9 @@ interface editProps {
 
 const EditService: React.FC<editProps> = ({ service, employeesAvailable }) => {
     const [employees, setEmployees] = useState<Employee[]>([]);
-    const [employeeInService, setEmployeeInService] = useState<Employee[]>([]);
     const [serviceId, setServiceId] = useState<string>("");
+    const[loading,setLoading] = useState<boolean>(true)
+
 
     const fetch = async () => {
         const responseEmployees = await get_services(service.businessId);
@@ -34,35 +30,23 @@ const EditService: React.FC<editProps> = ({ service, employeesAvailable }) => {
         setServiceId(service.id);
     };
 
-    const matchService = async () => {
-        if (!serviceId) return;
-
-        const employeeInServ = employees.find((emp) => emp.id === serviceId);
-
-        if (!employeeInServ) {
-        return;
+    const handleUpdateService = async (form: Service) => {;
+    try {
+        const responseUpdate = await patchService(form, serviceId);
+        if (responseUpdate?.data?.status === 200) {
+            setLoading(true)
+            toast.success("Cambios guardados");
         }
-
-        const employeePromises =
-        employeeInServ.allowedEmployeeIds?.map(async (id) => {
-            const employeeById = await get_employee_id(id);
-            return employeeById.data.details;
-        }) || [];
-
-        const employeesData = await Promise.all(employeePromises);
-        setEmployeeInService(employeesData.flat());
+        setLoading(false);
+    } catch (error) {
+        console.error("Error al guardar cambios:", error);
+        toast.error("Error al guardar cambios");
+    } finally {
+        setLoading(false);
+    }
     };
 
-    useEffect(() => {
-        if (employees.length > 0 && serviceId) {
-        matchService();
-        }
-    }, [employees, serviceId]);
 
-
-    const unavailableEmployees = employeesAvailable.filter(
-        (empAv) => !employeeInService.some((emp) => emp.id === empAv.id)
-    );
 
     return (
         <Dialog.Root>
@@ -89,18 +73,10 @@ const EditService: React.FC<editProps> = ({ service, employeesAvailable }) => {
             
             <EditableForm
                 service={service}
-                employeesInService ={employeeInService}
-                unavailableEmployees={unavailableEmployees}
+                employeesAvailable={employeesAvailable}
+                onUpdateService={handleUpdateService}
+                loading={loading}
             />
-
-            <div className="mt-4 flex justify-end gap-2">
-                <Dialog.Close asChild>
-                <Button className="rounded-md border bg-white border-gray-300 px-4 py-2 text-sm text-gray-600 transition hover:bg-slate-100 focus:outline-none">
-                    Cancelar
-                </Button>
-                </Dialog.Close>
-                <Button className="w-auto">Guardar cambios</Button>
-            </div>
 
             <Dialog.Close asChild>
                 <button
