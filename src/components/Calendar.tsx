@@ -1,4 +1,14 @@
-import { addDays, addMonths, endOfMonth, format, isSameDay, isSameMonth, startOfMonth, startOfWeek, subMonths } from "date-fns";
+import {
+  addDays,
+  addMonths,
+  endOfMonth,
+  format,
+  isSameDay,
+  isSameMonth,
+  startOfMonth,
+  startOfWeek,
+  subMonths
+} from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Day } from "@/types";
@@ -8,13 +18,22 @@ import { useState } from "react";
 interface CalendarProps {
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
+  daysOfWeek?: string[];
 }
 
-export const Calendar = ({ selectedDate, onSelectDate }: CalendarProps) => {
+export const Calendar = ({
+  selectedDate,
+  onSelectDate,
+  daysOfWeek
+}: CalendarProps) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const today = new Date();
 
-  const daysOfWeek = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+  const daysOfWeekDefault = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"];
+  const dayNotWork = daysOfWeekDefault.filter(
+    (day) => !daysOfWeek?.includes(day.toLowerCase())
+  );
+
 
   const renderHeader = () => {
     return (
@@ -29,18 +48,40 @@ export const Calendar = ({ selectedDate, onSelectDate }: CalendarProps) => {
             size="icon"
             className="h-8 w-8"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
           </Button>
           <Button
             onClick={nextMonth}
-            variant="outline" 
+            variant="outline"
             size="icon"
             className="h-8 w-8"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
             </svg>
           </Button>
         </div>
@@ -51,8 +92,11 @@ export const Calendar = ({ selectedDate, onSelectDate }: CalendarProps) => {
   const renderDaysOfWeek = () => {
     return (
       <div className="grid grid-cols-7 gap-1 mb-2">
-        {daysOfWeek.map(day => (
-          <div key={day} className="text-center text-xs font-medium text-gray-500">
+        {daysOfWeekDefault.map((day) => (
+          <div
+            key={day}
+            className="text-center text-xs font-medium text-gray-500"
+          >
             {day}
           </div>
         ))}
@@ -74,6 +118,7 @@ export const Calendar = ({ selectedDate, onSelectDate }: CalendarProps) => {
         isToday: isSameDay(day, today),
         isCurrentMonth: isSameMonth(day, monthStart),
         isSelected: isSameDay(day, selectedDate),
+        isDisabled: dayNotWork.includes(day.toLocaleDateString("es-ES", { weekday: "short" })),
       });
       day = addDays(day, 1);
     }
@@ -93,11 +138,15 @@ export const Calendar = ({ selectedDate, onSelectDate }: CalendarProps) => {
             variant="ghost"
             size="sm"
             className={`h-10 ${
-              !day.isCurrentMonth ? "text-gray-300" : 
-              day.isSelected ? "bg-booking-primary text-white hover:bg-booking-primary/90" : 
-              day.isToday ? "bg-booking-primary/10 text-booking-primary" : ""
+              !day.isCurrentMonth
+                ? "text-gray-300"
+                : day.isSelected
+                ? "bg-booking-primary text-white hover:bg-booking-primary/90"
+                : day.isToday
+                ? "bg-booking-primary/10 text-booking-primary"
+                : ""
             }`}
-            disabled={!day.isCurrentMonth}
+            disabled={day.isDisabled}
           >
             {format(day.date, "d")}
           </Button>

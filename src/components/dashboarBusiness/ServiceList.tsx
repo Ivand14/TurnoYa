@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useEffect } from "react";
 import { UserCheck, Users } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import Edite from "../ui/editable";
 import { Employee } from "@/types/dashboard";
 import { Label } from "@/components/ui/label";
-import React from "react";
 import { Service } from "@/types";
 import { Switch } from "@/components/ui/switch";
 import { TrashButton } from "../ui/trash";
@@ -31,6 +31,11 @@ const ServiceList: React.FC<ServiceListProps> = ({
 
     return names.length > 0 ? names.join(", ") : "Empleados no encontrados";
   };
+
+  useEffect(() => {
+    // This effect can be used for any side effects related to the service list
+    // For example, fetching additional data or updating state based on props
+  }, [services, employees]);
 
   if (services.length === 0) {
     return (

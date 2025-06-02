@@ -6,19 +6,19 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
-import { Service, TimeSlot } from "@/types";
-import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Employee } from "@/types/dashboard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PaymentForm } from "@/components/PaymentForm";
+import { Service } from "@/types";
 import { Textarea } from "@/components/ui/textarea";
-import { current_user } from "@/context/currentUser";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 
 interface BookingData {
   name: string;
@@ -30,6 +30,7 @@ interface BookingData {
   end: string;
   paymentData?: PaymentData;
   paymentStatus?: "pending" | "paid" | "refunded";
+  employeeId?: string | null;
 }
 
 interface BookingFormProps {
@@ -66,6 +67,7 @@ export const BookingForm = ({
   const [showPayment, setShowPayment] = useState(false);
   const [formData, setFormData] = useState<BookingData | null>(null);
 
+
   const submitForm = (data: BookingData) => {
     if (!selectedSlot) {
       toast.error("Por favor selecciona un horario");
@@ -77,7 +79,8 @@ export const BookingForm = ({
       serviceId: service.id,
       date: selectedDate.toISOString().split("T")[0],
       start: selectedSlot.start.toISOString(),
-      end: selectedSlot.end.toISOString()
+      end: selectedSlot.end.toISOString(),
+      employeeId: data.employeeId || null
     };
 
     setFormData(bookingData);
@@ -123,6 +126,7 @@ export const BookingForm = ({
     );
   }
 
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
@@ -140,6 +144,8 @@ export const BookingForm = ({
               rows={3}
             />
           </div>
+
+          
 
           <div>
             <Label htmlFor="phone">Teléfono</Label>

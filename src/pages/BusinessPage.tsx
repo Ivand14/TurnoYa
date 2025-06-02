@@ -10,13 +10,6 @@ import {
 import { Navigate, useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createBooking, get_booking } from "@/apis/booking_apis";
-import { getAllBusiness, getBusinessId } from "@/apis/business_apis";
-import {
-  mockBookings,
-  mockBusinesses,
-  mockScheduleSettings,
-  mockServices
-} from "@/data/mockData";
 import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -32,9 +25,12 @@ import { TimeSlotGrid } from "@/components/TimeSlotGrid";
 import { current_user } from "@/context/currentUser";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
+import { get } from "http";
+import { getBusinessId } from "@/apis/business_apis";
 import { get_all_businessHrs } from "@/apis/employee_schedule.apis";
 import { get_services } from "@/apis/services.api";
 import { toast } from "sonner";
+import { useCallback } from "react";
 
 interface BookingFormData {
   name: string;
@@ -60,7 +56,9 @@ const BusinessPage = () => {
     workHours: { start: "09:00", end: "17:00" },
     slotDuration: 30,
     breakBetweenSlots: 5,
-    days_business: []
+    days_business: [],
+    defaultCapacity: 0,
+    capacityMode: "fixed"
   });
   const [loading, setLoading] = useState(true);
   const { user } = current_user();
@@ -68,38 +66,54 @@ const BusinessPage = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
 
-  const scheduleData = businessSchedules.filter(
-    (s) => s.businessId === businessId
-  );
+  
 
-  const scheduleInfo = () => {
+  const scheduleInfo = useCallback(async () => {
     const days_business = [];
     const workDays = [];
-    let startTime = "09:00";
-    let endTime = "17:00";
+    let startTime = "";
+    let endTime = "";
 
     const dayMap: Record<string, number> = {
-      Domingo: 0,
-      Lunes: 1,
-      Martes: 2,
-      Miércoles: 3,
-      Jueves: 4,
-      Viernes: 5,
-      Sábado: 6
+      dom: 0,
+      lun: 1,
+      mar: 2,
+      mié: 3,
+      jue: 4,
+      vie: 5,
+      sáb: 6
     };
 
-    schedulesHrs.forEach((sch) => {
-      days_business.push(sch.day);
-      if (dayMap[sch.day] !== undefined) {
-        workDays.push(dayMap[sch.day]);
-      }
+    schedulesHrs.map((sch) => {
+      // console.log("sch.day:", sch.day);
+      const day = sch.day.slice(0, 3).toLocaleLowerCase();
+      days_business.push(day);
 
-      // Asignar horas de inicio y fin
-      if (sch.startTime) startTime = sch.startTime;
-      if (sch.endTime) endTime = sch.endTime;
+      // console.log("selectedDate",format(selectedDate, "eeee", { locale: es }))
+
+      if(sch.day.toLocaleLowerCase() === format(selectedDate, "eeee", { locale: es })){
+        console.log("Selected date matches schedule day:", sch.day);
+        startTime = sch.startTime;
+        endTime = sch.endTime;
+        console.log("Start Time:", startTime, "End Time:", endTime);
+      }
+      
     });
 
-    const days = days_business.sort((a, b) => dayMap[a] - dayMap[b]);
+    days_business.sort((a, b) => {
+      return (dayMap[a] || 0) - (dayMap[b] || 0);
+    });
+
+    let capacityMode: "fixed" | "employee-based" | "hybrid" = "fixed";
+
+    services.map((service) => {
+      if(service.requiresSpecificEmployee){
+        capacityMode = "employee-based";
+      }
+
+      
+      
+    });
 
     setScheduleSettings({
       businessId: businessId || "",
@@ -107,9 +121,11 @@ const BusinessPage = () => {
       workHours: { start: startTime, end: endTime },
       slotDuration: 30,
       breakBetweenSlots: 0,
-      days_business: days
+      days_business: days_business,
+      defaultCapacity: 0,
+      capacityMode: capacityMode
     });
-  };
+  }, [businessId, schedulesHrs, selectedDate]);
 
   const fetchData = async () => {
     try {
@@ -124,7 +140,6 @@ const BusinessPage = () => {
         setDataBusiness(business);
         setBusinessSchedules(business_schedule);
         setSchedulesHrs(businessHrsResponse.data.details);
-        // orderDays()
       }
       const businessServices = await get_services(businessId);
       setServices(businessServices.data.details);
@@ -138,30 +153,15 @@ const BusinessPage = () => {
     }
   };
 
-  const orderDays = () => {
-    const dayMap: Record<string, number> = {
-      Domingo: 0,
-      Lunes: 1,
-      Martes: 2,
-      Miércoles: 3,
-      Jueves: 4,
-      Viernes: 5,
-      Sábado: 6
-    };
-
-    // Ordenar el array de objetos por el día
-    const sortedSchedules = [...schedulesHrs].sort(
-      (a, b) => dayMap[a.day] - dayMap[b.day]
-    );
-
-    setSchedulesHrs(sortedSchedules);
-  };
+  useEffect(() => {
+    if (!businessId) return;
+    fetchData();}, [businessId]);
 
   useEffect(() => {
     if (!businessId) return;
-    fetchData();
     scheduleInfo();
-  }, [businessId]);
+  }, [businessId, schedulesHrs, scheduleInfo]);
+
 
   // Si no existe el negocio, redirigir
   if (!businessId) {
@@ -180,7 +180,7 @@ const BusinessPage = () => {
   // Obtener horarios reservados para la fecha seleccionada
   const getBookedTimeSlotsForDate = (date: Date): TimeSlot[] => {
     const dateString = format(date, "yyyy-MM-dd");
-    const serviceId = selectedService.id
+    const serviceId = selectedService.id;
 
     return bookings
       .filter(
@@ -194,7 +194,17 @@ const BusinessPage = () => {
         id: booking.id,
         start: booking.start,
         end: booking.end,
-        available: false
+        available: false,
+        serviceId: booking.serviceId,
+        businessId: booking.businessId,
+        date: booking.date,
+        status: booking.status,
+        paymentStatus: booking.paymentStatus,
+        userId: booking.userId,
+        userName: booking.userName,
+        userEmail: booking.userEmail,
+        userPhone: booking.userPhone,
+        serviceName: selectedService.name_service
       }));
   };
 
@@ -203,7 +213,6 @@ const BusinessPage = () => {
     const service = services.find((s) => s.id === serviceId);
     if (service) {
       setSelectedService(service);
-      // Reset del slot seleccionado cuando se cambia el servicio
       setSelectedSlot(null);
     }
   };
@@ -211,8 +220,6 @@ const BusinessPage = () => {
   // Manejar la selección de horario
   const handleSelectTimeSlot = async (start: Date, end: Date) => {
     setSelectedSlot({ start, end });
-
-    console.log("selectedSlot", selectedSlot);
 
     if (selectedService) {
       setBookingFormOpen(true);
@@ -241,6 +248,8 @@ const BusinessPage = () => {
 
     const responseBooking = await createBooking(newBooking);
 
+    console.log(responseBooking);
+
     if (responseBooking.status === 200) {
       toast.success("¡Reserva creada con éxito!");
       setBookings([...bookings, newBooking]);
@@ -248,6 +257,9 @@ const BusinessPage = () => {
       setSelectedSlot(null);
     }
   };
+  
+    console.log(format(selectedDate, "EEEE", { locale: es }))
+
 
   return (
     <div className="flex flex-col min-h-screen" key={businessId}>
@@ -403,6 +415,7 @@ const BusinessPage = () => {
                           setSelectedDate(date);
                           setSelectedSlot(null);
                         }}
+                        daysOfWeek={scheduleSettings.days_business}
                       />
                     </div>
 
@@ -414,16 +427,32 @@ const BusinessPage = () => {
                       </h2>
 
                       {selectedService ? (
-                        <TimeSlotGrid
-                          date={selectedDate}
-                          workHours={scheduleSettings?.workHours}
-                          slotDuration={selectedService.duration}
-                          breakBetweenSlots={
-                            scheduleSettings?.breakBetweenSlots
-                          }
-                          bookedSlots={getBookedTimeSlotsForDate(selectedDate)}
-                          onSelectSlot={handleSelectTimeSlot}
-                        />
+                        <div>
+                          {selectedService.capacity &&
+                            selectedService.capacity > 1 && (
+                              <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                                <p className="text-sm text-blue-700">
+                                  <strong>Servicio grupal:</strong> Hasta{" "}
+                                  {selectedService.capacity} personas pueden
+                                  reservar el mismo horario.
+                                </p>
+                              </div>
+                            )}
+                          <TimeSlotGrid
+                            date={selectedDate}
+                            workHours={scheduleSettings.workHours}
+                            slotDuration={selectedService.duration}
+                            breakBetweenSlots={
+                              scheduleSettings.breakBetweenSlots
+                            }
+                            defaultCapacity={selectedService.capacity || 0}
+                            selectedService={selectedService}
+                            bookedSlots={getBookedTimeSlotsForDate(
+                              selectedDate
+                            )}
+                            onSelectSlot={handleSelectTimeSlot}
+                          />
+                        </div>
                       ) : (
                         <div className="bg-gray-50 p-8 rounded-lg text-center">
                           <p className="text-gray-500">

@@ -25,13 +25,20 @@ export interface Service {
   capacity?: number;
   requiresSpecificEmployee?: boolean;
   allowedEmployeeIds?: string[];
+  capacityMode?: 'fixed' | 'employee-based' | 'hybrid';
 }
 
-export interface TimeSlot {
+export interface TimeSlot extends Omit<Booking, 'id' | 'userId' | 'userName' | 'userEmail' | 'userPhone'> {
   id: string;
   start: string; // ISO date string
   end: string; // ISO date string
   available: boolean;
+  userId: string;
+  userName: string;
+  serviceId: string;
+  serviceName: string;
+  userEmail:string;
+  userPhone: string; 
 }
 
 export interface Booking {
@@ -64,6 +71,7 @@ export interface Day {
   isToday: boolean;
   isCurrentMonth: boolean;
   isSelected: boolean;
+  isDisabled?: boolean; // array of disabled days (e.g., ['Sunday', 'Saturday'])
 }
 
 export interface DaySchedule {
@@ -87,6 +95,8 @@ export interface ScheduleSettings {
   slotDuration: number; // en minutos
   breakBetweenSlots: number; // en minutos
   days_business?:string[];
+  defaultCapacity: number; // cupos por defecto por horario (fallback)
+  capacityMode: 'fixed' | 'employee-based' | 'hybrid'; // modo de cálculo de capacidad
 }
 
 export interface firebaseSettings {

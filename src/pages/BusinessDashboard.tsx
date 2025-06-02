@@ -100,8 +100,6 @@ const BusinessDashboard = () => {
     isBusinessHours: false
   });
 
-  console.log(allBookings)
-
   // Fetch bookings for the business
   useEffect(() => {
 
@@ -125,11 +123,11 @@ const BusinessDashboard = () => {
     setBookings(businessBookings);
     setUpcomingBookings(upcoming);
 
-  }, [allBookings]);
+  }, [allBookings, selectedDate,company.id]);
 
   useEffect(()=>{
     fetchData()
-  },[businessId])
+  },[businessId,services]);
 
   // Redirect if not a business user
   if (!isLogged || !company || company.rol !== "business") {
@@ -335,6 +333,7 @@ const BusinessDashboard = () => {
       capacity: serviceData.capacity | 0,
       requiresSpecificEmployee: serviceData.requiresSpecificEmployee,
       allowedEmployeeIds: serviceData.allowedEmployeeIds || []
+      
     };
     const response = await create_service(newService);
     console.log(response)

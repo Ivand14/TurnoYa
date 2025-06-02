@@ -1,10 +1,9 @@
 import * as Dialog from "@radix-ui/react-dialog";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Cross2Icon } from "@radix-ui/react-icons";
 import { Employee } from "@/types/dashboard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,13 +70,9 @@ interface EditableFormProps {
         setOthersEmployeeInService(isAv);
     };
 
-
-
     useEffect(()=>{
         employData()
     },[])
-
-    console.log(othersEmployeeInService)
 
     return (
         <div className="space-y-4">
@@ -233,6 +228,30 @@ interface EditableFormProps {
                 )}
                 </div>
             </>
+            )}
+
+            { !updateService.requiresSpecificEmployee && (
+                <div className="flex-col items-center">
+                    <Label
+                className="block text-sm font-medium text-gray-700"
+                htmlFor="capacity"
+                >
+                    Cantidad de turnos
+                </Label>
+                <Input
+                    id="capacity"
+                    className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder={updateService.capacity.toString()}
+                    type="number"
+                    value={updateService.capacity}
+                    onChange={(e) =>
+                    setUpdateService((prev) => ({
+                        ...prev,
+                        capacity: Number(e.target.value)
+                    }))
+                    }
+                />
+                </div>
             )}
 
             <div className="mt-4 flex justify-end gap-2">

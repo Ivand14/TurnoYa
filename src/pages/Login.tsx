@@ -52,7 +52,6 @@ const Login = () => {
       if (userlogin.success === true) {
         setIsLogged(true);
         const userData = await getUser(userlogin.sessionId)
-        console.log(userData.user_data)
         if (userData.user_data) {
           setUser(userData.user_data);
           navigate("/dashboard");
@@ -150,6 +149,7 @@ const Login = () => {
                   type="button"
                   onClick={handleLoginGoogle}
                   className="w-full"
+                  
                 >
                   <svg className="w-full h-5 mr-2" viewBox="0 0 24 24">
                     <path
