@@ -126,6 +126,9 @@ export const TimeSlotGrid = ({
 
   const slots = generateTimeSlots();
 
+  
+  
+
   return (
     <Card className="w-full">
       <CardContent className="p-6">

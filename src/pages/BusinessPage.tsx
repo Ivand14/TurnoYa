@@ -104,16 +104,7 @@ const BusinessPage = () => {
       return (dayMap[a] || 0) - (dayMap[b] || 0);
     });
 
-    let capacityMode: "fixed" | "employee-based" | "hybrid" = "fixed";
 
-    services.map((service) => {
-      if(service.requiresSpecificEmployee){
-        capacityMode = "employee-based";
-      }
-
-      
-      
-    });
 
     setScheduleSettings({
       businessId: businessId || "",
@@ -123,9 +114,11 @@ const BusinessPage = () => {
       breakBetweenSlots: 0,
       days_business: days_business,
       defaultCapacity: 0,
-      capacityMode: capacityMode
+      capacityMode: "fixed"
     });
   }, [businessId, schedulesHrs, selectedDate]);
+
+  console.log(scheduleSettings.capacityMode)
 
   const fetchData = async () => {
     try {
@@ -434,6 +427,17 @@ const BusinessPage = () => {
                                 <p className="text-sm text-blue-700">
                                   <strong>Servicio grupal:</strong> Hasta{" "}
                                   {selectedService.capacity} personas pueden
+                                  reservar el mismo horario.
+                                </p>
+                              </div>
+                            )}
+
+                            {selectedService.requiresSpecificEmployee &&
+                            selectedService.allowedEmployeeIds.length > 0 && (
+                              <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                                <p className="text-sm text-blue-700">
+                                  <strong>Servicio de profesionales:</strong> Hasta{" "}
+                                  {selectedService.allowedEmployeeIds.length} personas pueden
                                   reservar el mismo horario.
                                 </p>
                               </div>
