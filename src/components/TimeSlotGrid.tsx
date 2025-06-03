@@ -55,8 +55,7 @@ export const TimeSlotGrid = ({
     endTime = addDays(endTime, 1); // Si el horario de fin es antes del inicio, súmale un día
   }
 
-  console.log("Inicio:", startTime);
-  console.log("Fin:", endTime);
+
 
   const generateTimeSlots = () => {
     const slots = [];
@@ -86,8 +85,7 @@ export const TimeSlotGrid = ({
         slotCapacity =
           selectedService?.capacity ||
           selectedService.allowedEmployeeIds?.length ||
-          defaultCapacity ||
-          1;
+          defaultCapacity;
       }
 
       // Contar reservas actuales para este horario
@@ -126,9 +124,6 @@ export const TimeSlotGrid = ({
 
   const slots = generateTimeSlots();
 
-  
-  
-
   return (
     <Card className="w-full">
       <CardContent className="p-6">
@@ -140,30 +135,8 @@ export const TimeSlotGrid = ({
               {format(date, "EEEE, d 'de' MMMM", { locale: es })}
             </h3>
           </div>
-
-          {scheduleSettings?.capacityMode === "employee-based" && (
-            <Badge variant="outline" className="text-xs">
-              <Users className="h-3 w-3 mr-1" />
-              Basado en empleados
-            </Badge>
-          )}
         </div>
 
-        {/* Capacity info banner */}
-        {scheduleSettings?.capacityMode === "employee-based" && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-start space-x-2">
-              <Users className="h-4 w-4 text-blue-600 mt-0.5" />
-              <div className="text-sm text-blue-800">
-                <p className="font-medium">Capacidad dinámica activada</p>
-                <p className="text-blue-600">
-                  Los cupos se calculan según la disponibilidad de empleados
-                  para cada horario.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Time slots grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
@@ -171,8 +144,8 @@ export const TimeSlotGrid = ({
             const isAvailable = !slot.isFullyBooked;
             const capacityPercentage =
               slot.totalCapacity > 0
-                ? (slot.availableSlots / slot.totalCapacity) * 100
-                : 0;
+                && (slot.availableSlots / slot.totalCapacity) * 100
+                ;
 
             return (
               <div key={index} className="relative group">

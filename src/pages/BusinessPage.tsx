@@ -421,8 +421,8 @@ const BusinessPage = () => {
 
                       {selectedService ? (
                         <div>
-                          {selectedService.capacity &&
-                            selectedService.capacity > 1 && (
+                          {
+                            selectedService.capacity > 0 && (
                               <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                                 <p className="text-sm text-blue-700">
                                   <strong>Servicio grupal:</strong> Hasta{" "}
@@ -449,7 +449,7 @@ const BusinessPage = () => {
                             breakBetweenSlots={
                               scheduleSettings.breakBetweenSlots
                             }
-                            defaultCapacity={selectedService.capacity || 0}
+                            defaultCapacity={selectedService.capacity}
                             selectedService={selectedService}
                             bookedSlots={getBookedTimeSlotsForDate(
                               selectedDate
