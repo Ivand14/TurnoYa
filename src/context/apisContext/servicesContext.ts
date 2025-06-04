@@ -25,7 +25,7 @@ export const useServicesContext = create<ServicesContext>((set) => ({
             const responseCreate = await create_service(service);
             if (responseCreate?.data) {
                 set((state) => ({
-                    services: [...state.services, responseCreate.data],
+                    services: [...state.services, responseCreate.data.details],
                     loading: false,
                     error: null
                 }));
@@ -46,7 +46,7 @@ export const useServicesContext = create<ServicesContext>((set) => ({
             const responseGetServices = await get_services(businessId);
             if (responseGetServices?.data) {
                 set({
-                    services: responseGetServices.data,
+                    services: responseGetServices.data.details,
                     loading: false,
                     error: null
                 });

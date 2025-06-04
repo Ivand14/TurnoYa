@@ -131,13 +131,13 @@ export const useScheduleContext = create<ScheduleContext>((set) => ({
         }
     },
 
-    fetchGetAllBusinessHours: async (businessId) => {
+    fetchGetAllBusinessHours: async (businessId:string) => {
         set({loading: true, error: null});
         try {
             const responseGetBusinessHours = await get_all_businessHrs(businessId);
             if(responseGetBusinessHours?.data) {
                 set({
-                    businessHours: responseGetBusinessHours.data,
+                    businessHours: responseGetBusinessHours.data.details,
                     loading: false,
                     error: null
                 });

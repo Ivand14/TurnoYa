@@ -2,14 +2,12 @@ import {} from "@/context/login.state";
 
 import {
   Booking,
-  Business,
   ScheduleSettings,
   Service,
   TimeSlot
 } from "@/types";
 import { Navigate, useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { createBooking, get_booking } from "@/apis/booking_apis";
 import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -18,19 +16,19 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/Calendar";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
-import { Schedule } from "@/types/dashboard";
 import { Separator } from "@/components/ui/separator";
 import { ServiceCard } from "@/components/ServiceCard";
 import { TimeSlotGrid } from "@/components/TimeSlotGrid";
-import { current_user } from "@/context/currentUser";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
-import { get } from "http";
-import { getBusinessId } from "@/apis/business_apis";
-import { get_all_businessHrs } from "@/apis/employee_schedule.apis";
-import { get_services } from "@/apis/services.api";
 import { toast } from "sonner";
 import { useCallback } from "react";
+import { useBookingContext } from "@/context/apisContext/bookingContext";
+import { useBusinessContext } from "@/context/apisContext/businessContext";
+import Loading from "@/components/loading";
+import { current_user } from "@/context/currentUser";
+import { useScheduleContext } from "@/context/apisContext/scheduleContext";
+import { useServicesContext } from "@/context/apisContext/servicesContext";
 
 interface BookingFormData {
   name: string;
@@ -40,16 +38,17 @@ interface BookingFormData {
 }
 
 const BusinessPage = () => {
-  const { businessId } = useParams();
+ const { businessId } = useParams();
+  const { fetchGetBooking, fetchCreateBooking, booking,loading } = useBookingContext(); 
+  const { fetchBusinessById, businessForId } = useBusinessContext(); 
+  const {fetchGetAllBusinessHours,businessHours} = useScheduleContext();
+  const {fetchGetServices,services} = useServicesContext();
+  const{user} = current_user(); 
+
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [selectedSlot, setSelectedSlot] = useState<{
-    start: Date;
-    end: Date;
-  } | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<{ start: Date; end: Date } | null>(null);
   const [bookingFormOpen, setBookingFormOpen] = useState(false);
-  const [dataBusiness, setDataBusiness] = useState<Business | null>(null);
-  const [businessSchedules, setBusinessSchedules] = useState<Schedule[]>([]);
   const [scheduleSettings, setScheduleSettings] = useState<ScheduleSettings>({
     businessId: "",
     workDays: [],
@@ -60,13 +59,6 @@ const BusinessPage = () => {
     defaultCapacity: 0,
     capacityMode: "fixed"
   });
-  const [loading, setLoading] = useState(true);
-  const { user } = current_user();
-  const [schedulesHrs, setSchedulesHrs] = useState<Schedule[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
-
-  
 
   const scheduleInfo = useCallback(async () => {
     const days_business = [];
@@ -75,36 +67,19 @@ const BusinessPage = () => {
     let endTime = "";
 
     const dayMap: Record<string, number> = {
-      dom: 0,
-      lun: 1,
-      mar: 2,
-      mié: 3,
-      jue: 4,
-      vie: 5,
-      sáb: 6
+      dom: 0, lun: 1, mar: 2, mié: 3, jue: 4, vie: 5, sáb: 6
     };
 
-    schedulesHrs.map((sch) => {
-      // console.log("sch.day:", sch.day);
-      const day = sch.day.slice(0, 3).toLocaleLowerCase();
+    businessHours.forEach((sch) => {
+      const day = sch.day.slice(0, 3).toLowerCase();
       days_business.push(day);
-
-      // console.log("selectedDate",format(selectedDate, "eeee", { locale: es }))
-
-      if(sch.day.toLocaleLowerCase() === format(selectedDate, "eeee", { locale: es })){
-        console.log("Selected date matches schedule day:", sch.day);
+      if (sch.day.toLowerCase() === format(selectedDate, "eeee", { locale: es })) {
         startTime = sch.startTime;
         endTime = sch.endTime;
-        console.log("Start Time:", startTime, "End Time:", endTime);
       }
-      
     });
 
-    days_business.sort((a, b) => {
-      return (dayMap[a] || 0) - (dayMap[b] || 0);
-    });
-
-
+    days_business.sort((a, b) => (dayMap[a] || 0) - (dayMap[b] || 0));
 
     setScheduleSettings({
       businessId: businessId || "",
@@ -116,92 +91,59 @@ const BusinessPage = () => {
       defaultCapacity: 0,
       capacityMode: "fixed"
     });
-  }, [businessId, schedulesHrs, selectedDate]);
-
-  console.log(scheduleSettings.capacityMode)
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const responseBusiness = await getBusinessId(businessId);
-      const business = responseBusiness?.data?.details.business_data;
-      const business_schedule =
-        responseBusiness?.data?.details.business_schedules;
-      const businessHrsResponse = await get_all_businessHrs(businessId);
-
-      if (business) {
-        setDataBusiness(business);
-        setBusinessSchedules(business_schedule);
-        setSchedulesHrs(businessHrsResponse.data.details);
-      }
-      const businessServices = await get_services(businessId);
-      setServices(businessServices.data.details);
-
-      const allBookings = await get_booking(businessId);
-      setBookings(allBookings.details);
-    } catch (error) {
-      console.error("Error fetching business:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [businessId, businessHours, selectedDate]);
 
   useEffect(() => {
     if (!businessId) return;
-    fetchData();}, [businessId]);
+    fetchBusinessById(businessId);
+    fetchGetBooking(businessId);
+
+    const fetchAdditionalData = async () => {
+      fetchGetAllBusinessHours(businessId);
+      fetchGetServices(businessId);
+    };
+
+    fetchAdditionalData();
+  }, [businessId]);
 
   useEffect(() => {
     if (!businessId) return;
     scheduleInfo();
-  }, [businessId, schedulesHrs, scheduleInfo]);
+  }, [businessId, businessHours]);
 
-
-  // Si no existe el negocio, redirigir
   if (!businessId) {
     return <Navigate to="/businesses" />;
-  }
-
-  if (!scheduleSettings) {
-    return (
-      <div>
-        Error: No se encontraron las configuraciones de horario para este
-        negocio.
-      </div>
-    );
   }
 
   // Obtener horarios reservados para la fecha seleccionada
   const getBookedTimeSlotsForDate = (date: Date): TimeSlot[] => {
     const dateString = format(date, "yyyy-MM-dd");
-    const serviceId = selectedService.id;
+    const serviceId = selectedService?.id || "";
 
-    return bookings
-      .filter(
-        (booking) =>
-          booking.businessId === businessId &&
-          booking.serviceId === serviceId &&
-          booking.date === dateString &&
-          booking.status !== "cancelled"
-      )
-      .map((booking) => ({
-        id: booking.id,
-        start: booking.start,
-        end: booking.end,
-        available: false,
-        serviceId: booking.serviceId,
-        businessId: booking.businessId,
-        date: booking.date,
-        status: booking.status,
-        paymentStatus: booking.paymentStatus,
-        userId: booking.userId,
-        userName: booking.userName,
-        userEmail: booking.userEmail,
-        userPhone: booking.userPhone,
-        serviceName: selectedService.name_service
-      }));
+    return booking.filter((booking) => 
+      booking.businessId === businessId &&
+      booking.serviceId === serviceId &&
+      booking.date === dateString &&
+      booking.status !== "cancelled"
+    ).map((booking) => ({
+      id: booking.id,
+      start: booking.start,
+      end: booking.end,
+      available: false,
+      serviceId: booking.serviceId,
+      businessId: booking.businessId,
+      date: booking.date,
+      status: booking.status,
+      paymentStatus: booking.paymentStatus,
+      userId: booking.userId,
+      userName: booking.userName,
+      userEmail: booking.userEmail,
+      userPhone: booking.userPhone,
+      serviceName: selectedService?.name_service || ""
+    }));
   };
 
-  // Manejar la selección de servicio
+  // Manejar selección de servicio
   const handleSelectService = (serviceId: string) => {
     const service = services.find((s) => s.id === serviceId);
     if (service) {
@@ -210,7 +152,7 @@ const BusinessPage = () => {
     }
   };
 
-  // Manejar la selección de horario
+  // Manejar selección de horario
   const handleSelectTimeSlot = async (start: Date, end: Date) => {
     setSelectedSlot({ start, end });
 
@@ -221,15 +163,15 @@ const BusinessPage = () => {
     }
   };
 
-  // Crear una reserva
+
   const handleCreateBooking = async (formData: BookingFormData) => {
     const newBooking: Booking = {
       id: `booking-${Date.now()}`,
       businessId: businessId,
       serviceId: selectedService?.id || "",
-      userId: user?.id || "guest",
-      userName: user?.name,
-      userEmail: user?.email,
+      userId: user.id,
+      userName: user.name,
+      userEmail: user.email,
       userPhone: formData.phone,
       date: selectedDate.toISOString().split("T")[0],
       start: selectedSlot?.start.toISOString() || "",
@@ -239,23 +181,20 @@ const BusinessPage = () => {
       notes: formData.notes
     };
 
-    const responseBooking = await createBooking(newBooking);
-
-    console.log(responseBooking);
-
-    if (responseBooking.status === 200) {
-      toast.success("¡Reserva creada con éxito!");
-      setBookings([...bookings, newBooking]);
-      setBookingFormOpen(false);
-      setSelectedSlot(null);
-    }
+    await fetchCreateBooking(newBooking);
+    toast.success("¡Reserva creada con éxito!");
+    setBookingFormOpen(false);
+    setSelectedSlot(null);
   };
   
-    console.log(format(selectedDate, "EEEE", { locale: es }))
-
+  if (loading) {
+    return <div className="text-center py-8">
+      <Loading/>
+    </div>;
+  }
 
   return (
-    <div className="flex flex-col min-h-screen" key={businessId}>
+    <div className="flex flex-col min-h-screen" key={businessForId.id}>
       <Navbar />
 
       <main className="flex-1">
@@ -264,10 +203,10 @@ const BusinessPage = () => {
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               <div className="w-24 h-24 bg-white rounded-lg overflow-hidden shadow-sm flex-shrink-0">
-                {dataBusiness?.logo && (
+                {businessForId?.logo && (
                   <img
-                    src={dataBusiness.logo}
-                    alt={dataBusiness.company_name}
+                    src={businessForId.logo}
+                    alt={businessForId.company_name}
                     className="w-full h-full object-cover"
                   />
                 )}
@@ -275,21 +214,21 @@ const BusinessPage = () => {
 
               <div className="text-center md:text-left">
                 <h1 className="text-3xl font-bold mb-2">
-                  {dataBusiness?.company_name}
+                  {businessForId?.company_name}
                 </h1>
 
                 <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-3">
-                  {dataBusiness?.company_type === "barbershop" && (
+                  {businessForId?.company_type === "barbershop" && (
                     <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">
                       Barbería
                     </Badge>
                   )}
-                  {dataBusiness?.company_type === "beauty" && (
+                  {businessForId?.company_type === "beauty" && (
                     <Badge className="bg-pink-100 text-pink-800 hover:bg-pink-200">
                       Centro de Belleza
                     </Badge>
                   )}
-                  {dataBusiness?.company_type === "sports" && (
+                  {businessForId?.company_type === "sports" && (
                     <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
                       Centro Deportivo
                     </Badge>
@@ -297,11 +236,11 @@ const BusinessPage = () => {
                 </div>
 
                 <p className="text-gray-600 mb-3">
-                  {dataBusiness?.description}
+                  {businessForId?.description}
                 </p>
 
                 <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-gray-600">
-                  {dataBusiness?.address && (
+                  {businessForId?.address && (
                     <div className="flex items-center">
                       <svg
                         className="w-4 h-4 mr-1"
@@ -323,11 +262,11 @@ const BusinessPage = () => {
                           d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                         />
                       </svg>
-                      {dataBusiness.address}
+                      {businessForId.address}
                     </div>
                   )}
 
-                  {dataBusiness?.phone && (
+                  {businessForId?.phone && (
                     <div className="flex items-center">
                       <svg
                         className="w-4 h-4 mr-1"
@@ -343,7 +282,7 @@ const BusinessPage = () => {
                           d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                         />
                       </svg>
-                      {dataBusiness.phone}
+                      {businessForId.phone}
                     </div>
                   )}
 
@@ -362,7 +301,7 @@ const BusinessPage = () => {
                         d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                       />
                     </svg>
-                    {dataBusiness?.email}
+                    {businessForId?.email}
                   </div>
                 </div>
               </div>
@@ -436,7 +375,7 @@ const BusinessPage = () => {
                             selectedService.allowedEmployeeIds.length > 0 && (
                               <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                                 <p className="text-sm text-blue-700">
-                                  <strong>Servicio de profesionales:</strong> Hasta{" "}
+                                  <strong>Servicio grupal:</strong> Hasta{" "}
                                   {selectedService.allowedEmployeeIds.length} personas pueden
                                   reservar el mismo horario.
                                 </p>
@@ -532,10 +471,10 @@ const BusinessPage = () => {
             <TabsContent value="info" key={businessId}>
               <div className="max-w-3xl mx-auto">
                 <h2 className="text-2xl font-semibold mb-4">
-                  Acerca de {dataBusiness?.company_name}
+                  Acerca de {businessForId?.company_name}
                 </h2>
                 <p className="text-gray-600 mb-6">
-                  {dataBusiness?.description}
+                  {businessForId?.description}
                 </p>
 
                 <Separator className="my-6" />
@@ -543,7 +482,7 @@ const BusinessPage = () => {
                 <h3 className="text-xl font-semibold mb-4">
                   Horarios de Atención
                 </h3>
-                {schedulesHrs.map((sch) => (
+                {businessHours.map((sch) => (
                   <div className="bg-gray-50 p-4 rounded-lg mb-6">
                     <div className="grid grid-cols-2 gap-2">
                       <p className="text-gray-600">{sch.day}</p>
@@ -558,7 +497,7 @@ const BusinessPage = () => {
 
                 <h3 className="text-xl font-semibold mb-4">Contacto</h3>
                 <div className="space-y-3">
-                  {dataBusiness?.address && (
+                  {businessForId?.address && (
                     <div className="flex items-start">
                       <svg
                         className="w-5 h-5 mr-3 text-gray-500 mt-0.5"
@@ -582,12 +521,12 @@ const BusinessPage = () => {
                       </svg>
                       <div>
                         <h4 className="font-medium">Dirección</h4>
-                        <p className="text-gray-600">{dataBusiness.address}</p>
+                        <p className="text-gray-600">{businessForId.address}</p>
                       </div>
                     </div>
                   )}
 
-                  {dataBusiness?.phone && (
+                  {businessForId?.phone && (
                     <div className="flex items-start">
                       <svg
                         className="w-5 h-5 mr-3 text-gray-500 mt-0.5"
@@ -605,7 +544,7 @@ const BusinessPage = () => {
                       </svg>
                       <div>
                         <h4 className="font-medium">Teléfono</h4>
-                        <p className="text-gray-600">{dataBusiness.phone}</p>
+                        <p className="text-gray-600">{businessForId.phone}</p>
                       </div>
                     </div>
                   )}
@@ -627,7 +566,7 @@ const BusinessPage = () => {
                     </svg>
                     <div>
                       <h4 className="font-medium">Email</h4>
-                      <p className="text-gray-600">{dataBusiness?.email}</p>
+                      <p className="text-gray-600">{businessForId?.email}</p>
                     </div>
                   </div>
                 </div>

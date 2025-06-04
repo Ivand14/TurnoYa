@@ -4,7 +4,7 @@ import { Booking, Service } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { addDays, endOfWeek, format, parseISO, startOfWeek } from "date-fns";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect,  useState } from "react";
 
 import { BookingCard } from "@/components/BookingCard";
 import { Calendar } from "@/components/Calendar";
@@ -17,7 +17,7 @@ import { es } from "date-fns/locale";
 import { getServiceForBooking } from "@/utils/dashboardUtils";
 import { delete_booking, get_user_booking } from "@/apis/booking_apis";
 import { toast } from "sonner";
-import { compnay_logged } from "@/context/current_company";
+import { useBookingContext } from "@/context/apisContext/bookingContext";
 
 const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -27,6 +27,7 @@ const Dashboard = () => {
   const [pastBookings, setPastBookings] = useState<Booking[]>([]);
   const { user, setUser } = current_user();
   const{setIsLogged,isLogged} = Logged()
+  const {fetchGetUserBooking,booking} = useBookingContext();
 
   
   if (!isLogged || !user || user.rol !== "user") {
@@ -34,18 +35,15 @@ const Dashboard = () => {
   }
 
   const fetchData = async() => { 
-    const bookingResponse = await get_user_booking(user.id)
-    if(bookingResponse.status === 200){
-      setBookings(bookingResponse.details)
-    }
+    const response = await fetchGetUserBooking(user.id)
 
-    const bookings = bookingResponse.details;
-
+    console.log(response,"response");
+    
     const now = new Date();
     let filteredBookings: Booking[] = [];
 
     if (user?.rol === "user") {
-      filteredBookings = bookings.filter(bookings => bookings.userId === user.id);
+      filteredBookings = booking.filter(bookings => bookings.userId === user.id);
     }
 
     console.log("filteredBookings", filteredBookings);
@@ -68,10 +66,10 @@ const Dashboard = () => {
     useEffect(() => {
     const loadServices = async () => {
       const servicesMap: Record<string, Service> = {};
-      for (const booking of bookings) {
-        const service = await getServiceForBooking(booking);
+      for (const book of booking) {
+        const service = await getServiceForBooking(book);
         if (service) {
-          servicesMap[booking.serviceId] = service;
+          servicesMap[book.serviceId] = service;
         }
       }
       setServices(prevServices => ({
@@ -160,7 +158,7 @@ const Dashboard = () => {
     return days;
   };
 
-  const weekDays = getCurrentWeek();
+  // const weekDays = getCurrentWeek();
 
   // console.log("upcomingBookings", upcomingBookings);
   // console.log("pastBookings", pastBookings);

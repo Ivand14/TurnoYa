@@ -1,4 +1,4 @@
-import { Business, BusinessType } from "@/types";
+import { BusinessType } from "@/types";
 import {
   Select,
   SelectContent,
@@ -6,52 +6,33 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { useEffect, useMemo, useReducer, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { BusinessCard } from "@/components/BusinessCard";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { Navbar } from "@/components/Navbar";
-import { compnay_logged } from "@/context/current_company";
-import { getAllBusiness } from "@/apis/business_apis";
 import { useNavigate } from "react-router-dom";
+import { useBusinessContext } from "@/context/apisContext/businessContext"; // Se usa Zustand
+import Loading from "@/components/loading";
 
 const BusinessesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<BusinessType | "all">("all");
   const navigate = useNavigate();
-
-  const [business, setBusiness] = useState([]);
-  const [loading, setLoading] = useState(true);
-
+  const { allBusinesses, loading, error, fetchAllBusinesses } = useBusinessContext();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true); // Indicar que la carga ha comenzado
-        const responseBusiness = await getAllBusiness();
-        const data = responseBusiness.data.data;
-        setBusiness(data);
-      } catch (error) {
-        console.error("Error fetching business:", error);
-        setBusiness([]); // Asignar array vacío en caso de error
-      } finally {
-        setLoading(false); // Termina la carga
-      }
-    };
-    fetchData();
+    fetchAllBusinesses();
   }, []);
 
-  // Filtrar negocios según búsqueda y tipo
   const filteredBusinesses = useMemo(() => {
-    return business.filter((business) => {
-      // Filtro por tipo
+    return allBusinesses?.filter((business) => {
       if (selectedType !== "all" && business.company_type !== selectedType) {
         return false;
       }
 
-      // Filtro por término de búsqueda
       if (
         searchTerm &&
         !business.company_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -61,7 +42,7 @@ const BusinessesPage = () => {
 
       return true;
     });
-  }, [searchTerm, selectedType,business]);
+  }, [searchTerm, selectedType, allBusinesses]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -106,7 +87,13 @@ const BusinessesPage = () => {
         {/* Listado de negocios */}
         {loading ? (
           <div className="text-center py-12 bg-gray-50 rounded-lg">
-            <p className="text-gray-600 mb-4">Cargando negocios...</p>
+            <p className="text-gray-600 mb-4">
+              Cargando negocios...
+            </p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12 bg-gray-50 rounded-lg">
+            <p className="text-red-600">Error: {error}</p>
           </div>
         ) : filteredBusinesses.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

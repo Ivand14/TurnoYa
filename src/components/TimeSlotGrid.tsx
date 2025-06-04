@@ -52,7 +52,7 @@ export const TimeSlotGrid = ({
   );
 
   if (endTime < startTime) {
-    endTime = addDays(endTime, 1); // Si el horario de fin es antes del inicio, súmale un día
+    endTime = addDays(endTime, 1);
   }
 
 

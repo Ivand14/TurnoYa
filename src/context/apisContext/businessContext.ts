@@ -5,7 +5,7 @@ import {create} from 'zustand';
 
 interface BusinessContextState {
     allBusinesses: Business[];
-    businessForId: Business[];
+    businessForId: Business;
     loading: boolean;
     error: string | null;
     fetchAllBusinesses: () => Promise<void>;
@@ -16,7 +16,7 @@ interface BusinessContextState {
 
 export const useBusinessContext = create<BusinessContextState>((set) => ({
     allBusinesses: [],
-    businessForId: null,
+    businessForId: {} as Business,
     loading: false,
     error: null,
 
@@ -25,7 +25,7 @@ export const useBusinessContext = create<BusinessContextState>((set) => ({
         try {
             const response = await getAllBusiness();
             if (response?.data) {
-                set({ allBusinesses: response.data.details, loading: false, error: null });
+                set({ allBusinesses: response.data.data, loading: false, error: null });
             } else {
                 set({ allBusinesses: [], loading: false, error: "Error al obtener los negocios" });
             }
@@ -39,9 +39,9 @@ export const useBusinessContext = create<BusinessContextState>((set) => ({
         try {
             const response = await getBusinessId(id);
             if (response?.data) {
-                set({ businessForId: response.data.details, loading: false, error: null });
+                set({ businessForId: response.data.details.business_data, loading: false, error: null });
             } else {
-                set({ businessForId: null, loading: false, error: "Error al obtener el negocio por ID" });
+                set({ businessForId: {} as Business , loading: false, error: "Error al obtener el negocio por ID" });
             }
         } catch (error) {
             set({ loading: false, error: error instanceof Error ? error.message : "Error desconocido" });
