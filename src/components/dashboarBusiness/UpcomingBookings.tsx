@@ -30,8 +30,6 @@ const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({
     loadServices();
   }, [bookings]);
 
-  console.log(bookings)
-  console.log(services)
 
   return (
     <Card>

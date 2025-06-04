@@ -1,8 +1,7 @@
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { Booking } from "@/types";
 import { BookingCard } from "@/components/BookingCard";
-import React from "react";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { getServiceForBooking } from "@/utils/dashboardUtils";
@@ -18,6 +17,20 @@ const DailyBookings: React.FC<DailyBookingsProps> = ({
   bookings,
   onCancelBooking
 }) => {
+  const [services, setServices] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      const newServices: Record<string, any> = {};
+      for (const booking of bookings) {
+        newServices[booking.id] = await getServiceForBooking(booking);
+      }
+      setServices(newServices);
+    };
+
+    fetchServices();
+  }, [bookings]);
+
   return (
     <Card>
       <CardHeader>
@@ -33,7 +46,7 @@ const DailyBookings: React.FC<DailyBookingsProps> = ({
               <BookingCard
                 key={booking.id}
                 booking={booking}
-                service={getServiceForBooking(booking)}
+                service={services[booking.id] || null} // Espera la carga del servicio
                 onCancel={onCancelBooking}
               />
             ))}

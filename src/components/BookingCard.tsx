@@ -57,7 +57,7 @@ export const BookingCard = ({ booking, service, onCancel }: BookingCardProps) =>
     <Card className="overflow-hidden">
       <CardHeader className="p-4 pb-2 bg-gray-50">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg">{service?.name_service || 'Reserva'}</CardTitle>
+          <CardTitle className="text-lg">{service?.name_service}</CardTitle>
           <Badge className={getStatusColor(booking.status)}>
             {getStatusLabel(booking.status)}
           </Badge>

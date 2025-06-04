@@ -16,12 +16,12 @@ export interface Business {
 
 export interface Service {
   id?: string;
-  businessId: string;
-  name_service: string;
-  description: string;
-  duration: number; // en minutos
-  price: number;
-  active: boolean;
+  businessId?: string;
+  name_service?: string;
+  description?: string;
+  duration?: number; // en minutos
+  price?: number;
+  active?: boolean;
   capacity?: number;
   requiresSpecificEmployee?: boolean;
   allowedEmployeeIds?: string[];

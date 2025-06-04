@@ -1,5 +1,4 @@
 import { API_URL } from "./api_url";
-import { Employee } from "@/types/dashboard";
 import { Service } from "@/types";
 import axios from "axios";
 

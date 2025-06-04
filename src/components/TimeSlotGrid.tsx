@@ -143,8 +143,8 @@ export const TimeSlotGrid = ({
           {slots.map((slot, index) => {
             const isAvailable = !slot.isFullyBooked;
             const capacityPercentage =
-              slot.totalCapacity > 0
-                && (slot.availableSlots / slot.totalCapacity) * 100
+              slot["totalCapacity"] > 0
+                && (slot["availableSlots"] / slot["totalCapacity"]) * 100
                 ;
 
             return (
@@ -163,7 +163,7 @@ export const TimeSlotGrid = ({
                         : "border-gray-200 bg-gray-50 cursor-not-allowed opacity-60"
                     }
                     ${
-                      capacityPercentage <= 25 && capacityPercentage > 0
+                      capacityPercentage <= 50 && capacityPercentage > 25
                         ? "border-orange-200 bg-orange-50"
                         : ""
                     }
@@ -173,15 +173,15 @@ export const TimeSlotGrid = ({
                   <div className="flex items-center space-x-1">
                     <Clock className="h-3 w-3 text-gray-500" />
                     <span className="font-mono text-sm font-medium">
-                      {format(slot.start, "HH:mm")}
+                      {format(slot["start"], "HH:mm")}
                     </span>
                   </div>
 
                   {/* Capacity badge */}
-                  {slot.totalCapacity > 1 && (
+                  {slot["totalCapacity"] > 1 && (
                     <Badge
                       variant={
-                        slot.isFullyBooked
+                        slot["isFullyBooked"]
                           ? "destructive"
                           : capacityPercentage <= 25
                           ? "secondary"
@@ -190,12 +190,12 @@ export const TimeSlotGrid = ({
                       className="text-xs px-2 py-0.5 min-w-0"
                     >
                       <Users className="h-2.5 w-2.5 mr-1" />
-                      {slot.availableSlots}/{slot.totalCapacity}
+                      {slot["availableSlots"]}/{slot["totalCapacity"] }
                     </Badge>
                   )}
 
                   {/* No employees badge */}
-                  {slot.totalCapacity === 0 && (
+                  {slot["totalCapacity"]  === 0 && (
                     <Badge
                       variant="destructive"
                       className="text-xs px-2 py-0.5"
@@ -212,7 +212,7 @@ export const TimeSlotGrid = ({
                     </div>
                   )}
 
-                  {slot.isFullyBooked && (
+                  {slot["isFullyBooked"] && (
                     <div className="flex items-center space-x-1 text-xs text-red-600">
                       <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                       <span>Completo</span>
@@ -223,9 +223,9 @@ export const TimeSlotGrid = ({
                 {/* Hover tooltip */}
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap">
                   {format(slot.start, "HH:mm")} - {format(slot.end, "HH:mm")}
-                  {slot.totalCapacity > 1 && (
+                  {slot["totalCapacity"] > 1 && (
                     <div className="mt-1">
-                      Capacidad: {slot.availableSlots}/{slot.totalCapacity}
+                      Capacidad: {slot["availableSlots"]}/{slot["totalCapacity"]}
                     </div>
                   )}
                   <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
@@ -249,7 +249,7 @@ export const TimeSlotGrid = ({
         )}
 
         {/* Legend */}
-        {slots.length > 0 && (
+        {Object.entries(slots).length > 0 && (
           <div className="mt-6 pt-4 border-t border-gray-200">
             <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-gray-600">
               <div className="flex items-center space-x-2">

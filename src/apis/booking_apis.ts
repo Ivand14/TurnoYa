@@ -16,3 +16,8 @@ export const get_user_booking = async(userId:string) => {
     const response = await axios.get(`${API_URL}/user_booking/${userId}`);
     return response.data;
 }
+
+export const delete_booking = async(bookingId:string) => {
+    const response = await axios.delete(`${API_URL}/cancel_booking/${bookingId}`);
+    return response.data;
+}

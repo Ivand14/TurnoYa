@@ -37,9 +37,7 @@ import StatsOverview from "@/components/dashboarBusiness/StatsOverview";
 import UpcomingBookings from "@/components/dashboarBusiness/UpcomingBookings";
 import { compnay_logged } from "@/context/current_company";
 import { getDashboardStats } from "@/utils/dashboardUtils";
-import { get_booking } from "@/apis/booking_apis";
-import { mockBookings } from "@/data/mockData";
-import { set } from "date-fns";
+import { delete_booking, get_booking } from "@/apis/booking_apis";
 import { toast } from "sonner";
 
 // Import dashboard components
@@ -127,7 +125,7 @@ const BusinessDashboard = () => {
 
   useEffect(()=>{
     fetchData()
-  },[businessId,services]);
+  },[businessId]);
 
   // Redirect if not a business user
   if (!isLogged || !company || company.rol !== "business") {
@@ -145,21 +143,24 @@ const BusinessDashboard = () => {
   });
 
   // Cancel booking handler
-  const handleCancelBooking = (bookingId: string) => {
-    setBookings((prevBookings) =>
-      prevBookings.map((booking) =>
-        booking.id === bookingId ? { ...booking, status: "cancelled" } : booking
-      )
-    );
+   const handleCancelBooking = async (bookingId: string) => {
+    const cancel_book = await delete_booking(bookingId);
 
-    setUpcomingBookings((prevBookings) =>
-      prevBookings.map((booking) =>
-        booking.id === bookingId ? { ...booking, status: "cancelled" } : booking
-      )
-    );
+    if (cancel_book.status === 200) {
+      setBookings((prevBookings) =>
+        prevBookings.filter((booking) => booking.id !== bookingId)
+      );
+      setUpcomingBookings((prevBookings) =>
+        prevBookings.filter((booking) => booking.id !== bookingId)
+      );
+      setAllBookings((prevBookings) =>
+        prevBookings.filter((booking) => booking.id !== bookingId)
+      ); // Se actualiza aquí también
 
-    toast.success("Reserva cancelada correctamente");
-  };
+      toast.success("Reserva cancelada correctamente");
+    }
+};
+
 
   // Employee form handlers
   const handleEmployeeFormChange = (field: string, value: string) => {
@@ -399,6 +400,7 @@ const BusinessDashboard = () => {
                     <Calendar
                       selectedDate={selectedDate}
                       onSelectDate={setSelectedDate}
+                      daysOfWeek={["lun", "mar", "mié", "jue", "vie", "sáb", "dom"]}
                     />
                   </CardContent>
                 </Card>

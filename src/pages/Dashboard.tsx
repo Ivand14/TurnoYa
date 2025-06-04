@@ -4,7 +4,7 @@ import { Booking, Service } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { addDays, endOfWeek, format, parseISO, startOfWeek } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { BookingCard } from "@/components/BookingCard";
 import { Calendar } from "@/components/Calendar";
@@ -15,9 +15,9 @@ import { Navigate } from "react-router-dom";
 import { current_user } from "@/context/currentUser";
 import { es } from "date-fns/locale";
 import { getServiceForBooking } from "@/utils/dashboardUtils";
-import { get_user_booking } from "@/apis/booking_apis";
-import { mockBookings } from "@/data/mockData";
+import { delete_booking, get_user_booking } from "@/apis/booking_apis";
 import { toast } from "sonner";
+import { compnay_logged } from "@/context/current_company";
 
 const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -27,6 +27,7 @@ const Dashboard = () => {
   const [pastBookings, setPastBookings] = useState<Booking[]>([]);
   const { user, setUser } = current_user();
   const{setIsLogged,isLogged} = Logged()
+
   
   if (!isLogged || !user || user.rol !== "user") {
     return <Navigate to="/login" />;
@@ -37,39 +38,34 @@ const Dashboard = () => {
     if(bookingResponse.status === 200){
       setBookings(bookingResponse.details)
     }
-  }
 
-  console.log(bookings)
-  
-  // Filtrar reservas según el tipo de usuario
-  useEffect(() => {
-    
-    fetchData()
+    const bookings = bookingResponse.details;
+
     const now = new Date();
-    // let filteredBookings: Booking[] = [];
+    let filteredBookings: Booking[] = [];
 
-    // if (currentUser.role === "business") {
-    //   filteredBookings = mockBookings.filter(booking => booking.businessId === currentUser.businessId);
-    // } else if (currentUser.role === "customer") {
-    //   filteredBookings = mockBookings.filter(booking => booking.userId === currentUser.id);
-    // } else if (currentUser.role === "admin") {
-    //   filteredBookings = mockBookings;
-    // }
+    if (user?.rol === "user") {
+      filteredBookings = bookings.filter(bookings => bookings.userId === user.id);
+    }
+
+    console.log("filteredBookings", filteredBookings);
 
     // Dividir en próximas y pasadas
-    // const upcoming = filteredBookings.filter(booking => new Date(booking.start) > now);
-    // const past = filteredBookings.filter(booking => new Date(booking.start) <= now);
+    const upcoming = filteredBookings.filter(bookings => new Date(bookings.start) > now);
+    const past = filteredBookings.filter(bookings => new Date(bookings.start) <= now);
 
     // Ordenar por fecha
-    // upcoming.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
-    // past.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());
+    upcoming.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+    past.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());
 
     // setBookings(filteredBookings);
-    // setUpcomingBookings(upcoming);
-    // setPastBookings(past);
-  }, [user]); // 🔹 useEffect solo se ejecutará cuando `currentUser` cambie
+    setUpcomingBookings(upcoming);
+    setPastBookings(past);
+  }
 
-  useEffect(() => {
+
+
+    useEffect(() => {
     const loadServices = async () => {
       const servicesMap: Record<string, Service> = {};
       for (const booking of bookings) {
@@ -78,10 +74,24 @@ const Dashboard = () => {
           servicesMap[booking.serviceId] = service;
         }
       }
-      setServices(servicesMap);
+      setServices(prevServices => ({
+        ...prevServices,
+        ...servicesMap
+      }));
     };
-    loadServices();
+
+    if (bookings.length > 0) {
+      loadServices();
+      
+    }
   }, [bookings]);
+
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+
 
   // Filtrar reservas para la fecha seleccionada
   const bookingsForSelectedDate = bookings.filter((booking) => {
@@ -94,27 +104,21 @@ const Dashboard = () => {
   });
 
   // Cancelar reserva
-  const handleCancelBooking = (bookingId: string) => {
-    setBookings((prevBookings) =>
-      prevBookings.map((booking) =>
-        booking.id === bookingId ? { ...booking, status: "cancelled" } : booking
-      )
-    );
+  const handleCancelBooking = async(bookingId: string) => {
 
+    const cancel_book = await delete_booking(bookingId)
+
+    if (cancel_book.status === 200){
+
+    setBookings((prevBookings) => prevBookings.filter((booking) => booking.id !== bookingId));
+      
     // Actualizar también en upcoming/past
-    setUpcomingBookings((prevBookings) =>
-      prevBookings.map((booking) =>
-        booking.id === bookingId ? { ...booking, status: "cancelled" } : booking
-      )
-    );
+    setUpcomingBookings((prevBookings) => prevBookings.filter((booking) => booking.id !== bookingId));
 
-    setPastBookings((prevBookings) =>
-      prevBookings.map((booking) =>
-        booking.id === bookingId ? { ...booking, status: "cancelled" } : booking
-      )
-    );
+    setPastBookings((prevBookings) => prevBookings.filter((booking) => booking.id !== bookingId));
 
     toast.success("Reserva cancelada correctamente");
+    }
   };
 
   // Resumen de estadísticas
@@ -157,6 +161,9 @@ const Dashboard = () => {
   };
 
   const weekDays = getCurrentWeek();
+
+  // console.log("upcomingBookings", upcomingBookings);
+  // console.log("pastBookings", pastBookings);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -210,6 +217,7 @@ const Dashboard = () => {
                 <Calendar
                   selectedDate={selectedDate}
                   onSelectDate={setSelectedDate}
+                  daysOfWeek={["dom", "lun", "mar", "mié", "jue", "vie", "sáb"]}
                 />
               </CardContent>
             </Card>
