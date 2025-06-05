@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { calculateSlotCapacity } from "@/utils/calculateSlotCapacity";
 import { es } from "date-fns/locale";
+import { useEffect } from "react";
 
 interface TimeSlotGridProps {
   date: Date;
@@ -123,6 +124,8 @@ export const TimeSlotGrid = ({
   };
 
   const slots = generateTimeSlots();
+
+
 
   return (
     <Card className="w-full">

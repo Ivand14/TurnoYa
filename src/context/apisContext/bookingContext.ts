@@ -9,6 +9,7 @@ interface BookingContext {
     userBooking: Booking[];
     loading: boolean;
     error: string | null;
+
     fetchCreateBooking: (booking: Booking) => Promise<void>;
     fetchGetBooking: (businessId: string) => Promise<void>;
     fetchGetUserBooking: (userId: string) => Promise<void>;
@@ -21,6 +22,7 @@ export const useBookingContext = create<BookingContext>((set) => ({
     userBooking: [],
     loading: false,
     error: null,
+
 
     fetchCreateBooking: async (booking: Booking) => {
         set({loading: true, error: null});
@@ -85,7 +87,7 @@ export const useBookingContext = create<BookingContext>((set) => ({
             set({loading: false, error: (error as Error).message});
         }
     },
-    fetchDeleteBooking: async (bookingId: string) => {
+    fetchDeleteBooking: async (bookingId: string, businessId?: string) => {
         set({loading: true, error: null});
         try {
             const deletedBookin = await delete_booking(bookingId);
@@ -95,6 +97,11 @@ export const useBookingContext = create<BookingContext>((set) => ({
                     loading: false,
                     error: null
                 }));
+                if (businessId) {
+                    // @ts-ignore
+                    const get = (useBookingContext as any).getState;
+                    await get().fetchGetBooking(businessId);
+                }
             } else {
                 set({
                     loading: false,

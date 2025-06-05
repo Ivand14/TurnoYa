@@ -3,8 +3,8 @@ import {} from "@/context/login.state";
 import { Booking, Service } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { addDays, endOfWeek, format, parseISO, startOfWeek } from "date-fns";
-import { useEffect,  useState } from "react";
+import { addDays, endOfWeek, format, startOfWeek } from "date-fns";
+import { useEffect, useState } from "react";
 
 import { BookingCard } from "@/components/BookingCard";
 import { Calendar } from "@/components/Calendar";
@@ -15,84 +15,86 @@ import { Navigate } from "react-router-dom";
 import { current_user } from "@/context/currentUser";
 import { es } from "date-fns/locale";
 import { getServiceForBooking } from "@/utils/dashboardUtils";
-import { delete_booking, get_user_booking } from "@/apis/booking_apis";
+import { delete_booking } from "@/apis/booking_apis";
 import { toast } from "sonner";
 import { useBookingContext } from "@/context/apisContext/bookingContext";
+import { useServicesContext } from "@/context/apisContext/servicesContext";
 
 const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [services, setServices] = useState<Record<string, Service>>({});
+  // const [services, setServices] = useState<Record<string, Service>>({});
   const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
   const [pastBookings, setPastBookings] = useState<Booking[]>([]);
-  const { user, setUser } = current_user();
-  const{setIsLogged,isLogged} = Logged()
-  const {fetchGetUserBooking,booking} = useBookingContext();
+  const { user } = current_user();
+  const { isLogged } = Logged();
+  const { fetchGetUserBooking, booking,userBooking } = useBookingContext();
+  const { services, setServices, servicesUser } = useServicesContext();
 
-  
   if (!isLogged || !user || user.rol !== "user") {
     return <Navigate to="/login" />;
   }
 
-  const fetchData = async() => { 
-    const response = await fetchGetUserBooking(user.id)
-
-    console.log(response,"response");
+  const fetchData = async () => {
     
     const now = new Date();
-    let filteredBookings: Booking[] = [];
+    // let filteredBookings: Booking[] = [];
 
-    if (user?.rol === "user") {
-      filteredBookings = booking.filter(bookings => bookings.userId === user.id);
-    }
-
-    console.log("filteredBookings", filteredBookings);
+    // if (user?.rol === "user") {
+    //   filteredBookings = booking.filter(
+    //     (bookings) => bookings.userId === user.id
+    //   );
+    // }
 
     // Dividir en próximas y pasadas
-    const upcoming = filteredBookings.filter(bookings => new Date(bookings.start) > now);
-    const past = filteredBookings.filter(bookings => new Date(bookings.start) <= now);
+    const upcoming = userBooking.filter(
+      (bookings) => new Date(bookings.start) > now
+    );
+    const past = userBooking.filter(
+      (bookings) => new Date(bookings.start) <= now
+    );
 
     // Ordenar por fecha
-    upcoming.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
-    past.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());
+    upcoming.sort(
+      (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
+    );
+    past.sort(
+      (a, b) => new Date(b.start).getTime() - new Date(a.start).getTime()
+    );
 
-    // setBookings(filteredBookings);
     setUpcomingBookings(upcoming);
     setPastBookings(past);
-  }
+  };
 
+  // useEffect(() => {
+  //   const loadServices = async () => {
+  //     const servicesMap: Record<string, Service> = {};
+  //     for (const book of booking) {
+  //       const service = await getServiceForBooking(book);
+  //       if (service) {
+  //         servicesMap[book.serviceId] = service;
+  //       }
+  //       console.log("serviceMap",service)
+  //     }
+  //     setServices({
+  //       ...servicesMap, // Expande los servicios previos
+  //       ...servicesMap, // Agrega los nuevos servicios
+  //     });
+  //   };
 
+  //   if (booking.length > 0) {
+  //     loadServices();
+  //   }
+  // }, [booking]);
 
-    useEffect(() => {
-    const loadServices = async () => {
-      const servicesMap: Record<string, Service> = {};
-      for (const book of booking) {
-        const service = await getServiceForBooking(book);
-        if (service) {
-          servicesMap[book.serviceId] = service;
-        }
-      }
-      setServices(prevServices => ({
-        ...prevServices,
-        ...servicesMap
-      }));
-    };
-
-    if (bookings.length > 0) {
-      loadServices();
-      
-    }
-  }, [bookings]);
-
-
+  
   useEffect(() => {
+    fetchGetUserBooking(user.id);
     fetchData();
   }, []);
-
-
+  console.log(userBooking)
 
   // Filtrar reservas para la fecha seleccionada
-  const bookingsForSelectedDate = bookings.filter((booking) => {
+  const bookingsForSelectedDate = userBooking.filter((booking) => {
     const bookingDate = new Date(booking.start);
     return (
       bookingDate.getDate() === selectedDate.getDate() &&
@@ -102,33 +104,33 @@ const Dashboard = () => {
   });
 
   // Cancelar reserva
-  const handleCancelBooking = async(bookingId: string) => {
+  const handleCancelBooking = async (bookingId: string) => {
+    const cancel_book = await delete_booking(bookingId);
+    if (cancel_book.status === 200) {
+      await fetchGetUserBooking(user.id);
+      // Actualizar también en upcoming/past
+      setUpcomingBookings((prevBookings) =>
+        prevBookings.filter((booking) => booking.id !== bookingId)
+      );
 
-    const cancel_book = await delete_booking(bookingId)
+      setPastBookings((prevBookings) =>
+        prevBookings.filter((booking) => booking.id !== bookingId)
+      );
 
-    if (cancel_book.status === 200){
-
-    setBookings((prevBookings) => prevBookings.filter((booking) => booking.id !== bookingId));
-      
-    // Actualizar también en upcoming/past
-    setUpcomingBookings((prevBookings) => prevBookings.filter((booking) => booking.id !== bookingId));
-
-    setPastBookings((prevBookings) => prevBookings.filter((booking) => booking.id !== bookingId));
-
-    toast.success("Reserva cancelada correctamente");
+      toast.success("Reserva cancelada correctamente");
     }
   };
 
   // Resumen de estadísticas
   const getDashboardStats = () => {
-    const totalBookings = bookings.length;
-    const confirmedBookings = bookings.filter(
+    const totalBookings = booking.length;
+    const confirmedBookings = booking.filter(
       (b) => b.status === "confirmed"
     ).length;
-    const pendingBookings = bookings.filter(
+    const pendingBookings = booking.filter(
       (b) => b.status === "pending"
     ).length;
-    const cancelledBookings = bookings.filter(
+    const cancelledBookings = booking.filter(
       (b) => b.status === "cancelled"
     ).length;
 
@@ -136,32 +138,30 @@ const Dashboard = () => {
       totalBookings,
       confirmedBookings,
       pendingBookings,
-      cancelledBookings
+      cancelledBookings,
     };
   };
 
   const stats = getDashboardStats();
 
   // Función para obtener la semana actual
-  const getCurrentWeek = () => {
-    const start = startOfWeek(selectedDate, { weekStartsOn: 1 }); // Lunes
-    const end = endOfWeek(selectedDate, { weekStartsOn: 1 }); // Domingo
+  // const getCurrentWeek = () => {
+  //   const start = startOfWeek(selectedDate, { weekStartsOn: 1 }); // Lunes
+  //   const end = endOfWeek(selectedDate, { weekStartsOn: 1 }); // Domingo
 
-    const days = [];
-    let day = start;
+  //   const days = [];
+  //   let day = start;
 
-    while (day <= end) {
-      days.push(day);
-      day = addDays(day, 1);
-    }
+  //   while (day <= end) {
+  //     days.push(day);
+  //     day = addDays(day, 1);
+  //   }
 
-    return days;
-  };
+  //   return days;
+  // };
 
-  // const weekDays = getCurrentWeek();
-
-  // console.log("upcomingBookings", upcomingBookings);
-  // console.log("pastBookings", pastBookings);
+  // const weekDay = getCurrentWeek()
+  // console.log(weekDay)
 
   return (
     <div className="flex flex-col min-h-screen">

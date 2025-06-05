@@ -1,12 +1,14 @@
 import { DashboardStats, Employee } from "@/types/dashboard";
 
 import { Booking, Service } from "@/types";
-import { get_services } from "@/apis/services.api";
+import { useServicesContext } from "@/context/apisContext/servicesContext";
+
 
 // Get service corresponding to a booking
 export const getServiceForBooking = async(booking: Booking) => {
-    const services = await get_services(booking.businessId)
-    return services.data.details.find((service:Service) => service.id === booking.serviceId);
+    const{fetchGetServices,services} = useServicesContext()
+    await fetchGetServices(booking.businessId)
+    return services.find((service:Service) => service.id === booking.serviceId);
 };
 
 // Calculate dashboard statistics

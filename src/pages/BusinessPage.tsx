@@ -1,11 +1,6 @@
 import {} from "@/context/login.state";
 
-import {
-  Booking,
-  ScheduleSettings,
-  Service,
-  TimeSlot
-} from "@/types";
+import { Booking, ScheduleSettings, Service, TimeSlot } from "@/types";
 import { Navigate, useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
@@ -38,16 +33,21 @@ interface BookingFormData {
 }
 
 const BusinessPage = () => {
- const { businessId } = useParams();
-  const { fetchGetBooking, fetchCreateBooking, booking,loading } = useBookingContext(); 
-  const { fetchBusinessById, businessForId } = useBusinessContext(); 
-  const {fetchGetAllBusinessHours,businessHours} = useScheduleContext();
-  const {fetchGetServices,services} = useServicesContext();
-  const{user} = current_user(); 
+  const { businessId } = useParams();
+  const { fetchGetBooking, fetchCreateBooking, booking, loading } =
+    useBookingContext();
+  const { fetchBusinessById, businessForId } = useBusinessContext();
+  const { fetchGetAllBusinessHours, businessHours } = useScheduleContext();
+  const { fetchGetServices, services } = useServicesContext();
+  const { user } = current_user();
 
+  const [initialLoading, setInitialLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [selectedSlot, setSelectedSlot] = useState<{ start: Date; end: Date } | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<{
+    start: Date;
+    end: Date;
+  } | null>(null);
   const [bookingFormOpen, setBookingFormOpen] = useState(false);
   const [scheduleSettings, setScheduleSettings] = useState<ScheduleSettings>({
     businessId: "",
@@ -57,7 +57,7 @@ const BusinessPage = () => {
     breakBetweenSlots: 5,
     days_business: [],
     defaultCapacity: 0,
-    capacityMode: "fixed"
+    capacityMode: "fixed",
   });
 
   const scheduleInfo = useCallback(async () => {
@@ -67,13 +67,21 @@ const BusinessPage = () => {
     let endTime = "";
 
     const dayMap: Record<string, number> = {
-      dom: 0, lun: 1, mar: 2, mié: 3, jue: 4, vie: 5, sáb: 6
+      dom: 0,
+      lun: 1,
+      mar: 2,
+      mié: 3,
+      jue: 4,
+      vie: 5,
+      sáb: 6,
     };
 
     businessHours.forEach((sch) => {
       const day = sch.day.slice(0, 3).toLowerCase();
       days_business.push(day);
-      if (sch.day.toLowerCase() === format(selectedDate, "eeee", { locale: es })) {
+      if (
+        sch.day.toLowerCase() === format(selectedDate, "eeee", { locale: es })
+      ) {
         startTime = sch.startTime;
         endTime = sch.endTime;
       }
@@ -89,18 +97,18 @@ const BusinessPage = () => {
       breakBetweenSlots: 0,
       days_business: days_business,
       defaultCapacity: 0,
-      capacityMode: "fixed"
+      capacityMode: "fixed",
     });
   }, [businessId, businessHours, selectedDate]);
 
   useEffect(() => {
     if (!businessId) return;
     fetchBusinessById(businessId);
-    fetchGetBooking(businessId);
 
     const fetchAdditionalData = async () => {
-      fetchGetAllBusinessHours(businessId);
-      fetchGetServices(businessId);
+      await fetchGetAllBusinessHours(businessId);
+      await fetchGetServices(businessId);
+      setInitialLoading(false);
     };
 
     fetchAdditionalData();
@@ -120,27 +128,30 @@ const BusinessPage = () => {
     const dateString = format(date, "yyyy-MM-dd");
     const serviceId = selectedService?.id || "";
 
-    return booking.filter((booking) => 
-      booking.businessId === businessId &&
-      booking.serviceId === serviceId &&
-      booking.date === dateString &&
-      booking.status !== "cancelled"
-    ).map((booking) => ({
-      id: booking.id,
-      start: booking.start,
-      end: booking.end,
-      available: false,
-      serviceId: booking.serviceId,
-      businessId: booking.businessId,
-      date: booking.date,
-      status: booking.status,
-      paymentStatus: booking.paymentStatus,
-      userId: booking.userId,
-      userName: booking.userName,
-      userEmail: booking.userEmail,
-      userPhone: booking.userPhone,
-      serviceName: selectedService?.name_service || ""
-    }));
+    return booking
+      .filter(
+        (booking) =>
+          booking.businessId === businessId &&
+          booking.serviceId === serviceId &&
+          booking.date === dateString &&
+          booking.status !== "cancelled"
+      )
+      .map((booking) => ({
+        id: booking.id,
+        start: booking.start,
+        end: booking.end,
+        available: false,
+        serviceId: booking.serviceId,
+        businessId: booking.businessId,
+        date: booking.date,
+        status: booking.status,
+        paymentStatus: booking.paymentStatus,
+        userId: booking.userId,
+        userName: booking.userName,
+        userEmail: booking.userEmail,
+        userPhone: booking.userPhone,
+        serviceName: selectedService?.name_service || "",
+      }));
   };
 
   // Manejar selección de servicio
@@ -163,7 +174,6 @@ const BusinessPage = () => {
     }
   };
 
-
   const handleCreateBooking = async (formData: BookingFormData) => {
     const newBooking: Booking = {
       id: `booking-${Date.now()}`,
@@ -178,19 +188,22 @@ const BusinessPage = () => {
       end: selectedSlot?.end.toISOString() || "",
       status: "confirmed",
       paymentStatus: "pending",
-      notes: formData.notes
+      notes: formData.notes,
     };
 
     await fetchCreateBooking(newBooking);
+    await fetchGetBooking(businessId);
     toast.success("¡Reserva creada con éxito!");
     setBookingFormOpen(false);
     setSelectedSlot(null);
   };
-  
-  if (loading) {
-    return <div className="text-center py-8">
-      <Loading/>
-    </div>;
+
+  if (initialLoading) {
+    return (
+      <div className="text-center py-8">
+        <Loading />
+      </div>
+    );
   }
 
   return (
@@ -360,24 +373,23 @@ const BusinessPage = () => {
 
                       {selectedService ? (
                         <div>
-                          {
-                            selectedService.capacity > 0 && (
-                              <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                                <p className="text-sm text-blue-700">
-                                  <strong>Servicio grupal:</strong> Hasta{" "}
-                                  {selectedService.capacity} personas pueden
-                                  reservar el mismo horario.
-                                </p>
-                              </div>
-                            )}
+                          {selectedService.capacity > 0 && (
+                            <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                              <p className="text-sm text-blue-700">
+                                <strong>Servicio grupal:</strong> Hasta{" "}
+                                {selectedService.capacity} personas pueden
+                                reservar el mismo horario.
+                              </p>
+                            </div>
+                          )}
 
-                            {selectedService.requiresSpecificEmployee &&
+                          {selectedService.requiresSpecificEmployee &&
                             selectedService.allowedEmployeeIds.length > 0 && (
                               <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                                 <p className="text-sm text-blue-700">
                                   <strong>Servicio grupal:</strong> Hasta{" "}
-                                  {selectedService.allowedEmployeeIds.length} personas pueden
-                                  reservar el mismo horario.
+                                  {selectedService.allowedEmployeeIds.length}{" "}
+                                  personas pueden reservar el mismo horario.
                                 </p>
                               </div>
                             )}
@@ -448,7 +460,7 @@ const BusinessPage = () => {
                           </h3>
                           <p className="font-medium">
                             {format(selectedDate, "EEEE, d 'de' MMMM", {
-                              locale: es
+                              locale: es,
                             })}
                             , {format(selectedSlot.start, "HH:mm")} -{" "}
                             {format(selectedSlot.end, "HH:mm")}
