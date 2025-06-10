@@ -49,7 +49,6 @@ const BusinessDashboard = () => {
     businessHours,
     fetchGetAllSchedules,
     fetchGetAllBusinessHours,
-    newSchedule,
     handleScheduleFormChange,
     handleAddSchedule,
     fetchDeleteSchedule,

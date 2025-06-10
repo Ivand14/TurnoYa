@@ -21,6 +21,16 @@ interface BookingContext {
   fetchDeleteBooking: (bookingId: string) => Promise<void>;
 }
 
+socket.on("new_book",({action,reserva})=>{
+  console.log("socket listen:",action,reserva);
+  useBookingContext.setState((state) => {
+    if (action === "crear") {
+      return { booking: [...state.booking, reserva] };
+    }
+    return {};
+  })
+})
+
 export const useBookingContext = create<BookingContext>((set) => ({
   booking: [],
   userBooking: [],
@@ -34,6 +44,7 @@ export const useBookingContext = create<BookingContext>((set) => ({
     try {
       const responseCreate = await createBooking(booking);
       if (responseCreate.status === 200) {
+        socket.emit("new_book",{action:"crear",reserva:booking})
         set((state) => ({
           booking: [...state.booking, responseCreate.details],
           loading: false,
