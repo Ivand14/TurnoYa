@@ -1,178 +1,214 @@
-import { business_hours, create_schedule, delete_business_hours, delete_schedule, get_all_businessHrs, get_all_sch, patch_business_hrs } from '@/apis/employee_schedule.apis';
-import { Schedule } from '@/types/dashboard';
-import {create} from 'zustand';
-
+import { create } from "zustand";
+import { Schedule } from "@/types/dashboard";
+import {
+  business_hours,
+  create_schedule,
+  delete_business_hours,
+  delete_schedule,
+  get_all_businessHrs,
+  get_all_sch,
+  patch_business_hrs,
+} from "@/apis/employee_schedule.apis";
+import { socket } from "@/utils/socket";
 
 interface ScheduleContext {
-    schedules: Schedule[];
-    businessHours: Schedule[];
-    loading: boolean;
-    error: string | null;
-    fetchCreateSchedule: (schedule: Schedule) => Promise<void>;
-    fetchGetAllSchedules: (businessId: string) => Promise<void>;
-    fetchDeleteSchedule: (id: string) => Promise<void>;
-    fetchBusinessHours: (schedule: Schedule) => Promise<void>;
-    fetchDeleteBusinessHours: (id: string) => Promise<void>;
-    fetchGetAllBusinessHours: (businessId: string) => Promise<void>;
-    fetchPatchBusinessHours: (id: string, schedule: Schedule) => Promise<void>;
+  schedules: Schedule[];
+  businessHours: Schedule[];
+  newSchedule: Schedule;
+  loading: boolean;
+  error: string | null;
+  setNewSchedule: (schedule: Schedule) => void;
+  handleScheduleFormChange: (field: string, value: string) => void;
+  handleAddSchedule: (sch: Schedule, businessId: string) => Promise<void>;
+  fetchGetAllSchedules: (businessId: string) => Promise<void>;
+  fetchDeleteSchedule: (id: string) => Promise<void>;
+  fetchBusinessHours: (schedule: Schedule) => Promise<void>;
+  fetchDeleteBusinessHours: (id: string) => Promise<void>;
+  fetchGetAllBusinessHours: (businessId: string) => Promise<void>;
+  fetchPatchBusinessHours: (id: string, schedule: Schedule) => Promise<void>;
 }
 
+socket.on("updateBusinessHrs", (updatedBusinessHoursList) => {
 
-export const useScheduleContext = create<ScheduleContext>((set) => ({
-    schedules: [],
-    businessHours: [],
-    loading: false,
-    error: null,
+  const updatedBusinessHours = Array.isArray(updatedBusinessHoursList)
+    ? updatedBusinessHoursList[0] 
+    : updatedBusinessHoursList; 
 
-    fetchCreateSchedule: async (schedule) => {
-        set({loading: true, error: null});
-        try {
-            const responseCreate = await create_schedule(schedule);
-            if(responseCreate?.data){
-                set((state) => ({
-                    schedules: [...state.schedules, responseCreate.data],
-                    loading: false,
-                    error: null
-                }));
-            }else {
-                set({loading: false, error: 'Failed to create schedule'});
-            }
-        } catch (error) {
-            set({
-                loading: false,
-                error: error instanceof Error ? error.message : 'An unexpected error occurred'
-            });
-        }
-    },
+  useScheduleContext.setState((state) => ({
+    businessHours: state.businessHours.map((businessHour) =>
+      businessHour.id === updatedBusinessHours.id
+        ? { ...businessHour, ...updatedBusinessHours }
+        : businessHour
+    ),
+  }));
+});
 
-    fetchGetAllSchedules: async (businessId) => {
-        set({loading: true, error: null});
-        try {
-            const responseGetSch = await get_all_sch(businessId);
-            if(responseGetSch?.data) {
-                set({
-                    schedules: responseGetSch.data,
-                    loading: false,
-                    error: null
-                });
-            }
-            else {
-                set({loading: false, error: 'Failed to fetch schedules'});
-            }
-        } catch (error) {
-            set({
-                loading: false,
-                error: error instanceof Error ? error.message : 'An unexpected error occurred'
-            });
-        }
-        
-    },
+export const useScheduleContext = create<ScheduleContext>((set, get) => ({
+  schedules: [],
+  businessHours: [],
+  newSchedule: {
+    employeeId: "",
+    day: "Lunes",
+    startTime: "09:00",
+    endTime: "17:00",
+    isBusinessHours: false,
+  },
+  loading: false,
+  error: null,
 
-    fetchDeleteSchedule: async (id) => {
-        set({loading: true, error: null});
-        try {
-            const responseDelete = await delete_schedule(id);
-            if(responseDelete?.data) {
-                set((state) => ({
-                    schedules: state.schedules.filter(schedule => schedule.id !== id),
-                    loading: false,
-                    error: null
-                }));
-            } else {
-                set({loading: false, error: 'Failed to delete schedule'});
-            }
-        } catch (error) {
-            set({
-                loading: false,
-                error: error instanceof Error ? error.message : 'An unexpected error occurred'
-            });
-        }
-    },
+  setNewSchedule: (schedule: Schedule) => {
+    set({ newSchedule: schedule });
+  },
 
-    fetchBusinessHours: async (schedule) => {
-        set({loading: true, error: null});
-        try {
-            const responseBusinessHours = await business_hours(schedule);
-            if(responseBusinessHours?.data) {
-                set((state) => ({
-                    businessHours: [...state.businessHours, responseBusinessHours.data],
-                    loading: false,
-                    error: null
-                }));
-            } else {
-                set({loading: false, error: 'Failed to create business hours'});
-            }
-        } catch (error) {
-            set({
-                loading: false,
-                error: error instanceof Error ? error.message : 'An unexpected error occurred'
-            });
-        }
-    },
+  handleScheduleFormChange: (field, value) => {
+    set((state) => ({
+      newSchedule: { ...state.newSchedule, [field]: value },
+    }));
+  },
 
-    fetchDeleteBusinessHours: async (id) => {
-        set({loading: true, error: null});
-        try {
-            const responseDeleteBusinessHours = await delete_business_hours(id);
-            if(responseDeleteBusinessHours?.data) {
-                set((state) => ({
-                    businessHours: state.businessHours.filter(businessHour => businessHour.id !== id),
-                    loading: false,
-                    error: null
-                }));
-            } else {
-                set({loading: false, error: 'Failed to delete business hours'});
-            }
-        } catch (error) {
-            set({
-                loading: false,
-                error: error instanceof Error ? error.message : 'An unexpected error occurred'
-            });
-        }
-    },
+  handleAddSchedule: async (sch: Schedule, businessId) => {
+    set({ loading: true, error: null });
+    try {
+      const newSch = {
+        ...sch,
+        id: `sch-${Date.now()}`,
+        businessId: businessId,
+      };
+      const response = await business_hours(newSch);
 
-    fetchGetAllBusinessHours: async (businessId:string) => {
-        set({loading: true, error: null});
-        try {
-            const responseGetBusinessHours = await get_all_businessHrs(businessId);
-            if(responseGetBusinessHours?.data) {
-                set({
-                    businessHours: responseGetBusinessHours.data.details,
-                    loading: false,
-                    error: null
-                });
-            } else {
-                set({loading: false, error: 'Failed to fetch business hours'});
-            }
-        } catch (error) {
-            set({
-                loading: false,
-                error: error instanceof Error ? error.message : 'An unexpected error occurred'
-            });
-        }
-    },
+      if (response?.data) {
+        set((state) => ({
+          businessHours: [...state.businessHours, response.data.details],
+          loading: false,
+          newSchedule: {
+            employeeId: "",
+            day: "Lunes",
+            startTime: "09:00",
+            endTime: "17:00",
+            isBusinessHours: false,
+          }, // ✅ Reset después de creación
+        }));
+      } else {
+        set({ loading: false, error: "Error creando horario" });
+      }
+    } catch (error) {
+      console.error("Error creando horario:", error);
+      set({ loading: false, error: "Fallo al crear horario" });
+    }
+  },
 
-    fetchPatchBusinessHours: async (id, schedule) => {
-        set({loading: true, error: null});
-        try {
-            const responsePatchBusinessHours = await patch_business_hrs(id, schedule);
-            if(responsePatchBusinessHours?.data) {
-                set((state) => ({
-                    businessHours: state.businessHours.map(businessHour => 
-                        businessHour.id === id ? {...businessHour, ...responsePatchBusinessHours.data} : businessHour
-                    ),
-                    loading: false,
-                    error: null
-                }));
-            } else {
-                set({loading: false, error: 'Failed to update business hours'});
-            }
-        } catch (error) {
-            set({
-                loading: false,
-                error: error instanceof Error ? error.message : 'An unexpected error occurred'
-            });
-        }
-    },
+  // ✅ Obtener todos los horarios
+  fetchGetAllSchedules: async (businessId) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await get_all_sch(businessId);
+      if (response?.data) {
+        set({ schedules: response.data, loading: false });
+      } else {
+        set({ loading: false, error: "Error obteniendo horarios" });
+      }
+    } catch (error) {
+      console.error("Error obteniendo horarios:", error);
+      set({ loading: false, error: "Fallo al obtener horarios" });
+    }
+  },
 
+  fetchDeleteSchedule: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await delete_schedule(id);
+      if (response?.data) {
+        set((state) => ({
+          businessHours: state.businessHours.filter(
+            (schedule) => schedule.id !== id
+          ),
+          loading: false,
+        }));
+      } else {
+        set({ loading: false, error: "Error eliminando horario" });
+      }
+    } catch (error) {
+      console.error("Error eliminando horario:", error);
+      set({ loading: false, error: "Fallo al eliminar horario" });
+    }
+  },
+
+  fetchBusinessHours: async (schedule) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await business_hours(schedule);
+      if (response?.data) {
+        set((state) => ({
+          businessHours: [...state.businessHours, response.data],
+          loading: false,
+        }));
+      } else {
+        set({ loading: false, error: "Error creando horario de atención" });
+      }
+    } catch (error) {
+      console.error("Error creando horario de atención:", error);
+      set({ loading: false, error: "Fallo al crear horario de atención" });
+    }
+  },
+
+  fetchDeleteBusinessHours: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await delete_business_hours(id);
+      if (response?.data) {
+        set((state) => ({
+          businessHours: state.businessHours.filter(
+            (businessHour) => businessHour.id !== id
+          ),
+          loading: false,
+        }));
+      } else {
+        set({ loading: false, error: "Error eliminando horario de atención" });
+      }
+    } catch (error) {
+      console.error("Error eliminando horario de atención:", error);
+      set({ loading: false, error: "Fallo al eliminar horario de atención" });
+    }
+  },
+
+  fetchGetAllBusinessHours: async (businessId) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await get_all_businessHrs(businessId);
+      if (response?.data) {
+        set({ businessHours: response.data.details, loading: false });
+      } else {
+        set({ loading: false, error: "Error obteniendo horarios de atención" });
+      }
+    } catch (error) {
+      console.error("Error obteniendo horarios de atención:", error);
+      set({ loading: false, error: "Fallo al obtener horarios de atención" });
+    }
+  },
+
+  fetchPatchBusinessHours: async (id, schedule) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await patch_business_hrs(id, schedule);
+      if (response?.status === 200) {
+        set((state) => ({
+          businessHours: state.businessHours.map((businessHour) => {
+            return businessHour.id === id
+              ? { ...businessHour, ...(response.details || {}) } // 👈 Agrega validación para evitar objetos vacíos
+              : businessHour;
+          }),
+          loading: false,
+        }));
+        socket.emit("updateBusinessHrs", { id, schedule: response.details });
+      } else {
+        set({
+          loading: false,
+          error: "Error actualizando horario de atención",
+        });
+      }
+    } catch (error) {
+      console.error("Error actualizando horario de atención:", error);
+      set({ loading: false, error: "Fallo al actualizar horario de atención" });
+    }
+  },
 }));

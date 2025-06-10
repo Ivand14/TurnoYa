@@ -1,26 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import React, { useEffect } from "react";
+import React from "react";
 import { UserCheck, Users } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import Edite from "../ui/editable";
 import { Employee } from "@/types/dashboard";
 import { Label } from "@/components/ui/label";
 import { Service } from "@/types";
-import { Switch } from "@/components/ui/switch";
 import { TrashButton } from "../ui/trash";
 
 interface ServiceListProps {
   services: Service[];
   employees: Employee[];
   onDelete: (serviceId: string) => void;
+  onEdit:(data:Service,serviceId:string) => void
 }
 
 const ServiceList: React.FC<ServiceListProps> = ({
   services,
   employees,
-  onDelete
+  onDelete,
+  onEdit
 }) => {
   const getEmployeeNames = (employeeIds?: string[]): string => {
     if (!employeeIds || employeeIds.length === 0) return "Todos los empleados";
@@ -31,11 +31,6 @@ const ServiceList: React.FC<ServiceListProps> = ({
 
     return names.length > 0 ? names.join(", ") : "Empleados no encontrados";
   };
-
-  useEffect(() => {
-    // This effect can be used for any side effects related to the service list
-    // For example, fetching additional data or updating state based on props
-  }, [services, employees]);
 
   if (services.length === 0) {
     return (
@@ -78,7 +73,7 @@ const ServiceList: React.FC<ServiceListProps> = ({
                     {service.active ? "Activo" : "Inactivo"}
                   </span>
 
-                  {service.capacity && service.capacity > 0 ? (
+                  { service.capacity > 0 ? (
                     <Badge
                       variant="secondary"
                       className="flex items-center gap-1"
@@ -141,6 +136,7 @@ const ServiceList: React.FC<ServiceListProps> = ({
                   <Edite
                     service={service}
                     employeesAvailable = {employees}
+                    onEdit = {onEdit}
                   />
                 </div>
               </div>

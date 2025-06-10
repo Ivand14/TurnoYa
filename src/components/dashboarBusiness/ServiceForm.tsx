@@ -20,7 +20,7 @@ import { toast } from "sonner";
 interface ServiceFormProps {
   businessId: string;
   employees: Employee[];
-  onSubmit: (service: Omit<Service, "id">) => void;
+  onSubmit: (service: Service) => void;
 }
 
 const ServiceForm: React.FC<ServiceFormProps> = ({
@@ -91,15 +91,16 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
 
     onSubmit({
       businessId,
+      id:`service-${Date.now()}`,
       name_service: newService.name,
       description: newService.description,
       duration: newService.duration,
       price: newService.price,
-      capacity: newService.capacity > 0 ? newService.capacity : undefined,
+      capacity: newService.capacity > 0 ? newService.capacity : 0,
       requiresSpecificEmployee: newService.requiresSpecificEmployee,
       allowedEmployeeIds: newService.requiresSpecificEmployee
         ? newService.allowedEmployeeIds
-        : undefined,
+        : [],
       active: true
     });
 

@@ -7,7 +7,7 @@ export const create_service = async(service:Service) => {
     try {
         const url = `${API_URL}/create_service`
         const response = await axios.post(url,{service})
-        return response.data
+        return response
     } catch (error) {
         console.log("error al crear el servicio", error)
     }

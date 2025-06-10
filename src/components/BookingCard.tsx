@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
+import { useServicesContext } from "@/context/apisContext/servicesContext";
+import { useEffect } from "react";
 
 interface BookingCardProps {
   booking: Booking;
@@ -14,6 +16,18 @@ interface BookingCardProps {
 
 export const BookingCard = ({ booking, service, onCancel }: BookingCardProps) => {
   const bookingDate = new Date(booking.start);
+  const{services,fetchGetServices} = useServicesContext()
+
+  useEffect(()=>{
+    const loadService = async() => {
+      await fetchGetServices(booking.businessId)
+    }
+    loadService()
+  },[])
+
+
+  const nameOfService = services.find((serv) => serv.id === booking.serviceId)
+  
   
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -57,7 +71,7 @@ export const BookingCard = ({ booking, service, onCancel }: BookingCardProps) =>
     <Card className="overflow-hidden">
       <CardHeader className="p-4 pb-2 bg-gray-50">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg">{service?.name_service}</CardTitle>
+          <CardTitle className="text-lg">{nameOfService?.name_service}</CardTitle>
           <Badge className={getStatusColor(booking.status)}>
             {getStatusLabel(booking.status)}
           </Badge>

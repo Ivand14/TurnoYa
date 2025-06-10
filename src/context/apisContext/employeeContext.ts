@@ -1,100 +1,171 @@
-import { create_employee, get_all_employees, patch_employee } from '@/apis/employee_schedule.apis';
-import { Employee } from '@/types/dashboard';
-import {create} from 'zustand';
-
+import { create } from "zustand";
+import { Employee } from "@/types/dashboard";
+import {
+  create_employee,
+  delete_employee,
+  get_all_employees,
+  patch_employee,
+} from "@/apis/employee_schedule.apis";
 
 interface EmployeeContext {
-    allEmployees: Employee[];
-    employeeById: Employee | null;
-    loading: boolean;
-    error: string | null;
-    fetchCreateEmployee: (employee: Employee) => Promise<void>;
-    fetchGetAllEmployees: (businessId: string) => Promise<void>;
-    fetchGetEmployeeById: (id: string) => Promise<void>;
-    fetchPatchEmployee: (id: string, status: string) => Promise<void>;
+  allEmployees: Employee[];
+  employeeById: Employee | null;
+  loading: boolean;
+  error: string | null;
+  newEmployee: Employee;
+  setNewEmployee: (field: string, value: string) => void;
+  handleEmployeeFormChange: (field: string, value: string) => void;
+  handleAddEmployee: () => Promise<void>;
+  fetchGetAllEmployees: (businessId: string) => Promise<void>;
+  fetchGetEmployeeById: (id: string) => Promise<void>;
+  fetchPatchEmployee: (id: string, status: string) => Promise<void>;
+  fetchDeleteEmployee: (id: string) => Promise<void>;
 }
 
-export const useEmployeeContext = create<EmployeeContext>((set) => ({
-    allEmployees: [],
-    employeeById: null,
-    loading: false,
-    error: null,
+export const useEmployeeContext = create<EmployeeContext>((set, get) => ({
+  allEmployees: [],
+  employeeById: null,
+  loading: false,
+  error: null,
+  newEmployee: {
+    name: "",
+    email: "",
+    phone: "",
+    position: "",
+    status: "active",
+    businessId: "",
+  },
 
-    fetchCreateEmployee: async(employee:Employee) => {
-        set({ loading: true, error: null });
-        try {
-            const responseCreateEmployee = await create_employee(employee);
-            if(responseCreateEmployee?.data){
-                set((state) => ({
-                    allEmployees: [...state.allEmployees, responseCreateEmployee.data.details],
-                    loading: false,
-                    error: null
-                }));
-            }else {
-                set({
-                    loading: false,
-                    error: responseCreateEmployee?.data?.message || 'Error creating employee',
-                    allEmployees: []
-                });
-            }
-        } catch (error) {
-            console.error("Error creating employee:", error);
-            set({ error: "Failed to create employee", loading: false });
-            
-        }
-    },
+  // ✅ Actualiza el formulario del empleado
+  setNewEmployee: (field, value) =>
+    set((state) => ({
+      newEmployee: { ...state.newEmployee, [field]: value },
+    })),
 
-    fetchGetAllEmployees: async (businessId: string) => {
-        set({ loading: true, error: null });
-        try {
-            const responseGetAllEmployees = await get_all_employees(businessId);
-            if (responseGetAllEmployees?.data) {
-                set({ allEmployees: responseGetAllEmployees.data.details, loading: false, error: null });
-            } else {
-                set({ allEmployees: [], loading: false, error: "Error fetching employees" });
-            }
-        } catch (error) {
-            set({ loading: false, error: error instanceof Error ? error.message : "Unknown error" });
-        }
-    },
+  handleEmployeeFormChange: (field, value) =>
+    set((state) => ({
+      newEmployee: { ...state.newEmployee, [field]: value },
+    })),
 
-    fetchGetEmployeeById: async (id: string) => {
-        set({ loading: true, error: null });
-        try {
-            const responseGetEmployeeById = await get_all_employees(id);
-            if (responseGetEmployeeById?.data) {
-                set({ employeeById: responseGetEmployeeById.data.details, loading: false, error: null });
-            } else {
-                set({ employeeById: null, loading: false, error: "Error fetching employee by ID" });
-            }
-        } catch (error) {
-            set({ loading: false, error: error instanceof Error ? error.message : "Unknown error" });
-        }
-    },
+  // ✅ Agregar nuevo empleado
+  handleAddEmployee: async () => {
+    set({ loading: true, error: null });
+    try {
+      const response = await create_employee(get().newEmployee);
+      if (response?.data) {
+        set((state) => ({
+          allEmployees: [...state.allEmployees, response.data.details],
+          loading: false,
+          newEmployee: {
+            name: "",
+            email: "",
+            phone: "",
+            position: "",
+            status: "active",
+            businessId: "",
+          }, // ✅ Reset después de creación
+        }));
+      } else {
+        set({
+          loading: false,
+          error: response?.data?.message || "Error creando empleado",
+        });
+      }
+    } catch (error) {
+      console.error("Error creando empleado:", error);
+      set({ loading: false, error: "Fallo al crear empleado" });
+    }
+  },
 
-    fetchPatchEmployee: async (id: string, status: string) => {
-        
-        try {
-            const response = await patch_employee(id, status);
-            response.data ?
-            set((state) => ({
-                allEmployees: state.allEmployees.map((employee) =>
-                    employee.id === id ? { ...employee, status: response.data.status } : employee
-                ),
-                loading: false,
-                error: null
-            })) :
-            set({
-                loading: false,
-                error: response?.data?.message || 'Error updating employee',
-                allEmployees: []
-            });
-        } catch (error) {
-            console.error("Error updating employee:", error);
-            set({ error: "Failed to update employee", loading: false });
-        }
-    },
+  // ✅ Obtener todos los empleados de un negocio
+  fetchGetAllEmployees: async (businessId: string) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await get_all_employees(businessId);
+      console.log(response);
+      if (response?.data) {
+        set({ allEmployees: response.data.details, loading: false });
+      } else {
+        set({
+          allEmployees: [],
+          loading: false,
+          error: "Error obteniendo empleados",
+        });
+      }
+    } catch (error) {
+      console.error("Error obteniendo empleados:", error);
+      set({
+        loading: false,
+        error: error instanceof Error ? error.message : "Error desconocido",
+      });
+    }
+  },
 
-    
+  // ✅ Obtener detalles de un empleado por ID
+  fetchGetEmployeeById: async (id: string) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await get_all_employees(id); // Verifica si esta API devuelve solo un empleado
+      if (response?.data) {
+        set({ employeeById: response.data.details, loading: false });
+      } else {
+        set({
+          employeeById: null,
+          loading: false,
+          error: "Error obteniendo empleado por ID",
+        });
+      }
+    } catch (error) {
+      console.error("Error obteniendo empleado por ID:", error);
+      set({
+        loading: false,
+        error: error instanceof Error ? error.message : "Error desconocido",
+      });
+    }
+  },
 
+  // ✅ Actualizar estado de un empleado (Activo/Inactivo)
+  fetchPatchEmployee: async (id: string, status: string) => {
+    set({ loading: true, error: null });
+
+    try {
+      const response = await patch_employee(id, status);
+      if (response?.data) {
+        set((state) => ({
+          allEmployees: state.allEmployees.map((employee) =>
+            employee.id === id
+              ? { ...employee, status: response.data.status }
+              : employee
+          ),
+        }));
+      } else {
+        set({
+          error: response?.data?.message || "Error actualizando empleado",
+        });
+      }
+    } catch (error) {
+      console.error("Error actualizando empleado:", error);
+      set({ error: "Fallo al actualizar empleado" });
+    }
+  },
+
+  fetchDeleteEmployee: async (id: string) => {
+    set({ loading: true, error: null });
+    try {
+      const deleteResponse = await delete_employee(id);
+      if (deleteResponse?.data) {
+        set((state) => ({
+          allEmployees: state.allEmployees.filter((emp) => emp.id !== id),
+          loading: false,
+          error: null,
+        }));
+      }
+    } catch (error) {
+      console.error("Error obteniendo empleado por ID:", error);
+      set({
+        loading: false,
+        error: error instanceof Error ? error.message : "Error desconocido",
+      });
+    }
+  },
 }));

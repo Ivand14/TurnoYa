@@ -76,6 +76,7 @@ const BusinessPage = () => {
       sáb: 6,
     };
 
+    
     businessHours.forEach((sch) => {
       const day = sch.day.slice(0, 3).toLowerCase();
       days_business.push(day);
@@ -108,16 +109,18 @@ const BusinessPage = () => {
     const fetchAdditionalData = async () => {
       await fetchGetAllBusinessHours(businessId);
       await fetchGetServices(businessId);
+      await fetchGetBooking(businessId);
+
       setInitialLoading(false);
     };
 
     fetchAdditionalData();
-  }, [businessId]);
+  }, [businessId,selectedDate]);
 
   useEffect(() => {
     if (!businessId) return;
     scheduleInfo();
-  }, [businessId, businessHours]);
+  }, [businessId, businessHours,booking]);
 
   if (!businessId) {
     return <Navigate to="/businesses" />;
@@ -166,7 +169,8 @@ const BusinessPage = () => {
   // Manejar selección de horario
   const handleSelectTimeSlot = async (start: Date, end: Date) => {
     setSelectedSlot({ start, end });
-
+    
+    
     if (selectedService) {
       setBookingFormOpen(true);
     } else {
@@ -205,6 +209,7 @@ const BusinessPage = () => {
       </div>
     );
   }
+
 
   return (
     <div className="flex flex-col min-h-screen" key={businessForId.id}>
@@ -400,7 +405,7 @@ const BusinessPage = () => {
                             breakBetweenSlots={
                               scheduleSettings.breakBetweenSlots
                             }
-                            defaultCapacity={selectedService.capacity}
+                            defaultCapacity={scheduleSettings.defaultCapacity}
                             selectedService={selectedService}
                             bookedSlots={getBookedTimeSlotsForDate(
                               selectedDate

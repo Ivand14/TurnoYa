@@ -31,6 +31,7 @@ export const BusinessCard = ({ business, onClick }: BusinessCardProps) => {
     <Card 
       className="overflow-hidden transition-all hover:shadow-md cursor-pointer"
       onClick={onClick}
+      key={business.id}
     >
       <CardHeader className="p-4 pb-2">
         <div className="flex justify-between items-start">

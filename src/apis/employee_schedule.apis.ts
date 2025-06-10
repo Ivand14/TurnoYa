@@ -34,6 +34,18 @@ export const patch_employee = async (id: string, status: string) => {
     }
 };
 
+export const delete_employee = async (id: string) => {
+    try {
+        const url = `${API_URL}/delete_employee`
+        const response = await axios.delete(url, {
+            data:{id:id}
+        })
+        return response
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 export const create_schedule = async (schedule: Schedule) => {
     const url = `${API_URL}/schedule`
     const response = await axios.post(url, schedule)
@@ -94,9 +106,9 @@ export const patch_business_hrs = async (id: string, schedule:Schedule) => {
 
     try {
         const response = await axios.patch(url, { id, schedule });
-        return response.data;  // Devuelve solo los datos de la respuesta
+        return response.data; 
     } catch (error) {
         console.error("Error al actualizar horario:", error);
-        return { error: "No se pudo actualizar el horario" };  // Devuelve un mensaje claro
+        return { error: "No se pudo actualizar el horario" };  
     }
 };

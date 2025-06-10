@@ -15,13 +15,15 @@ import { UserCheck } from "lucide-react";
 
 interface EmployeeListProps {
   employees: Employee[];
-  onToggleStatus: (employeeId: string) => void;
+  onDeleteEmployee: (employeeId: string) => void;
 }
 
 const EmployeeList: React.FC<EmployeeListProps> = ({
   employees,
-  onToggleStatus
+  onDeleteEmployee
 }) => {
+
+  console.log(employees);
   
   return (
     <Card>
@@ -67,11 +69,9 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => onToggleStatus(employee.id)}
+                        onClick={() => onDeleteEmployee(employee.id)}
                       >
-                        {employee.status === "active"
-                          ? "Desactivar"
-                          : "Activar"}
+                        Eliminar
                       </Button>
                     </TableCell>
                   </TableRow>

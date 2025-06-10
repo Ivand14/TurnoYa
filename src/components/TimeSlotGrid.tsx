@@ -57,7 +57,6 @@ export const TimeSlotGrid = ({
   }
 
 
-
   const generateTimeSlots = () => {
     const slots = [];
     let currentTime = startTime;
@@ -149,7 +148,6 @@ export const TimeSlotGrid = ({
               slot["totalCapacity"] > 0
                 && (slot["availableSlots"] / slot["totalCapacity"]) * 100
                 ;
-
             return (
               <div key={index} className="relative group">
                 <Button

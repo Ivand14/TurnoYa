@@ -1,374 +1,113 @@
-import { Booking, Service } from "@/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Employee, Schedule } from "@/types/dashboard";
-import { Navigate, useParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useParams, Navigate } from "react-router-dom";
+import { toast } from "sonner";
+import { useBookingContext } from "@/context/apisContext/bookingContext";
+import { useEmployeeContext } from "@/context/apisContext/employeeContext";
+import { useScheduleContext } from "@/context/apisContext/scheduleContext";
+import { useServicesContext } from "@/context/apisContext/servicesContext";
+import { compnay_logged } from "@/context/current_company";
+import { Logged } from "@/context/logged";
+import { getDashboardStats } from "@/utils/dashboardUtils";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  business_hours,
-  create_employee,
-  create_schedule,
-  delete_business_hours,
-  delete_schedule,
-  get_all_businessHrs,
-  get_all_employees,
-  get_all_sch,
-  patch_business_hrs,
-  patch_employee
-} from "@/apis/employee_schedule.apis";
-import {
-  create_service,
-  delete_service,
-  get_services
-} from "@/apis/services.api";
-import { useEffect, useState } from "react";
-
 import { Calendar } from "@/components/Calendar";
+import StatsOverview from "@/components/dashboarBusiness/StatsOverview";
 import DailyBookings from "@/components/dashboarBusiness/DailyBookings";
+import UpcomingBookings from "@/components/dashboarBusiness/UpcomingBookings";
 import EmployeeForm from "@/components/dashboarBusiness/EmployeeForm";
 import EmployeeList from "@/components/dashboarBusiness/EmployeeList";
-import { Footer } from "@/components/Footer";
-import { Logged } from "@/context/logged";
-import { Navbar } from "@/components/Navbar";
 import ScheduleForm from "@/components/dashboarBusiness/ScheduleForm";
 import ScheduleList from "@/components/dashboarBusiness/ScheduleList";
 import ServiceForm from "@/components/dashboarBusiness/ServiceForm";
 import ServiceList from "@/components/dashboarBusiness/ServiceList";
-import StatsOverview from "@/components/dashboarBusiness/StatsOverview";
-import UpcomingBookings from "@/components/dashboarBusiness/UpcomingBookings";
-import { compnay_logged } from "@/context/current_company";
-import { getDashboardStats } from "@/utils/dashboardUtils";
-import { delete_booking, get_booking } from "@/apis/booking_apis";
-import { toast } from "sonner";
-
-// Import dashboard components
-
-// Import types and utility functions
 
 const BusinessDashboard = () => {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [allBookings, setAllBookings] = useState<Booking[]>([]);
-  const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [schedulesHrs, setSchedulesHrs] = useState<Schedule[]>([]);
-  const [activeTab, setActiveTab] = useState("overview");
   const { company } = compnay_logged();
   const { businessId } = useParams();
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const { setIsLogged, isLogged } = Logged();
-  const [services, setServices] = useState<Service[]>([]);
-  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
-  
+  const { isLogged } = Logged();
 
-  const fetchData = async () => {
-    try {
-      const employeesResponse = await get_all_employees(businessId);
-      const schedulesResponse = await get_all_sch(businessId);
-      const businessHrsResponse = await get_all_businessHrs(businessId);
-      const businessServices = await get_services(businessId);
-      const businessBooking = await get_booking(businessId)
+  const {
+    booking,
+    fetchGetBooking,
+    fetchDeleteBooking,
+    selectedDate,
+    setSelectedDate,
+  } = useBookingContext();
 
-      setEmployees(employeesResponse.data.details);
-      setSchedules(schedulesResponse.data.details);
-      setSchedulesHrs(businessHrsResponse.data.details);
-      setServices(businessServices.data.details);
-      setAllBookings(businessBooking.details)
-    } catch (error) {
-      console.error("Error al obtener datos:", error);
-    }
-  };
+  const {
+    allEmployees,
+    fetchGetAllEmployees,
+    newEmployee,
+    handleEmployeeFormChange,
+    handleAddEmployee,
+    fetchDeleteEmployee,
+  } = useEmployeeContext();
 
+  const {
+    schedules,
+    businessHours,
+    fetchGetAllSchedules,
+    fetchGetAllBusinessHours,
+    newSchedule,
+    handleScheduleFormChange,
+    handleAddSchedule,
+    fetchDeleteSchedule,
+    fetchPatchBusinessHours,
+  } = useScheduleContext();
 
-  // Form state for new employee
-  const [newEmployee, setNewEmployee] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    position: "",
-    status: "active",
-    businessId: businessId
-  });
+  const {
+    services,
+    fetchGetServices,
+    fetchCreateService,
+    fetchDeleteService,
+    fetchPatchService,
+  } = useServicesContext();
 
-  // Form state for new schedule
-  const [newSchedule, setNewSchedule] = useState<Schedule>({
-    employeeId: "",
-    day: "Lunes",
-    startTime: "09:00",
-    endTime: "17:00",
-    isBusinessHours: false
-  });
+  // Estado para tabs (necesario para Shadcn)
+  const [activeTab, setActiveTab] = useState("overview");
 
-  // Fetch bookings for the business
+  const fetchData = useCallback(async () => {
+    await fetchGetBooking(businessId);
+    await fetchGetAllSchedules(businessId);
+    await fetchGetAllBusinessHours(businessId);
+    await fetchGetAllEmployees(businessId);
+    await fetchGetServices(businessId);
+  }, [businessId]);
+
   useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-    const now = new Date();
+  useEffect(() => {
+    fetchGetServices(businessId);
+  }, []);
 
-    // Filtrar reservas por empresa
-    const businessBookings = allBookings.filter(
-      (booking) => booking.businessId === company.id
-    );
 
-    // Obtener reservas futuras
-    const upcoming = businessBookings.filter(
-      (booking) => new Date(booking.start) > now
-    );
 
-    // Ordenar por fecha
-    upcoming.sort(
-      (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
-    );
-
-    setBookings(businessBookings);
-    setUpcomingBookings(upcoming);
-
-  }, [allBookings, selectedDate,company.id]);
-
-  useEffect(()=>{
-    fetchData()
-  },[businessId]);
-
-  // Redirect if not a business user
   if (!isLogged || !company || company.rol !== "business") {
     return <Navigate to="/login" />;
   }
 
-  // Filter bookings for selected date
-  const bookingsForSelectedDate = bookings.filter((booking) => {
-    const bookingDate = new Date(booking.start);
-    return (
-      bookingDate.getDate() === selectedDate.getDate() &&
-      bookingDate.getMonth() === selectedDate.getMonth() &&
-      bookingDate.getFullYear() === selectedDate.getFullYear()
+  const upcomingBookings = booking
+    .filter(
+      (b) => b.businessId === company.id && new Date(b.start) > new Date()
+    )
+    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+
+  const handleCancelBooking = async (bookingId: string) => {
+    const bookingExists = booking.some(
+      (b) => b.id === bookingId && b.businessId === company.id
     );
-  });
-
-  // Cancel booking handler
-   const handleCancelBooking = async (bookingId: string) => {
-    const cancel_book = await delete_booking(bookingId);
-
-    if (cancel_book.status === 200) {
-      setBookings((prevBookings) =>
-        prevBookings.filter((booking) => booking.id !== bookingId)
-      );
-      setUpcomingBookings((prevBookings) =>
-        prevBookings.filter((booking) => booking.id !== bookingId)
-      );
-      setAllBookings((prevBookings) =>
-        prevBookings.filter((booking) => booking.id !== bookingId)
-      ); // Se actualiza aquí también
-
-      toast.success("Reserva cancelada correctamente");
-    }
-};
-
-
-  // Employee form handlers
-  const handleEmployeeFormChange = (field: string, value: string) => {
-    setNewEmployee((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleAddEmployee = async () => {
-    if (!newEmployee.name || !newEmployee.email || !newEmployee.position) {
-      toast.error("Por favor complete los campos obligatorios");
+    if (!bookingExists) {
+      toast.error("Error: La reserva no pertenece a tu negocio");
       return;
     }
-    const response = await create_employee(newEmployee);
-    fetchData();
-
-    setNewEmployee({
-      name: "",
-      email: "",
-      phone: "",
-      position: "",
-      status: "active",
-      businessId: businessId
-    });
-    toast.success("Empleado agregado correctamente");
+    await fetchDeleteBooking(bookingId);
+    toast.success("Reserva cancelada correctamente");
   };
 
-  // Toggle employee status
-  const handleToggleEmployeeStatus = async (employeeId: string) => {
-    try {
-      const employee_search = employees.find((empl) => empl.id === employeeId);
-      const currentStatus = employee_search.status;
-
-      console.log(`Estado actual: ${currentStatus}`);
-
-      // Lógica para cambiar el estado
-      const newStatus = currentStatus === "active" ? "inactive" : "active";
-      setEmployees((prev) =>
-        prev.map((emp) =>
-          emp.id === employeeId ? { ...emp, status: newStatus } : emp
-        )
-      );
-      toast.success("Estado del empleado actualizado");
-      await patch_employee(employee_search.id, newStatus);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // Schedule form handlers
-  const handleScheduleFormChange = (field: string, value: string) => {
-    setNewSchedule((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleAddSchedule = async () => {
-    if (newSchedule.isBusinessHours) {
-      // Business hours case
-      if (!newSchedule.day || !newSchedule.startTime || !newSchedule.endTime) {
-        toast.error("Por favor complete todos los campos");
-        return;
-      }
-
-      const newScheduleEntry: Schedule = {
-        id: `sch-${Date.now()}`,
-        day: newSchedule.day,
-        startTime: newSchedule.startTime,
-        endTime: newSchedule.endTime,
-        businessId: businessId
-      };
-
-      if (editingSchedule) {
-        // Update existing schedule
-        const response = await patch_business_hrs(
-          editingSchedule.id,
-          newScheduleEntry
-        );
-        console.log(response);
-        setSchedulesHrs((prevSchedules) =>
-          prevSchedules.map((schedule) =>
-            schedule.id === editingSchedule.id ? newScheduleEntry : schedule
-          )
-        );
-        toast.success("Horario de atención actualizado correctamente");
-        setEditingSchedule(null);
-      } else {
-        const response_business_hours = await business_hours(newScheduleEntry);
-
-        if (response_business_hours.data.status === 200) {
-          setSchedulesHrs((prevSch) => [...prevSch, newScheduleEntry]);
-        }
-      }
-    } else {
-      // Employee schedule case
-      if (
-        !newSchedule.employeeId ||
-        !newSchedule.day ||
-        !newSchedule.startTime ||
-        !newSchedule.endTime
-      ) {
-        toast.error("Por favor complete todos los campos");
-        return;
-      }
-
-      const employee = employees.find(
-        (emp) => emp.id === newSchedule.employeeId
-      );
-
-      if (!employee) {
-        toast.error("Empleado no encontrado");
-        return;
-      }
-
-      const newScheduleEntry: Schedule = {
-        id: `sch-${Date.now()}`,
-        employeeId: newSchedule.employeeId,
-        employee: employee.name,
-        day: newSchedule.day,
-        startTime: newSchedule.startTime,
-        endTime: newSchedule.endTime,
-        // isBusinessHours: false,
-        businessId: businessId
-      };
-
-      const response = await create_schedule(newScheduleEntry);
-      setSchedules((prevSchedules) => [...prevSchedules, newScheduleEntry]);
-      toast.success("Horario agregado correctamente");
-    }
-
-    setNewSchedule({
-      employeeId: "",
-      day: "Lunes",
-      startTime: "09:00",
-      endTime: "17:00",
-      isBusinessHours: newSchedule.isBusinessHours
-    });
-  };
-
-  // Delete schedule
-  const handleDeleteSchedule = async (scheduleId: string) => {
-    try {
-      await delete_business_hours(scheduleId);
-      await delete_schedule(scheduleId);
-      setSchedulesHrs((prev) => prev.filter((sch) => sch.id !== scheduleId));
-      setSchedules((prev) => prev.filter((sch) => sch.id !== scheduleId));
-      toast.success("Horario eliminado correctamente");
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleEditSchedule = (schedule: Schedule) => {
-    console.log(schedule);
-    setEditingSchedule(schedule);
-    setNewSchedule({
-      employeeId: schedule.employeeId,
-      day: schedule.day,
-      startTime: schedule.startTime,
-      endTime: schedule.endTime,
-      isBusinessHours: true
-    });
-  };
-
-  // Service handlers
-  const handleAddService = async (serviceData: Service) => {
-    const newService: Service = {
-      id: `service-${Date.now()}`,
-      businessId: businessId,
-      name_service: serviceData.name_service,
-      description: serviceData.description,
-      duration: serviceData.duration,
-      price: serviceData.price,
-      active: serviceData.active,
-      capacity: serviceData.capacity | 0,
-      requiresSpecificEmployee: serviceData.requiresSpecificEmployee,
-      allowedEmployeeIds: serviceData.allowedEmployeeIds || []
-      
-    };
-    const response = await create_service(newService);
-    console.log(response)
-    if(response.status === 200){
-      setServices([...services, newService]);
-    }
-  };
-
-  const handleDeleteService = async (serviceId: string) => {
-    console.log(serviceId)
-    try {
-      const response = await delete_service(serviceId);
-
-      if (response.data.status === 200) {
-        setServices((prevServices) => 
-          prevServices.filter((prev) => prev.id !== serviceId)
-        );
-        console.log(services)
-        toast.success("Servicio eliminado");
-      } else {
-        toast.error("No se pudo eliminar el servicio");
-      }
-    } catch (error) {
-      toast.error("Error en la solicitud");
-    }
-  };
-
-  // Calculate dashboard statistics
-  const stats = getDashboardStats(bookings, employees);
-
-  // Get active employees for schedule form
-  const activeEmployees =
-    Array.isArray(employees) &&
-    employees?.filter((emp) => emp.status === "active");
+  const stats = getDashboardStats(booking, allEmployees);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -392,72 +131,64 @@ const BusinessDashboard = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-1">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Calendario</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Calendar
-                      selectedDate={selectedDate}
-                      onSelectDate={setSelectedDate}
-                      daysOfWeek={["lun", "mar", "mié", "jue", "vie", "sáb", "dom"]}
-                    />
-                  </CardContent>
-                </Card>
+                <Calendar
+                  selectedDate={selectedDate}
+                  onSelectDate={setSelectedDate}
+                />
               </div>
-
               <div className="lg:col-span-2">
                 <DailyBookings
-                  selectedDate={selectedDate}
-                  bookings={bookingsForSelectedDate}
+                  bookings={upcomingBookings}
                   onCancelBooking={handleCancelBooking}
+                  selectedDate={selectedDate}
                 />
               </div>
             </div>
           </TabsContent>
-          {/* Tab: Services */}
-          <TabsContent value="services" className="space-y-8">
-            <ServiceForm
-              businessId={businessId || ""}
-              onSubmit={handleAddService}
-              employees = {employees}
-            />
 
+          {/* Tab: Servicios */}
+          <TabsContent value="services">
+            <ServiceForm
+              onSubmit={fetchCreateService}
+              employees={allEmployees}
+              businessId={businessId}
+            />
             <ServiceList
               services={services}
-              onDelete={handleDeleteService}
-              employees={employees}
+              onDelete={fetchDeleteService}
+              employees={allEmployees}
+              onEdit={fetchPatchService}
             />
           </TabsContent>
 
           {/* Tab: Empleados */}
-          <TabsContent value="employees" className="space-y-8">
+          <TabsContent value="employees">
             <EmployeeForm
               newEmployee={newEmployee}
               onChange={handleEmployeeFormChange}
               onSubmit={handleAddEmployee}
             />
-
             <EmployeeList
-              employees={employees}
-              onToggleStatus={handleToggleEmployeeStatus}
+              employees={allEmployees}
+              onDeleteEmployee={fetchDeleteEmployee}
             />
           </TabsContent>
 
           {/* Tab: Horarios */}
-          <TabsContent value="schedules" className="space-y-8">
+          <TabsContent value="schedules">
             <ScheduleForm
-              newSchedule={newSchedule}
-              activeEmployees={activeEmployees}
+              activeEmployees={allEmployees}
               onChange={handleScheduleFormChange}
               onSubmit={handleAddSchedule}
+              businessId={businessId}
+              onEdit={fetchPatchBusinessHours}
             />
-
             <ScheduleList
               schedules={schedules}
-              schedulesHrs={schedulesHrs}
-              onDelete={handleDeleteSchedule}
-              onEdit={handleEditSchedule}
+              schedulesHrs={businessHours}
+              onDelete={fetchDeleteSchedule}
+              onEdit={fetchPatchBusinessHours}
+              businessId={businessId}
             />
           </TabsContent>
 
