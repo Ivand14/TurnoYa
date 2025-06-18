@@ -25,8 +25,11 @@ socket.on("new_book",({action,reserva})=>{
   console.log("socket listen:",action,reserva);
   useBookingContext.setState((state) => {
     if (action === "crear") {
-      console.log("reserva creada");
       return { booking: [...state.booking, reserva] };
+    }else if(action === "cancel"){
+      return {
+        booking: state.booking.filter((bk) => bk.id !== reserva)
+      }
     }
     return {};
   })

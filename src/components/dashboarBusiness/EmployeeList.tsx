@@ -5,7 +5,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from "@/components/ui/table";
 
 import { Button } from "@/components/ui/button";
@@ -20,11 +20,8 @@ interface EmployeeListProps {
 
 const EmployeeList: React.FC<EmployeeListProps> = ({
   employees,
-  onDeleteEmployee
+  onDeleteEmployee,
 }) => {
-
-  console.log(employees);
-  
   return (
     <Card>
       <CardHeader>
@@ -48,34 +45,35 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {Array.isArray(employees) && employees?.map((employee) => (
-                  <TableRow key={employee.id}>
-                    <TableCell>{employee.name}</TableCell>
-                    <TableCell>{employee.email}</TableCell>
-                    <TableCell>{employee.phone || "—"}</TableCell>
-                    <TableCell>{employee.position}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          employee.status === "active"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {employee.status === "active" ? "Activo" : "Inactivo"}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onDeleteEmployee(employee.id)}
-                      >
-                        Eliminar
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {Array.isArray(employees) &&
+                  employees?.map((employee,index) => (
+                    <TableRow key={employee.id || index}>
+                      <TableCell>{employee.name}</TableCell>
+                      <TableCell>{employee.email}</TableCell>
+                      <TableCell>{employee.phone || "—"}</TableCell>
+                      <TableCell>{employee.position}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            employee.status === "active"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {employee.status === "active" ? "Activo" : "Inactivo"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onDeleteEmployee(employee.id)}
+                        >
+                          Eliminar
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
           </div>

@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { getAuth } from 'firebase/auth';
 
 interface LoginState {
     email: string;

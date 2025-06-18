@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useBookingContext } from "@/context/apisContext/bookingContext";
@@ -21,11 +21,16 @@ import ScheduleForm from "@/components/dashboarBusiness/ScheduleForm";
 import ScheduleList from "@/components/dashboarBusiness/ScheduleList";
 import ServiceForm from "@/components/dashboarBusiness/ServiceForm";
 import ServiceList from "@/components/dashboarBusiness/ServiceList";
+import MercadoPagoSettings from "@/components/mercadopagoComponents/MercadoPagoSettings";
 
 const BusinessDashboard = () => {
   const { company } = compnay_logged();
   const { businessId } = useParams();
   const { isLogged } = Logged();
+
+  if (!isLogged || !company || company.rol !== "business") {
+    return <Navigate to="/login" />;
+  }
 
   const {
     booking,
@@ -63,8 +68,13 @@ const BusinessDashboard = () => {
     fetchPatchService,
   } = useServicesContext();
 
-  // Estado para tabs (necesario para Shadcn)
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem("activeTab") || "overview";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("activeTab", activeTab);
+  }, [activeTab]);
 
   const fetchData = useCallback(async () => {
     await fetchGetBooking(businessId);
@@ -76,17 +86,11 @@ const BusinessDashboard = () => {
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [businessId]);
 
   useEffect(() => {
     fetchGetServices(businessId);
   }, []);
-
-
-
-  if (!isLogged || !company || company.rol !== "business") {
-    return <Navigate to="/login" />;
-  }
 
   const upcomingBookings = booking
     .filter(
@@ -122,6 +126,7 @@ const BusinessDashboard = () => {
             <TabsTrigger value="employees">Empleados</TabsTrigger>
             <TabsTrigger value="schedules">Horarios</TabsTrigger>
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
+            <TabsTrigger value="wallet">Mi billetera</TabsTrigger>
           </TabsList>
 
           {/* Tab: Resumen */}
@@ -133,6 +138,7 @@ const BusinessDashboard = () => {
                 <Calendar
                   selectedDate={selectedDate}
                   onSelectDate={setSelectedDate}
+                  daysOfWeek={["lun", "mar", "mié", "jue", "vie", "sáb", "dom"]}
                 />
               </div>
               <div className="lg:col-span-2">
@@ -166,6 +172,7 @@ const BusinessDashboard = () => {
               newEmployee={newEmployee}
               onChange={handleEmployeeFormChange}
               onSubmit={handleAddEmployee}
+              businessId={businessId}
             />
             <EmployeeList
               employees={allEmployees}
@@ -197,6 +204,10 @@ const BusinessDashboard = () => {
               bookings={upcomingBookings}
               onCancelBooking={handleCancelBooking}
             />
+          </TabsContent>
+
+          <TabsContent value="wallet">
+            <MercadoPagoSettings businessId={businessId} />
           </TabsContent>
         </Tabs>
       </main>

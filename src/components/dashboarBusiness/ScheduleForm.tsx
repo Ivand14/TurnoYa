@@ -29,7 +29,6 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
   }, []);
 
   const handleEdit = () => {
-    console.log(originalSchedule.current,newSchedule);
     onEdit(newSchedule.id,newSchedule)
   }
 

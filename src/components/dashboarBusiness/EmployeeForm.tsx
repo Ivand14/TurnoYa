@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import React from "react";
 import { UserPlus } from "lucide-react";
+import { Employee } from "@/types/dashboard";
 
 interface EmployeeFormProps {
   newEmployee: {
@@ -13,13 +14,15 @@ interface EmployeeFormProps {
     position: string;
   };
   onChange: (field: string, value: string) => void;
-  onSubmit: () => void;
+  onSubmit: (newEmployee) => void;
+  businessId:string
 }
 
 const EmployeeForm: React.FC<EmployeeFormProps> = ({
   newEmployee,
   onChange,
-  onSubmit
+  onSubmit,
+  businessId
 }) => {
   return (
     <Card>
@@ -65,7 +68,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
             />
           </div>
         </div>
-        <Button onClick={onSubmit}>Agregar Empleado</Button>
+        <Button onClick={() => onSubmit({ ...newEmployee, businessId })}>Agregar Empleado</Button>
       </CardContent>
     </Card>
   );

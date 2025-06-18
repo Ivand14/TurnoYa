@@ -6,6 +6,7 @@ import {
   get_all_employees,
   patch_employee,
 } from "@/apis/employee_schedule.apis";
+import { toast } from "sonner";
 
 interface EmployeeContext {
   allEmployees: Employee[];
@@ -15,7 +16,7 @@ interface EmployeeContext {
   newEmployee: Employee;
   setNewEmployee: (field: string, value: string) => void;
   handleEmployeeFormChange: (field: string, value: string) => void;
-  handleAddEmployee: () => Promise<void>;
+  handleAddEmployee: (newEmployee) => Promise<void>;
   fetchGetAllEmployees: (businessId: string) => Promise<void>;
   fetchGetEmployeeById: (id: string) => Promise<void>;
   fetchPatchEmployee: (id: string, status: string) => Promise<void>;
@@ -36,7 +37,6 @@ export const useEmployeeContext = create<EmployeeContext>((set, get) => ({
     businessId: "",
   },
 
-  // ✅ Actualiza el formulario del empleado
   setNewEmployee: (field, value) =>
     set((state) => ({
       newEmployee: { ...state.newEmployee, [field]: value },
@@ -47,11 +47,10 @@ export const useEmployeeContext = create<EmployeeContext>((set, get) => ({
       newEmployee: { ...state.newEmployee, [field]: value },
     })),
 
-  // ✅ Agregar nuevo empleado
-  handleAddEmployee: async () => {
+  handleAddEmployee: async (newEmployee) => {
     set({ loading: true, error: null });
     try {
-      const response = await create_employee(get().newEmployee);
+      const response = await create_employee(newEmployee);
       if (response?.data) {
         set((state) => ({
           allEmployees: [...state.allEmployees, response.data.details],
@@ -63,8 +62,10 @@ export const useEmployeeContext = create<EmployeeContext>((set, get) => ({
             position: "",
             status: "active",
             businessId: "",
-          }, // ✅ Reset después de creación
+          },
+          
         }));
+        toast.success("Empleado creado con exito!")
       } else {
         set({
           loading: false,
@@ -72,7 +73,7 @@ export const useEmployeeContext = create<EmployeeContext>((set, get) => ({
         });
       }
     } catch (error) {
-      console.error("Error creando empleado:", error);
+      toast.error("Error creando empleado:", error);
       set({ loading: false, error: "Fallo al crear empleado" });
     }
   },
@@ -82,7 +83,6 @@ export const useEmployeeContext = create<EmployeeContext>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const response = await get_all_employees(businessId);
-      console.log(response);
       if (response?.data) {
         set({ allEmployees: response.data.details, loading: false });
       } else {

@@ -35,8 +35,6 @@ const Login = () => {
   const{setIsLogged,isLogged} = Logged()
   const{setCompany} = compnay_logged()
 
-  console.log(isLogged)
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -55,7 +53,6 @@ const Login = () => {
         if (userData.user_data) {
           setUser(userData.user_data);
           navigate("/dashboard");
-           // Guarda los datos en el contexto de Zustand
         }else if(userData.company_data){
           setCompany(userData.company_data)
           navigate(`/admin-dashboard/${userData.company_data.id}`);
@@ -65,7 +62,6 @@ const Login = () => {
       resetForm();
       
     } catch (error) {
-      console.log(error);
       toast.error("Error al iniciar sesión: credenciales incorrectas");
     } finally {
       setLoading(false);
@@ -74,12 +70,11 @@ const Login = () => {
 
   const handleLoginGoogle = async() => {
     const loginGoogle = await singInWhithGoogle();
-    console.log(loginGoogle)
     if(loginGoogle.success === true){
       setIsLogged(true)
       const userData = await getUser(loginGoogle.sessionId)
       if (userData.user_data) {
-        setUser(userData.user_data); // Guarda los datos en el contexto de Zustand
+        setUser(userData.user_data); 
       }
       navigate("/dashboard");
     }
