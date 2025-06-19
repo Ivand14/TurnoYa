@@ -43,6 +43,7 @@ interface BookingFormProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: BookingData) => void;
+  businessId:string;
 }
 
 interface PaymentData {
@@ -57,7 +58,8 @@ export const BookingForm = ({
   selectedSlot,
   open,
   onClose,
-  onSubmit
+  onSubmit,
+  businessId
 }: BookingFormProps) => {
   const {
     register,
@@ -120,6 +122,7 @@ export const BookingForm = ({
             bookingData={formData}
             onPaymentSuccess={handlePaymentSuccess}
             onCancel={handlePaymentCancel}
+            businessId={businessId}
           />
         </DialogContent>
       </Dialog>

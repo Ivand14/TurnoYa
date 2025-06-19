@@ -34,7 +34,7 @@ interface BookingFormData {
 
 const BusinessPage = () => {
   const { businessId } = useParams();
-  const { fetchGetBooking, fetchCreateBooking, booking, loading } =
+  const { fetchGetBooking, fetchCreateBooking, booking } =
     useBookingContext();
   const { fetchBusinessById, businessForId } = useBusinessContext();
   const { fetchGetAllBusinessHours, businessHours } = useScheduleContext();
@@ -601,6 +601,7 @@ const BusinessPage = () => {
             open={bookingFormOpen}
             onClose={() => setBookingFormOpen(false)}
             onSubmit={handleCreateBooking}
+            businessId={businessId}
           />
         )}
       </main>

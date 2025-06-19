@@ -6,19 +6,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { salesmanData } from "@/context/MercadoPagoContext/salesmanContext";
 
-interface OAuthAccount {
-  user_id: string;
-  nickname: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  site_id: string;
-  country_id: string;
-}
+
 
 interface OAuthAccountProps {
-  oauthAccount: OAuthAccount
+  oauthAccount: salesmanData
   handleRevokeAuthorization: () => void
 }
 
@@ -39,7 +32,7 @@ const OAuthConnectionStatus: React.FC<OAuthAccountProps> = ({oauthAccount,handle
           <div>
             <Label className="text-sm font-medium">Usuario</Label>
             <p className="text-sm text-muted-foreground">
-              @{oauthAccount.nickname}
+              @{oauthAccount.brand_name}
             </p>
           </div>
           <div>
@@ -51,13 +44,13 @@ const OAuthConnectionStatus: React.FC<OAuthAccountProps> = ({oauthAccount,handle
           <div>
             <Label className="text-sm font-medium">Nombre</Label>
             <p className="text-sm text-muted-foreground">
-              {oauthAccount.first_name} {oauthAccount.last_name}
+              {oauthAccount.brand_name}
             </p>
           </div>
           <div>
-            <Label className="text-sm font-medium">País</Label>
+            <Label className="text-sm font-medium">Identificacion</Label>
             <p className="text-sm text-muted-foreground">
-              {oauthAccount.country_id}
+              {oauthAccount.identification.type}:{oauthAccount.identification.number}
             </p>
           </div>
         </div>

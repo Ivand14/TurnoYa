@@ -6,85 +6,56 @@ import OAuthConnectionStatus from "./OAuthConnectionStatus";
 import MercadoPagoConnections from "./MercadoPagoConnections";
 import MercadoPagoDocumentation from "./MercadoPagoDocumentation";
 import MercadoPagoPaymentsMethods from "./MercadoPagoPaymentsMethods";
-
-interface OAuthAccount {
-  user_id: string;
-  nickname: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  site_id: string;
-  country_id: string;
-}
+import { compnay_logged } from "@/context/current_company";
+import {
+  salesmanContext,
+  salesmanData,
+} from "@/context/MercadoPagoContext/salesmanContext";
 
 interface MercadoPagoSettingsProps {
   businessId: string;
 }
 
-const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({businessId}) => {
+const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
+  businessId,
+}) => {
   const [accessToken, setAccessToken] = useState("");
   const [publicKey, setPublicKey] = useState("");
   const [isTestMode, setIsTestMode] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [oauthAccount, setOauthAccount] = useState<OAuthAccount | null>(null);
+  const [oauthAccount, setOauthAccount] = useState<salesmanData | null>(null);
+  const { company } = compnay_logged();
+  const {
+    fetchAccessTokenData,
+    brand_name,
+    identification,
+    picture_url,
+    email,
+    accountType,
+  } = salesmanContext();
 
-  // OAuth Configuration
-  const OAUTH_CONFIG = {
-    client_id: "YOUR_APP_ID", // En producción esto vendría de las variables de entorno
-    redirect_uri: `${window.location.origin}/business-dashboard`,
-    scope: "read write",
-    response_type: "code",
+  const fetchData = () => {
+    fetchAccessTokenData(businessId);
+    setOauthAccount({
+      brand_name,
+      identification,
+      picture_url,
+      email,
+      accountType,
+    });
   };
 
   useEffect(() => {
-    // Verificar si hay un código de autorización en la URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const authCode = urlParams.get("code");
-    const state = urlParams.get("state");
-
-    if (authCode && state === "mp_oauth") {
-      handleOAuthCallback(authCode);
-      // Limpiar la URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, []);
+    company?.mercado_pago_connect == true
+      ? setIsConnected(true)
+      : setIsConnected(false);
+    fetchData();
+  }, [businessId]);
 
   const handleOAuthAuthorization = () => {
-    const baseUrl = (window.location.href = `https://turnosya-backend.onrender.com/mercado_pago?businessId=${businessId}`);
-  };
-
-  const handleOAuthCallback = async (authCode: string) => {
-    setIsLoading(true);
-
-    try {
-      // En un entorno real, esto se haría a través de una Edge Function en Supabase
-      console.log("Procesando código de autorización:", authCode);
-
-      // Simular intercambio de código por tokens
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      const mockAccount: OAuthAccount = {
-        user_id: "123456789",
-        nickname: "mi_tienda_oauth",
-        email: "tienda@ejemplo.com",
-        first_name: "Juan",
-        last_name: "Pérez",
-        site_id: "MLA",
-        country_id: "AR",
-      };
-
-      setOauthAccount(mockAccount);
-      setIsConnected(true);
-      setAccessToken("APP_USR-123456789-oauth-token");
-      setPublicKey("APP_USR-123456789-public-key");
-      toast.success("¡Autorización completada exitosamente!");
-    } catch (error) {
-      console.error("Error en OAuth callback:", error);
-      toast.error("Error al procesar la autorización");
-    } finally {
-      setIsLoading(false);
-    }
+    const baseUrl =
+      (window.location.href = `https://turnosya-backend.onrender.com/mercado_pago?businessId=${businessId}`);
   };
 
   const handleTestConnection = async () => {
@@ -143,21 +114,23 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({businessId}) =
       )}
 
       {/* Connection Methods */}
-      <MercadoPagoConnections
-        oauthAccount={oauthAccount}
-        isLoading={isLoading}
-        handleOAuthAuthorization={handleOAuthAuthorization}
-        isTestMode={isTestMode}
-        setIsTestMode={setIsTestMode}
-        accessToken={accessToken}
-        setAccessToken={setAccessToken}
-        publicKey={publicKey}
-        setPublicKey={setPublicKey}
-        handleTestConnection={handleTestConnection}
-        handleSaveSettings={handleSaveSettings}
-        isConnected={isConnected}
-        handleDisconnect={handleDisconnect}
-      />
+      {isConnected && (
+        <MercadoPagoConnections
+          oauthAccount={oauthAccount}
+          isLoading={isLoading}
+          handleOAuthAuthorization={handleOAuthAuthorization}
+          isTestMode={isTestMode}
+          setIsTestMode={setIsTestMode}
+          accessToken={accessToken}
+          setAccessToken={setAccessToken}
+          publicKey={publicKey}
+          setPublicKey={setPublicKey}
+          handleTestConnection={handleTestConnection}
+          handleSaveSettings={handleSaveSettings}
+          isConnected={isConnected}
+          handleDisconnect={handleDisconnect}
+        />
+      )}
 
       {/* Payment Methods Preview */}
       {isConnected && <MercadoPagoPaymentsMethods />}

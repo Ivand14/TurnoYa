@@ -19,19 +19,10 @@ import {
   Link,
   Shield,
 } from "lucide-react";
-
-interface OAuthAccount {
-  user_id: string;
-  nickname: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  site_id: string;
-  country_id: string;
-}
+import { salesmanData } from "@/context/MercadoPagoContext/salesmanContext";
 
 interface MercadoPagoConnectionsProps {
-  oauthAccount: OAuthAccount;
+  oauthAccount: salesmanData;
   isLoading: boolean;
   handleOAuthAuthorization: () => void;
   isTestMode: boolean;
