@@ -30,17 +30,6 @@ export const register_business = async (
         // Agregar el archivo al FormData
         formData.append("logo", logo);
 
-        console.log(formData)
-        console.log(businessName,
-            ownerName,
-            email,
-            phone,
-            address,
-            businessType,
-            description,
-            logo, // Archivo correctamente tipado
-            password)
-
 
         // Enviar la solicitud con `multipart/form-data`
         const response = await axios.post(url, formData, {
