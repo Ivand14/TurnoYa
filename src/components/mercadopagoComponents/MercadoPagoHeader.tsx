@@ -26,7 +26,7 @@ const MercadoPagoHeader:React.FC<MpHeaderProps> = ( isConnected ) => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {isConnected ? (
+            {isConnected.isConnected ? (
               <Badge variant="default" className="bg-green-100 text-green-800">
                 <CheckCircle className="h-3 w-3 mr-1" />
                 Conectado

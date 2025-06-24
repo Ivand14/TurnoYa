@@ -53,6 +53,8 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
     fetchData();
   }, [businessId]);
 
+  console.log(isConnected);
+
   const handleOAuthAuthorization = () => {
     const baseUrl =
       (window.location.href = `https://turnosya-backend.onrender.com/mercado_pago?businessId=${businessId}`);
@@ -106,7 +108,7 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
       {/* Header */}
       <MercadoPagoHeader isConnected={isConnected} />
       {/* OAuth Connection Status */}
-      {oauthAccount && (
+      {isConnected && (
         <OAuthConnectionStatus
           oauthAccount={oauthAccount}
           handleRevokeAuthorization={handleRevokeAuthorization}
@@ -114,7 +116,7 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
       )}
 
       {/* Connection Methods */}
-      {isConnected && (
+      
         <MercadoPagoConnections
           oauthAccount={oauthAccount}
           isLoading={isLoading}
@@ -130,7 +132,7 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
           isConnected={isConnected}
           handleDisconnect={handleDisconnect}
         />
-      )}
+      
 
       {/* Payment Methods Preview */}
       {isConnected && <MercadoPagoPaymentsMethods />}

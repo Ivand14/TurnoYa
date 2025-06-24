@@ -54,6 +54,7 @@ const MercadoPagoConnections: React.FC<MercadoPagoConnectionsProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState("oauth");
   const [showAccessToken, setShowAccessToken] = useState(false);
+  console.log("isConnected",isConnected);
 
   return (
     <Card>
@@ -87,7 +88,7 @@ const MercadoPagoConnections: React.FC<MercadoPagoConnectionsProps> = ({
               </AlertDescription>
             </Alert>
 
-            {!oauthAccount ? (
+            {isConnected === false ? (
               <div className="space-y-4">
                 <div className="text-center p-6 border-2 border-dashed rounded-lg">
                   <Shield className="h-12 w-12 mx-auto text-blue-600 mb-4" />
