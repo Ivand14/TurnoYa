@@ -178,6 +178,8 @@ const BusinessPage = () => {
     }
   };
 
+  console.log("paymentid",payment_id);
+
   const handleCreateBooking = async (formData: BookingFormData) => {
 
     if (!payment_id) {
