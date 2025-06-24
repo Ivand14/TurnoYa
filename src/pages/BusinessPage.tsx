@@ -25,6 +25,7 @@ import { current_user } from "@/context/currentUser";
 import { useScheduleContext } from "@/context/apisContext/scheduleContext";
 import { useServicesContext } from "@/context/apisContext/servicesContext";
 import axios from "axios";
+import useCheckPaymentStatus from "@/apis/MercadoPagoApis/checkPaymentStatus";
 
 interface BookingFormData {
   name: string;
@@ -177,28 +178,8 @@ const BusinessPage = () => {
   };
 
   const handleCreateBooking = async (formData: BookingFormData) => {
-    const params = new URLSearchParams(window.location.search);
-    const paymentId = params.get("payment_id");
-
-    if (!paymentId) {
-      toast.error("No se recibió un ID de pago válido.");
-      return;
-    }
-
     try {
-      const paymentValidation = await axios.post(
-        "https://turnosya-backend.onrender.com/payment",
-        {
-          data: { id: paymentId },
-        }
-      );
-
-      const paymentStatus = paymentValidation?.data?.status;
-
-      if (paymentStatus !== "approved") {
-        toast.warning(`El pago no fue aprobado (estado: ${paymentStatus})`);
-        return;
-      }
+      useCheckPaymentStatus();
 
       const newBooking: Booking = {
         id: `booking-${Date.now()}`,
@@ -214,7 +195,6 @@ const BusinessPage = () => {
         status: "confirmed",
         paymentStatus: "approved",
         notes: formData.notes,
-        payment_id: paymentId,
       };
 
       await fetchCreateBooking(newBooking);
