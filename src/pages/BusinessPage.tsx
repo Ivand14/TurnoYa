@@ -179,6 +179,13 @@ const BusinessPage = () => {
   };
 
   const handleCreateBooking = async (formData: BookingFormData) => {
+
+    const params = new URLSearchParams(window.location.search)
+    const paymentId = params.get("payment_id")
+    const status = params.get("status")
+
+    console.log(paymentId,status);
+
     const newBooking: Booking = {
       id: `booking-${Date.now()}`,
       businessId: businessId,
@@ -190,9 +197,10 @@ const BusinessPage = () => {
       date: selectedDate.toISOString().split("T")[0],
       start: selectedSlot?.start.toISOString() || "",
       end: selectedSlot?.end.toISOString() || "",
-      status: "confirmed",
-      paymentStatus: "pending",
+      status: status,
+      paymentStatus: status,
       notes: formData.notes,
+      payment_id:paymentId
     };
 
     await fetchCreateBooking(newBooking);

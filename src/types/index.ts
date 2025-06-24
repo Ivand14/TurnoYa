@@ -52,9 +52,10 @@ export interface Booking {
   date: string; // ISO date string
   start: string; // ISO date string
   end: string; // ISO date string
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  paymentStatus: 'pending' | 'paid' | 'refunded';
+  status: string;
+  paymentStatus: string;
   notes?: string;
+  payment_id?:string;
 }
 
 export interface User {
