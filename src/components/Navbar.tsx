@@ -9,12 +9,14 @@ import { compnay_logged } from "@/context/current_company";
 import { current_user } from "@/context/currentUser";
 import { logout } from "@/lib/utils";
 import { useState } from "react";
+import { salesmanContext } from "@/context/MercadoPagoContext/salesmanContext";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { setUser, user } = current_user();
   const { setIsLogged, isLogged } = Logged();
   const { setCompany, company } = compnay_logged();
+  const{fetchAccessTokenData} = salesmanContext()
 
   const navigate = useNavigate();
 
@@ -23,6 +25,7 @@ export const Navbar = () => {
     setUser(null);
     setCompany(null);
     logout();
+    fetchAccessTokenData(null)
     navigate("/login");
   };
 
