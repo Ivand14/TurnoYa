@@ -16,7 +16,6 @@ export const Navbar = () => {
   const { setUser, user } = current_user();
   const { setIsLogged, isLogged } = Logged();
   const { setCompany, company } = compnay_logged();
-  const{fetchAccessTokenData} = salesmanContext()
 
   const navigate = useNavigate();
 
@@ -25,7 +24,7 @@ export const Navbar = () => {
     setUser(null);
     setCompany(null);
     logout();
-    fetchAccessTokenData(null)
+    localStorage.removeItem("salesman-store");
     navigate("/login");
   };
 
