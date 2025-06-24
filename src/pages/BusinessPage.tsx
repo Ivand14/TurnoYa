@@ -177,6 +177,9 @@ const BusinessPage = () => {
     }
   };
 
+  console.log(window.location.search)
+
+
   const handleCreateBooking = async (formData: BookingFormData) => {
     const params = new URLSearchParams(window.location.search);
     const payment_id = params.get("payment_id");
