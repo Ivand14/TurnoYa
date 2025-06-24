@@ -24,6 +24,7 @@ import Loading from "@/components/loading";
 import { current_user } from "@/context/currentUser";
 import { useScheduleContext } from "@/context/apisContext/scheduleContext";
 import { useServicesContext } from "@/context/apisContext/servicesContext";
+import axios from "axios";
 
 interface BookingFormData {
   name: string;
@@ -34,8 +35,7 @@ interface BookingFormData {
 
 const BusinessPage = () => {
   const { businessId } = useParams();
-  const { fetchGetBooking, fetchCreateBooking, booking } =
-    useBookingContext();
+  const { fetchGetBooking, fetchCreateBooking, booking } = useBookingContext();
   const { fetchBusinessById, businessForId } = useBusinessContext();
   const { fetchGetAllBusinessHours, businessHours } = useScheduleContext();
   const { fetchGetServices, services } = useServicesContext();
@@ -76,7 +76,6 @@ const BusinessPage = () => {
       sáb: 6,
     };
 
-    
     businessHours.forEach((sch) => {
       const day = sch.day.slice(0, 3).toLowerCase();
       days_business.push(day);
@@ -115,12 +114,12 @@ const BusinessPage = () => {
     };
 
     fetchAdditionalData();
-  }, [businessId,selectedDate]);
+  }, [businessId, selectedDate]);
 
   useEffect(() => {
     if (!businessId) return;
     scheduleInfo();
-  }, [businessId, businessHours,booking]);
+  }, [businessId, businessHours, booking]);
 
   if (!businessId) {
     return <Navigate to="/businesses" />;
@@ -169,8 +168,7 @@ const BusinessPage = () => {
   // Manejar selección de horario
   const handleSelectTimeSlot = async (start: Date, end: Date) => {
     setSelectedSlot({ start, end });
-    
-    
+
     if (selectedService) {
       setBookingFormOpen(true);
     } else {
@@ -179,35 +177,55 @@ const BusinessPage = () => {
   };
 
   const handleCreateBooking = async (formData: BookingFormData) => {
+    const params = new URLSearchParams(window.location.search);
+    const paymentId = params.get("payment_id");
 
-    const params = new URLSearchParams(window.location.search)
-    const paymentId = params.get("payment_id")
-    const status = params.get("status")
+    if (!paymentId) {
+      toast.error("No se recibió un ID de pago válido.");
+      return;
+    }
 
-    console.log(paymentId,status);
+    try {
+      const paymentValidation = await axios.post(
+        "https://turnosya-backend.onrender.com/payment",
+        {
+          data: { id: paymentId },
+        }
+      );
 
-    const newBooking: Booking = {
-      id: `booking-${Date.now()}`,
-      businessId: businessId,
-      serviceId: selectedService?.id || "",
-      userId: user.id,
-      userName: user.name,
-      userEmail: user.email,
-      userPhone: formData.phone,
-      date: selectedDate.toISOString().split("T")[0],
-      start: selectedSlot?.start.toISOString() || "",
-      end: selectedSlot?.end.toISOString() || "",
-      status: status,
-      paymentStatus: status,
-      notes: formData.notes,
-      payment_id:paymentId
-    };
+      const paymentStatus = paymentValidation?.data?.status;
 
-    await fetchCreateBooking(newBooking);
-    await fetchGetBooking(businessId);
-    toast.success("¡Reserva creada con éxito!");
-    setBookingFormOpen(false);
-    setSelectedSlot(null);
+      if (paymentStatus !== "approved") {
+        toast.warning(`El pago no fue aprobado (estado: ${paymentStatus})`);
+        return;
+      }
+
+      const newBooking: Booking = {
+        id: `booking-${Date.now()}`,
+        businessId: businessId,
+        serviceId: selectedService?.id || "",
+        userId: user.id,
+        userName: user.name,
+        userEmail: user.email,
+        userPhone: formData.phone,
+        date: selectedDate.toISOString().split("T")[0],
+        start: selectedSlot?.start.toISOString() || "",
+        end: selectedSlot?.end.toISOString() || "",
+        status: "confirmed",
+        paymentStatus: "approved",
+        notes: formData.notes,
+        payment_id: paymentId,
+      };
+
+      await fetchCreateBooking(newBooking);
+      await fetchGetBooking(businessId);
+      toast.success("¡Reserva creada con éxito!");
+      setBookingFormOpen(false);
+      setSelectedSlot(null);
+    } catch (error) {
+      console.error("Error en el proceso de reserva:", error);
+      toast.error("Ocurrió un error al verificar el pago o crear la reserva.");
+    }
   };
 
   if (initialLoading) {
@@ -217,7 +235,6 @@ const BusinessPage = () => {
       </div>
     );
   }
-
 
   return (
     <div className="flex flex-col min-h-screen" key={businessForId.id}>
