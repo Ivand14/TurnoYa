@@ -178,8 +178,32 @@ const BusinessPage = () => {
   };
 
   const handleCreateBooking = async (formData: BookingFormData) => {
+    const params = new URLSearchParams(window.location.search);
+    const paymentId = params.get("payment_id");
+
+    if (!paymentId) {
+      toast.error("No se encontró el ID del pago.");
+      return;
+    }
+
     try {
-      useCheckPaymentStatus();
+      const response = await axios.post(
+        "https://turnosya-backend.onrender.com/payment",
+        {
+          data: { id: paymentId },
+        }
+      );
+
+      const paymentStatus = response?.data?.status;
+
+      console.log("paymentStatus",paymentStatus);
+
+      if (paymentStatus !== "approved") {
+        toast.warning(
+          `El estado del pago es ${paymentStatus || "desconocido"}`
+        );
+        return;
+      }
 
       const newBooking: Booking = {
         id: `booking-${Date.now()}`,
@@ -195,7 +219,10 @@ const BusinessPage = () => {
         status: "confirmed",
         paymentStatus: "approved",
         notes: formData.notes,
+        payment_id: paymentId,
       };
+
+      console.log("newBooking",newBooking);
 
       await fetchCreateBooking(newBooking);
       await fetchGetBooking(businessId);
@@ -203,7 +230,7 @@ const BusinessPage = () => {
       setBookingFormOpen(false);
       setSelectedSlot(null);
     } catch (error) {
-      console.error("Error en el proceso de reserva:", error);
+      console.error("Error al procesar la reserva:", error);
       toast.error("Ocurrió un error al verificar el pago o crear la reserva.");
     }
   };
