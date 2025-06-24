@@ -1,5 +1,6 @@
 import axios from "axios"
 import { API_URL } from "../api_url"
+import { toast } from "sonner";
 
 export const create_preferences = async(businessId:string,title:string,price:number) => {
     try {
@@ -8,8 +9,15 @@ export const create_preferences = async(businessId:string,title:string,price:num
             price
         })
         console.log(response);
+        const {init_point} = response.data.init_point
+        if(init_point){
+            window.location.href = init_point
+        }else{
+            toast.error("No se pudo inciar el pago")
+        }
         return response
     } catch (error) {
         console.log(error.response.data);
+        toast.error("error al iniciar el pago")
     }
 }
