@@ -10,6 +10,6 @@ export const create_preferences = async(businessId:string,title:string,price:num
         console.log(response);
         return response
     } catch (error) {
-        console.log(error);
+        console.log(error.response.data);
     }
 }
