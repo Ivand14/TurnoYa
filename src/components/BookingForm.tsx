@@ -4,7 +4,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,7 @@ interface BookingFormProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: BookingData) => void;
-  businessId:string;
+  businessId: string;
 }
 
 interface PaymentData {
@@ -58,16 +58,15 @@ export const BookingForm = ({
   open,
   onClose,
   onSubmit,
-  businessId
+  businessId,
 }: BookingFormProps) => {
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
   } = useForm();
   const [showPayment, setShowPayment] = useState(false);
   const [formData, setFormData] = useState<BookingData | null>(null);
-
 
   const submitForm = (data: BookingData) => {
     if (!selectedSlot) {
@@ -81,7 +80,7 @@ export const BookingForm = ({
       date: selectedDate.toISOString().split("T")[0],
       start: selectedSlot.start.toISOString(),
       end: selectedSlot.end.toISOString(),
-      employeeId: data.employeeId || null
+      employeeId: data.employeeId || null,
     };
 
     setFormData(bookingData);
@@ -93,7 +92,7 @@ export const BookingForm = ({
       onSubmit({
         ...formData,
         paymentData,
-        paymentStatus: "pending"
+        paymentStatus: paymentData.status === "approved" ? "paid" : "pending",
       });
     }
     setShowPayment(false);
@@ -128,7 +127,6 @@ export const BookingForm = ({
     );
   }
 
-
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
@@ -147,8 +145,6 @@ export const BookingForm = ({
             />
           </div>
 
-          
-
           <div>
             <Label htmlFor="phone">Teléfono</Label>
             <Input
@@ -157,8 +153,8 @@ export const BookingForm = ({
                 required: "Este campo es obligatorio",
                 pattern: {
                   value: /^[0-9+-\s()]+$/,
-                  message: "Número de teléfono inválido"
-                }
+                  message: "Número de teléfono inválido",
+                },
               })}
               placeholder="+5411234567890"
             />

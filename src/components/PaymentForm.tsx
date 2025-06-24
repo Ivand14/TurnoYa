@@ -2,13 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCard, ExternalLink, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CreatePreferenceRequest } from "@/types/mercadopago";
 import { Separator } from "@/components/ui/separator";
 import { Service } from "@/types";
 import { current_user } from "@/context/currentUser";
-import { toast } from "sonner";
 import MercadoPagoButton from "./mercadopagoComponents/MercadoPagoButton";
 
 interface PaymentData {
@@ -108,7 +105,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
             businessId={businessId}
             title={service.name_service}
             price={service.price}
-            
+            onPaymentSuccess={onPaymentSuccess}
           />
 
 
