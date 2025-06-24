@@ -108,6 +108,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
             businessId={businessId}
             title={service.name_service}
             price={service.price}
+            
           />
 
 

@@ -36,7 +36,6 @@ interface BookingFormData {
 
 const BusinessPage = () => {
   const { businessId } = useParams();
-  const{payment_id} =  useParams()
   const { fetchGetBooking, fetchCreateBooking, booking } = useBookingContext();
   const { fetchBusinessById, businessForId } = useBusinessContext();
   const { fetchGetAllBusinessHours, businessHours } = useScheduleContext();
@@ -178,9 +177,11 @@ const BusinessPage = () => {
     }
   };
 
-  console.log("paymentid",payment_id);
-
   const handleCreateBooking = async (formData: BookingFormData) => {
+    const params = new URLSearchParams(window.location.search);
+    const payment_id = params.get("payment_id");
+
+    console.log("payment_id",payment_id);
 
     if (!payment_id) {
       toast.error("No se encontró el ID del pago.");
@@ -197,7 +198,7 @@ const BusinessPage = () => {
 
       const paymentStatus = response?.data?.status;
 
-      console.log("paymentStatus",paymentStatus);
+      console.log("paymentStatus", paymentStatus);
 
       if (paymentStatus !== "approved") {
         toast.warning(
@@ -223,7 +224,7 @@ const BusinessPage = () => {
         payment_id: payment_id,
       };
 
-      console.log("newBooking",newBooking);
+      console.log("newBooking", newBooking);
 
       await fetchCreateBooking(newBooking);
       await fetchGetBooking(businessId);
