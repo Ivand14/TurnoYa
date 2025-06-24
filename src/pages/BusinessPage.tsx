@@ -25,7 +25,6 @@ import { current_user } from "@/context/currentUser";
 import { useScheduleContext } from "@/context/apisContext/scheduleContext";
 import { useServicesContext } from "@/context/apisContext/servicesContext";
 import axios from "axios";
-import useCheckPaymentStatus from "@/apis/MercadoPagoApis/checkPaymentStatus";
 
 interface BookingFormData {
   name: string;
@@ -41,6 +40,7 @@ const BusinessPage = () => {
   const { fetchGetAllBusinessHours, businessHours } = useScheduleContext();
   const { fetchGetServices, services } = useServicesContext();
   const { user } = current_user();
+  const[payment_id,setPaymentId] = useState<string>("")
 
   const [initialLoading, setInitialLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -122,6 +122,14 @@ const BusinessPage = () => {
     scheduleInfo();
   }, [businessId, businessHours, booking]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const payment_id = params.get("payment_id");
+
+    console.log("payment_id",payment_id);
+  }, [])
+  
+
   if (!businessId) {
     return <Navigate to="/businesses" />;
   }
@@ -181,10 +189,7 @@ const BusinessPage = () => {
 
 
   const handleCreateBooking = async (formData: BookingFormData) => {
-    const params = new URLSearchParams(window.location.search);
-    const payment_id = params.get("payment_id");
-
-    console.log("payment_id",payment_id);
+  
 
     if (!payment_id) {
       toast.error("No se encontró el ID del pago.");
