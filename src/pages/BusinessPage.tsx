@@ -36,6 +36,7 @@ interface BookingFormData {
 
 const BusinessPage = () => {
   const { businessId } = useParams();
+  const{payment_id} =  useParams()
   const { fetchGetBooking, fetchCreateBooking, booking } = useBookingContext();
   const { fetchBusinessById, businessForId } = useBusinessContext();
   const { fetchGetAllBusinessHours, businessHours } = useScheduleContext();
@@ -178,10 +179,8 @@ const BusinessPage = () => {
   };
 
   const handleCreateBooking = async (formData: BookingFormData) => {
-    const params = new URLSearchParams(window.location.search);
-    const paymentId = params.get("payment_id");
 
-    if (!paymentId) {
+    if (!payment_id) {
       toast.error("No se encontró el ID del pago.");
       return;
     }
@@ -190,7 +189,7 @@ const BusinessPage = () => {
       const response = await axios.post(
         "https://turnosya-backend.onrender.com/payment",
         {
-          data: { id: paymentId },
+          data: { id: payment_id },
         }
       );
 
@@ -219,7 +218,7 @@ const BusinessPage = () => {
         status: "confirmed",
         paymentStatus: "approved",
         notes: formData.notes,
-        payment_id: paymentId,
+        payment_id: payment_id,
       };
 
       console.log("newBooking",newBooking);
