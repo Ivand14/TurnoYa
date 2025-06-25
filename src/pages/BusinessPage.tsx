@@ -24,7 +24,6 @@ import Loading from "@/components/loading";
 import { current_user } from "@/context/currentUser";
 import { useScheduleContext } from "@/context/apisContext/scheduleContext";
 import { useServicesContext } from "@/context/apisContext/servicesContext";
-import axios from "axios";
 
 interface BookingFormData {
   name: string;
@@ -40,7 +39,7 @@ const BusinessPage = () => {
   const { fetchGetAllBusinessHours, businessHours } = useScheduleContext();
   const { fetchGetServices, services } = useServicesContext();
   const { user } = current_user();
-  const[payment_id,setPaymentId] = useState<string>("")
+  const [payment_id, setPaymentId] = useState<string>("");
 
   const [initialLoading, setInitialLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -123,12 +122,39 @@ const BusinessPage = () => {
   }, [businessId, businessHours, booking]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const payment_id = params.get("payment_id");
+    const paymentCheck = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const payment_id = params.get("payment_id");
+      const paymentStatus = params.get("status");
 
-    console.log("payment_id",payment_id);
-  }, [])
-  
+      console.log(payment_id,paymentStatus);
+
+      if (!payment_id) {
+        toast.error("No se encontró el ID del pago.");
+        return;
+      }
+
+      if (payment_id && paymentStatus === "approved") {
+        const bookInLs = localStorage.getItem("PendingBook");
+        !bookInLs && toast.error("No se encontró la reserva pendiente.");
+        const book = JSON.parse(bookInLs);
+        book.status = "confirmed";
+        book.paymentStatus = paymentStatus;
+        localStorage.setItem("PendingBook", JSON.stringify(book));
+        await fetchCreateBooking(book);
+        await fetchGetBooking(businessId);
+        toast.success("¡Reserva creada con éxito!");
+        setBookingFormOpen(false);
+        setSelectedSlot(null);
+      }
+
+      toast.error("No se pudo realizar el pago")
+
+    };
+
+    paymentCheck()
+
+  }, []);
 
   if (!businessId) {
     return <Navigate to="/businesses" />;
@@ -185,64 +211,25 @@ const BusinessPage = () => {
     }
   };
 
-  console.log(window.location.search)
-
-
   const handleCreateBooking = async (formData: BookingFormData) => {
-  
+    const newBooking: Booking = {
+      id: `booking-${Date.now()}`,
+      businessId: businessId,
+      serviceId: selectedService?.id || "",
+      userId: user.id,
+      userName: user.name,
+      userEmail: user.email,
+      userPhone: formData.phone,
+      date: selectedDate.toISOString().split("T")[0],
+      start: selectedSlot?.start.toISOString() || "",
+      end: selectedSlot?.end.toISOString() || "",
+      status: "pending",
+      paymentStatus: "pending",
+      notes: formData.notes,
+      payment_id: payment_id,
+    };
 
-    if (!payment_id) {
-      toast.error("No se encontró el ID del pago.");
-      return;
-    }
-
-    try {
-      const response = await axios.post(
-        "https://turnosya-backend.onrender.com/payment",
-        {
-          data: { id: payment_id },
-        }
-      );
-
-      const paymentStatus = response?.data?.status;
-
-      console.log("paymentStatus", paymentStatus);
-
-      if (paymentStatus !== "approved") {
-        toast.warning(
-          `El estado del pago es ${paymentStatus || "desconocido"}`
-        );
-        return;
-      }
-
-      const newBooking: Booking = {
-        id: `booking-${Date.now()}`,
-        businessId: businessId,
-        serviceId: selectedService?.id || "",
-        userId: user.id,
-        userName: user.name,
-        userEmail: user.email,
-        userPhone: formData.phone,
-        date: selectedDate.toISOString().split("T")[0],
-        start: selectedSlot?.start.toISOString() || "",
-        end: selectedSlot?.end.toISOString() || "",
-        status: "confirmed",
-        paymentStatus: "approved",
-        notes: formData.notes,
-        payment_id: payment_id,
-      };
-
-      console.log("newBooking", newBooking);
-
-      await fetchCreateBooking(newBooking);
-      await fetchGetBooking(businessId);
-      toast.success("¡Reserva creada con éxito!");
-      setBookingFormOpen(false);
-      setSelectedSlot(null);
-    } catch (error) {
-      console.error("Error al procesar la reserva:", error);
-      toast.error("Ocurrió un error al verificar el pago o crear la reserva.");
-    }
+    localStorage.setItem("PendingBook", JSON.stringify(newBooking));
   };
 
   if (initialLoading) {

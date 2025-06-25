@@ -14,14 +14,12 @@ interface Props {
   businessId: string;
   title: string;
   price: number;
-  onPaymentSuccess: (paymentData: PaymentData) => void;
 }
 
 const MercadoPagoButton: React.FC<Props> = ({
   businessId,
   title,
   price,
-  onPaymentSuccess,
 }) => {
   const [preferenceId, setPreferenceId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,11 +30,6 @@ const MercadoPagoButton: React.FC<Props> = ({
       const res = await create_preferences(businessId, title, price);
       console.log(res);
       setPreferenceId(res.data.preferenceId);
-      onPaymentSuccess({
-        preferenceId: res.data.preferenceId,
-        paymentUrl: res.data.init_point,
-        status: "pending",
-      });
     } catch (err) {
       console.error("Error al crear preferencia:", err);
     } finally {

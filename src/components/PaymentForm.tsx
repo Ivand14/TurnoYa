@@ -25,7 +25,6 @@ interface PaymentFormProps {
     end: string;
     notes?: string;
   };
-  onPaymentSuccess: (paymentData: PaymentData) => void;
   onCancel: () => void;
   businessId:string
 }
@@ -33,9 +32,8 @@ interface PaymentFormProps {
 export const PaymentForm: React.FC<PaymentFormProps> = ({
   service,
   bookingData,
-  onPaymentSuccess,
-  onCancel,
-  businessId
+  businessId,
+  onCancel
 }) => {
 
   const { user } = current_user();
@@ -105,7 +103,6 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
             businessId={businessId}
             title={service.name_service}
             price={service.price}
-            onPaymentSuccess={onPaymentSuccess}
           />
 
 

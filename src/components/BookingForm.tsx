@@ -68,6 +68,7 @@ export const BookingForm = ({
   const [showPayment, setShowPayment] = useState(false);
   const [formData, setFormData] = useState<BookingData | null>(null);
 
+
   const submitForm = (data: BookingData) => {
     if (!selectedSlot) {
       toast.error("Por favor selecciona un horario");
@@ -83,26 +84,21 @@ export const BookingForm = ({
       employeeId: data.employeeId || null,
     };
 
+    console.log(bookingData);
+
+    onSubmit(bookingData)
+
     setFormData(bookingData);
     setShowPayment(true);
   };
 
-  const handlePaymentSuccess = (paymentData: PaymentData) => {
-    if (formData) {
-      onSubmit({
-        ...formData,
-        paymentData,
-        paymentStatus: paymentData.status === "approved" ? "paid" : "pending",
-      });
-    }
-    setShowPayment(false);
-    setFormData(null);
-  };
+
 
   const handlePaymentCancel = () => {
     setShowPayment(false);
     setFormData(null);
   };
+
 
   if (showPayment && formData) {
     return (
@@ -118,7 +114,6 @@ export const BookingForm = ({
           <PaymentForm
             service={service}
             bookingData={formData}
-            onPaymentSuccess={handlePaymentSuccess}
             onCancel={handlePaymentCancel}
             businessId={businessId}
           />
