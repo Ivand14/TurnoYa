@@ -149,9 +149,10 @@ const BusinessPage = () => {
         }
       }
 
-      paymentStatus === "approved"
-        ? toast.success("¡Reserva creada con éxito!")
-        : toast.error("No se pudo realizar el pago");
+      paymentStatus === "approved" &&
+        toast.success("¡Reserva creada con éxito!");
+
+      paymentStatus === "cancel" && toast.error("No se pudo hacer el pago");
     };
 
     paymentCheck();
@@ -227,7 +228,7 @@ const BusinessPage = () => {
       status: "pending",
       paymentStatus: "pending",
       notes: formData.notes,
-      payment_id: payment_id,
+      payment_id: null,
     };
 
     localStorage.setItem("PendingBook", JSON.stringify(newBooking));
