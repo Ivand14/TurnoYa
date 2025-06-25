@@ -127,7 +127,7 @@ const BusinessPage = () => {
       const payment_id = params.get("payment_id");
       const paymentStatus = params.get("status");
 
-      console.log(payment_id,paymentStatus);
+      console.log(payment_id, paymentStatus);
 
       if (!payment_id) {
         toast.error("No se encontró el ID del pago.");
@@ -140,21 +140,21 @@ const BusinessPage = () => {
         const book = JSON.parse(bookInLs);
         book.status = "confirmed";
         book.paymentStatus = paymentStatus;
-        book.payment_id = payment_id
+        book.payment_id = payment_id;
         localStorage.setItem("PendingBook", JSON.stringify(book));
         await fetchCreateBooking(book);
         await fetchGetBooking(businessId);
-        toast.success("¡Reserva creada con éxito!");
+
         setBookingFormOpen(false);
         setSelectedSlot(null);
       }
 
-      toast.error("No se pudo realizar el pago")
-
+      paymentStatus === "approved"
+        ? toast.success("¡Reserva creada con éxito!")
+        : toast.error("No se pudo realizar el pago");
     };
 
-    paymentCheck()
-
+    paymentCheck();
   }, []);
 
   if (!businessId) {
