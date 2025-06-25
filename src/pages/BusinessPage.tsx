@@ -129,11 +129,6 @@ const BusinessPage = () => {
 
       console.log(payment_id, paymentStatus);
 
-      if (!payment_id) {
-        toast.error("No se encontró el ID del pago.");
-        return;
-      }
-
       if (payment_id && paymentStatus === "approved") {
         const bookInLs = localStorage.getItem("PendingBook");
         !bookInLs && toast.error("No se encontró la reserva pendiente.");
@@ -147,6 +142,11 @@ const BusinessPage = () => {
 
         setBookingFormOpen(false);
         setSelectedSlot(null);
+
+        if (!payment_id) {
+          toast.error("No se encontró el ID del pago.");
+          return;
+        }
       }
 
       paymentStatus === "approved"
