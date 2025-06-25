@@ -140,6 +140,7 @@ const BusinessPage = () => {
         const book = JSON.parse(bookInLs);
         book.status = "confirmed";
         book.paymentStatus = paymentStatus;
+        book.payment_id = payment_id
         localStorage.setItem("PendingBook", JSON.stringify(book));
         await fetchCreateBooking(book);
         await fetchGetBooking(businessId);
