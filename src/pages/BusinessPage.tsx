@@ -39,7 +39,6 @@ const BusinessPage = () => {
   const { fetchGetAllBusinessHours, businessHours } = useScheduleContext();
   const { fetchGetServices, services } = useServicesContext();
   const { user } = current_user();
-  const [payment_id, setPaymentId] = useState<string>("");
 
   const [initialLoading, setInitialLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -147,6 +146,8 @@ const BusinessPage = () => {
           toast.error("No se encontró el ID del pago.");
           return;
         }
+
+        localStorage.removeItem("PendingBook")
       }
 
       paymentStatus === "approved" &&

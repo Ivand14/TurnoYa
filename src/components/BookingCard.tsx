@@ -88,6 +88,8 @@ export const BookingCard = ({
     }
   };
 
+  console.log(booking);
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="p-4 pb-2 bg-gray-50">
