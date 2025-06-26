@@ -118,7 +118,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
     toast.success("Servicio agregado correctamente");
   };
 
-  const activeEmployees = employees.filter((emp) => emp.status === "active");
+  const activeEmployees = Array.isArray(employees) && employees?.filter((emp) => emp.status === "active");
 
   return (
     <Card>
