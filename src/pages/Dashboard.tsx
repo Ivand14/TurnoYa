@@ -23,9 +23,9 @@ const Dashboard = () => {
     useBookingContext();
   const { servicesUser } = useServicesContext();
 
-  // if (!isLogged || !user || user.rol !== "user") {
-  //   return <Navigate to="/login" />;
-  // }
+  if (!isLogged || !user || user.rol !== "user") {
+    return <Navigate to="/login" />;
+  }
 
   const fetchData = async () => {
     const now = new Date();
