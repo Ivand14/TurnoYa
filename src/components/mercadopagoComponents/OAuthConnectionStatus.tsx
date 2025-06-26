@@ -30,9 +30,9 @@ const OAuthConnectionStatus: React.FC<OAuthAccountProps> = ({oauthAccount,handle
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label className="text-sm font-medium">Usuario</Label>
+            <Label className="text-sm font-medium">Celular</Label>
             <p className="text-sm text-muted-foreground">
-              @{oauthAccount.brand_name}
+              {oauthAccount.phone}
             </p>
           </div>
           <div>

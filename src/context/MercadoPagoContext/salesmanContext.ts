@@ -14,6 +14,7 @@ export interface salesmanData {
   picture_url: string;
   fetchAccessTokenData?: (businessId: string) => void;
   accountType: string;
+  phone:number
 }
 
 export const salesmanContext = create<salesmanData>()(
@@ -24,6 +25,7 @@ export const salesmanContext = create<salesmanData>()(
       identification: { number: 0, type: "" },
       picture_url: "",
       accountType: "",
+      phone:0,
 
       fetchAccessTokenData: async (businessId) => {
         try {
@@ -32,14 +34,15 @@ export const salesmanContext = create<salesmanData>()(
           );
           const data = await res.data.details;
 
-        const{company,email,identification,thumbnail} = data
+        const{first_name,last_name,email,identification,thumbnail,registration_identifiers} = data
 
           set({
-            brand_name: company.brand_name || "",
+            brand_name: `${first_name} ${last_name}` || "",
             email: email || "",
             identification: identification || { number: 0, type: "" },
             picture_url: thumbnail?.picture_url || "",
             accountType: "oauth",
+            phone : data.registration_identifiers[0]?.metadata?.number
           });
         } catch (error) {
           console.error("fetchAccessTokenData error:", error);
