@@ -111,6 +111,8 @@ const BusinessDashboard = () => {
   };
 
   const stats = getDashboardStats(booking, allEmployees);
+  console.log(stats);
+  console.log(booking);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -138,7 +140,7 @@ const BusinessDashboard = () => {
                 <Calendar
                   selectedDate={selectedDate}
                   onSelectDate={setSelectedDate}
-                  daysOfWeek={["lun", "mar", "mié", "jue", "vie", "sáb", "dom"]}
+                  daysOfWeek={["dom", "lun", "mar", "mié", "jue", "vie", "sáb"]}
                 />
               </div>
               <div className="lg:col-span-2">

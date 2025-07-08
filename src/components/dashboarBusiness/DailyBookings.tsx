@@ -4,7 +4,7 @@ import { Booking } from "@/types";
 import { BookingCard } from "@/components/BookingCard";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
-import { getServiceForBooking } from "@/utils/dashboardUtils";
+// import { getServiceForBooking } from "@/utils/dashboardUtils"
 
 interface DailyBookingsProps {
   selectedDate: Date;
@@ -15,7 +15,7 @@ interface DailyBookingsProps {
 const DailyBookings: React.FC<DailyBookingsProps> = ({
   selectedDate,
   bookings,
-  onCancelBooking
+  onCancelBooking,
 }) => {
   const [services, setServices] = useState<Record<string, any>>({});
 
@@ -31,6 +31,17 @@ const DailyBookings: React.FC<DailyBookingsProps> = ({
     fetchServices();
   }, [bookings]);
 
+  const formatDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = `${date.getMonth() + 1}`.padStart(2, "0");
+    const day = `${date.getDate()}`.padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const current_date = formatDate(selectedDate);
+
+
   return (
     <Card>
       <CardHeader>
@@ -40,16 +51,19 @@ const DailyBookings: React.FC<DailyBookingsProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {bookings.length > 0 ? (
+        {bookings.filter((booking) => booking.date === current_date).length >
+        0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {bookings.map((booking) => (
-              <BookingCard
-                key={booking.id}
-                booking={booking}
-                service={services[booking.id] || null} // Espera la carga del servicio
-                onCancel={onCancelBooking}
-              />
-            ))}
+            {bookings
+              .filter((booking) => booking.date === current_date)
+              .map((booking) => (
+                <BookingCard
+                  key={booking.id}
+                  booking={booking}
+                  service={services[booking.id] || null}
+                  onCancel={onCancelBooking}
+                />
+              ))}
           </div>
         ) : (
           <div className="text-center py-10">
