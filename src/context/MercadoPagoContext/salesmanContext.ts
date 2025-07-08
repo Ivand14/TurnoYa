@@ -14,7 +14,7 @@ export interface salesmanData {
   picture_url: string;
   fetchAccessTokenData?: (businessId: string) => void;
   accountType: string;
-  phone:number
+  phone: string;
 }
 
 export const salesmanContext = create<salesmanData>()(
@@ -25,16 +25,23 @@ export const salesmanContext = create<salesmanData>()(
       identification: { number: 0, type: "" },
       picture_url: "",
       accountType: "",
-      phone:0,
+      phone: "",
 
       fetchAccessTokenData: async (businessId) => {
         try {
-          const res = await axios(
-            `${API_URL}/salesman/${businessId}`
-          );
+          const res = await axios(`${API_URL}/salesman/${businessId}`);
           const data = await res.data.details;
 
-        const{first_name,last_name,email,identification,thumbnail,registration_identifiers} = data
+          const {
+            first_name,
+            last_name,
+            email,
+            identification,
+            thumbnail,
+            registration_identifiers,
+          } = data;
+
+          console.log(`+${registration_identifiers[0]?.metadata?.country_code} ${registration_identifiers[0]?.metadata?.number}`);
 
           set({
             brand_name: `${first_name} ${last_name}` || "",
@@ -42,7 +49,7 @@ export const salesmanContext = create<salesmanData>()(
             identification: identification || { number: 0, type: "" },
             picture_url: thumbnail?.picture_url || "",
             accountType: "oauth",
-            phone : data.registration_identifiers[0]?.metadata?.number
+            phone: `+${registration_identifiers[0]?.metadata?.country_code} ${registration_identifiers[0]?.metadata?.number}`,
           });
         } catch (error) {
           console.error("fetchAccessTokenData error:", error);
@@ -50,7 +57,7 @@ export const salesmanContext = create<salesmanData>()(
       },
     }),
     {
-      name: "salesman-store", 
+      name: "salesman-store",
     }
   )
 );

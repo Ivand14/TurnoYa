@@ -1,29 +1,29 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  AlertCircle,
-  UserCheck,
-} from "lucide-react";
+import { AlertCircle, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { salesmanData } from "@/context/MercadoPagoContext/salesmanContext";
-
-
+import MercadoPagoAvatar from "./MercadoPagoAvatar";
 
 interface OAuthAccountProps {
-  oauthAccount: salesmanData
-  handleRevokeAuthorization: () => void
+  oauthAccount: salesmanData;
+  handleRevokeAuthorization: () => void;
 }
 
-
-
-
-const OAuthConnectionStatus: React.FC<OAuthAccountProps> = ({oauthAccount,handleRevokeAuthorization}) => {
+const OAuthConnectionStatus: React.FC<OAuthAccountProps> = ({
+  oauthAccount,
+  handleRevokeAuthorization,
+}) => {
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <UserCheck className="h-5 w-5 text-green-600" />
+          {!oauthAccount.picture_url.startsWith("https") ? (
+            <UserCheck className="h-5 w-5 text-green-600" />
+          ) : (
+            <MercadoPagoAvatar picture_url={oauthAccount.picture_url} />
+          )}
           Cuenta Conectada
         </CardTitle>
       </CardHeader>
@@ -50,7 +50,8 @@ const OAuthConnectionStatus: React.FC<OAuthAccountProps> = ({oauthAccount,handle
           <div>
             <Label className="text-sm font-medium">Identificacion</Label>
             <p className="text-sm text-muted-foreground">
-              {oauthAccount.identification.type}:{oauthAccount.identification.number}
+              {oauthAccount.identification.type}:
+              {oauthAccount.identification.number}
             </p>
           </div>
         </div>

@@ -33,6 +33,7 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
     picture_url,
     email,
     accountType,
+    phone,
   } = salesmanContext();
 
   const fetchData = () => {
@@ -43,6 +44,7 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
       picture_url,
       email,
       accountType,
+      phone,
     });
   };
 
@@ -116,23 +118,22 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
       )}
 
       {/* Connection Methods */}
-      
-        <MercadoPagoConnections
-          oauthAccount={oauthAccount}
-          isLoading={isLoading}
-          handleOAuthAuthorization={handleOAuthAuthorization}
-          isTestMode={isTestMode}
-          setIsTestMode={setIsTestMode}
-          accessToken={accessToken}
-          setAccessToken={setAccessToken}
-          publicKey={publicKey}
-          setPublicKey={setPublicKey}
-          handleTestConnection={handleTestConnection}
-          handleSaveSettings={handleSaveSettings}
-          isConnected={isConnected}
-          handleDisconnect={handleDisconnect}
-        />
-      
+
+      <MercadoPagoConnections
+        oauthAccount={oauthAccount}
+        isLoading={isLoading}
+        handleOAuthAuthorization={handleOAuthAuthorization}
+        isTestMode={isTestMode}
+        setIsTestMode={setIsTestMode}
+        accessToken={accessToken}
+        setAccessToken={setAccessToken}
+        publicKey={publicKey}
+        setPublicKey={setPublicKey}
+        handleTestConnection={handleTestConnection}
+        handleSaveSettings={handleSaveSettings}
+        isConnected={isConnected}
+        handleDisconnect={handleDisconnect}
+      />
 
       {/* Payment Methods Preview */}
       {isConnected && <MercadoPagoPaymentsMethods />}

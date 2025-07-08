@@ -111,8 +111,7 @@ const BusinessDashboard = () => {
   };
 
   const stats = getDashboardStats(booking, allEmployees);
-  console.log(stats);
-  console.log(booking);
+
 
   return (
     <div className="flex flex-col min-h-screen">
