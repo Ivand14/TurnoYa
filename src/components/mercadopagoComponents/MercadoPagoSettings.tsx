@@ -14,48 +14,27 @@ import {
 
 interface MercadoPagoSettingsProps {
   businessId: string;
+  oauthAccount: salesmanData;
+  setOauthAccount: (data: salesmanData) => void;
 }
 
 const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
   businessId,
+  oauthAccount,
+  setOauthAccount,
 }) => {
   const [accessToken, setAccessToken] = useState("");
   const [publicKey, setPublicKey] = useState("");
   const [isTestMode, setIsTestMode] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [oauthAccount, setOauthAccount] = useState<salesmanData | null>(null);
   const { company } = compnay_logged();
-  const {
-    fetchAccessTokenData,
-    brand_name,
-    identification,
-    picture_url,
-    email,
-    accountType,
-    phone,
-  } = salesmanContext();
-
-  const fetchData = () => {
-    fetchAccessTokenData(businessId);
-    setOauthAccount({
-      brand_name,
-      identification,
-      picture_url,
-      email,
-      accountType,
-      phone,
-    });
-  };
 
   useEffect(() => {
     company?.mercado_pago_connect == true
       ? setIsConnected(true)
       : setIsConnected(false);
-    fetchData();
   }, [businessId]);
-
-  console.log(isConnected);
 
   const handleOAuthAuthorization = () => {
     const baseUrl =

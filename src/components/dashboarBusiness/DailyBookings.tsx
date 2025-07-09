@@ -4,7 +4,7 @@ import { Booking } from "@/types";
 import { BookingCard } from "@/components/BookingCard";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
-// import { getServiceForBooking } from "@/utils/dashboardUtils"
+import { getServiceForBooking } from "@/utils/dashboardUtils";
 
 interface DailyBookingsProps {
   selectedDate: Date;
@@ -18,6 +18,8 @@ const DailyBookings: React.FC<DailyBookingsProps> = ({
   onCancelBooking,
 }) => {
   const [services, setServices] = useState<Record<string, any>>({});
+
+  console.log(bookings);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -40,7 +42,6 @@ const DailyBookings: React.FC<DailyBookingsProps> = ({
   };
 
   const current_date = formatDate(selectedDate);
-
 
   return (
     <Card>

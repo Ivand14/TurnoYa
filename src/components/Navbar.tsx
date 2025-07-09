@@ -9,6 +9,7 @@ import { compnay_logged } from "@/context/current_company";
 import { current_user } from "@/context/currentUser";
 import { logout } from "@/lib/utils";
 import { useState } from "react";
+import { salesmanContext } from "@/context/MercadoPagoContext/salesmanContext";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,6 +25,8 @@ export const Navbar = () => {
     setCompany(null);
     logout();
     localStorage.removeItem("salesman-store");
+    salesmanContext.getState().clearSalesman();
+    localStorage.removeItem("activeTab");
     navigate("/login");
   };
 

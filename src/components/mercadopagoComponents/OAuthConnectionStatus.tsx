@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ const OAuthConnectionStatus: React.FC<OAuthAccountProps> = ({
   oauthAccount,
   handleRevokeAuthorization,
 }) => {
+  console.log(oauthAccount);
   return (
     <Card>
       <CardHeader>

@@ -12,12 +12,17 @@ export interface salesmanData {
     type: string;
   };
   picture_url: string;
-  fetchAccessTokenData?: (businessId: string) => void;
+  fetchAccessTokenData?: (businessId: string) => Promise<void>;
   accountType: string;
   phone: string;
 }
 
-export const salesmanContext = create<salesmanData>()(
+interface salesmanStore extends salesmanData {
+  setSalesman: (data: salesmanData) => void;
+  clearSalesman: () => void;
+}
+
+export const salesmanContext = create<salesmanStore>()(
   persist(
     (set) => ({
       brand_name: "",
@@ -41,8 +46,6 @@ export const salesmanContext = create<salesmanData>()(
             registration_identifiers,
           } = data;
 
-          console.log(`+${registration_identifiers[0]?.metadata?.country_code} ${registration_identifiers[0]?.metadata?.number}`);
-
           set({
             brand_name: `${first_name} ${last_name}` || "",
             email: email || "",
@@ -55,6 +58,16 @@ export const salesmanContext = create<salesmanData>()(
           console.error("fetchAccessTokenData error:", error);
         }
       },
+      setSalesman: (data: salesmanData) => set({ ...data }),
+      clearSalesman: () =>
+        set({
+          brand_name: "",
+          email: "",
+          identification: { number: 0, type: "" },
+          picture_url: "",
+          accountType: "",
+          phone: "",
+        }),
     }),
     {
       name: "salesman-store",

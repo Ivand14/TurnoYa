@@ -16,7 +16,6 @@ export const getDashboardStats = (
   employees: Employee[]
 ): DashboardStats => {
   const totalBookings = bookings.length;
-  console.log(totalBookings);
   const confirmedBookings = bookings.filter(
     (b) => b.status === "confirmed"
   ).length;

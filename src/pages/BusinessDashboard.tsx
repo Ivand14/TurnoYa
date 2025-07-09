@@ -22,11 +22,16 @@ import ScheduleList from "@/components/dashboarBusiness/ScheduleList";
 import ServiceForm from "@/components/dashboarBusiness/ServiceForm";
 import ServiceList from "@/components/dashboarBusiness/ServiceList";
 import MercadoPagoSettings from "@/components/mercadopagoComponents/MercadoPagoSettings";
+import {
+  salesmanContext,
+  salesmanData,
+} from "@/context/MercadoPagoContext/salesmanContext";
 
 const BusinessDashboard = () => {
   const { company } = compnay_logged();
   const { businessId } = useParams();
   const { isLogged } = Logged();
+  const [oauthAccount, setOauthAccount] = useState<salesmanData | null>(null);
 
   if (!isLogged || !company || company.rol !== "business") {
     return <Navigate to="/login" />;
@@ -68,6 +73,16 @@ const BusinessDashboard = () => {
     fetchPatchService,
   } = useServicesContext();
 
+  const {
+    fetchAccessTokenData,
+    brand_name,
+    accountType,
+    email,
+    phone,
+    picture_url,
+    identification,
+  } = salesmanContext();
+
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem("activeTab") || "overview";
   });
@@ -82,11 +97,24 @@ const BusinessDashboard = () => {
     await fetchGetAllBusinessHours(businessId);
     await fetchGetAllEmployees(businessId);
     await fetchGetServices(businessId);
+    await fetchAccessTokenData(businessId);
   }, [businessId]);
 
   useEffect(() => {
     fetchData();
   }, [businessId]);
+
+  useEffect(() => {
+    setOauthAccount({
+      brand_name,
+      accountType,
+      email,
+      phone,
+      picture_url,
+      identification,
+    });
+  }, [brand_name, accountType, email, phone, picture_url, identification]);
+
 
   useEffect(() => {
     fetchGetServices(businessId);
@@ -111,7 +139,6 @@ const BusinessDashboard = () => {
   };
 
   const stats = getDashboardStats(booking, allEmployees);
-
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -144,7 +171,7 @@ const BusinessDashboard = () => {
               </div>
               <div className="lg:col-span-2">
                 <DailyBookings
-                  bookings={upcomingBookings}
+                  bookings={booking}
                   onCancelBooking={handleCancelBooking}
                   selectedDate={selectedDate}
                 />
@@ -208,7 +235,11 @@ const BusinessDashboard = () => {
           </TabsContent>
 
           <TabsContent value="wallet">
-            <MercadoPagoSettings businessId={businessId} />
+            <MercadoPagoSettings
+              businessId={businessId}
+              oauthAccount={oauthAccount}
+              setOauthAccount={setOauthAccount}
+            />
           </TabsContent>
         </Tabs>
       </main>
