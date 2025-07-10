@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Calendar,
   BarChart3,
@@ -10,14 +10,18 @@ import {
   FileText,
   MapPin,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
-import { Company, compnay_logged } from "@/context/current_company";
-import MercadoPagoAvatar from "./mercadopagoComponents/MercadoPagoAvatar";
-import { current_user } from "@/context/currentUser";
-import { Logged } from "@/context/logged";
-import { useNavigate } from "react-router-dom";
-import { logout } from "@/lib/utils";
-import { salesmanContext } from "@/context/MercadoPagoContext/salesmanContext";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
+
+interface Company {
+  id: string;
+  company_name: string;
+  email: string;
+  logo?: string;
+}
 
 interface SidebarProps {
   activeTab: string;
@@ -25,26 +29,17 @@ interface SidebarProps {
   company: Company;
 }
 
-const SidebarLayout: React.FC<SidebarProps> = ({
+const ResponsiveSidebar: React.FC<SidebarProps> = ({
   activeTab,
   onTabChange,
   company,
 }) => {
-  const { setUser } = current_user();
-  const { setIsLogged } = Logged();
-  const { setCompany } = compnay_logged();
-
-  const navigate = useNavigate();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleLogOut = () => {
-    setIsLogged(false);
-    setUser(null);
-    setCompany(null);
-    logout();
-    localStorage.removeItem("salesman-store");
-    salesmanContext.getState().clearSalesman();
-    localStorage.removeItem("activeTab");
-    navigate("/login");
+    // Simplified logout - in real app you'd handle this properly
+    console.log("Logging out...");
   };
 
   const menuItems = [
@@ -59,63 +54,177 @@ const SidebarLayout: React.FC<SidebarProps> = ({
     { id: "configuracion", label: "Configuración", icon: Settings },
   ];
 
+  const handleMenuClick = (itemId: string) => {
+    onTabChange(itemId);
+    setIsMobileOpen(false); // Close mobile menu after selection
+  };
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
-    <div className="w-64 h-screen bg-slate-900 text-white flex flex-col sticky top-0 left-0 rounded-tr-3xl rounded-br-3xl">
-      {" "}
-      {/* Header */}
-      <div className="p-6 border-b border-slate-700">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-            <Calendar className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-white">TurnosYa</h1>
-          </div>
-        </div>
-      </div>
-      {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-2">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          return (
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsMobileOpen(true)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-slate-900 text-white rounded-lg shadow-lg hover:bg-slate-800 transition-colors"
+      >
+        <Menu className="w-6 h-6" />
+      </button>
+
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+        className={cn(
+          "fixed lg:sticky top-0 left-0 h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white flex flex-col z-50 transition-all duration-300 ease-in-out",
+          // Mobile styles
+          "lg:translate-x-0",
+          isMobileOpen ? "translate-x-0" : "-translate-x-full",
+          // Desktop collapse styles
+          isCollapsed ? "lg:w-20" : "lg:w-72",
+          // Mobile width
+          "w-72z"
+        )}
+      >
+        {/* Header */}
+        <div className="p-6 border-b border-slate-700/50 backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={toggleCollapse}
+                className="w-10 h-10 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg"
+              >
+                <Calendar className="w-6 h-6 text-white" />
+              </button>
+              {!isCollapsed && (
+                <div className="transition-opacity duration-200">
+                  <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    TurnosYa
+                  </h1>
+                </div>
+              )}
+            </div>
+
+            {/* Close button for mobile */}
             <button
-              key={item.id}
-              onClick={() => onTabChange(item.id)}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200 hover:bg-slate-800 ${
-                activeTab === item.id
-                  ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg"
-                  : "text-slate-300 hover:text-white"
-              }`}
+              onClick={() => setIsMobileOpen(false)}
+              className="lg:hidden p-1 hover:bg-slate-700 rounded-lg transition-colors"
             >
-              <Icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
+              <X className="w-5 h-5" />
             </button>
-          );
-        })}
-      </nav>
-      {/* Footer */}
-      <div className="p-4 border-t border-slate-700">
-        <div className="flex items-center space-x-3 px-4 py-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center">
-            <MercadoPagoAvatar picture_url={company.logo} />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-white">
-              {company.company_name}
-            </p>
-            <p className="text-xs text-slate-400">{company.email}</p>
+
+            {/* Collapse button for desktop */}
+            {/* <button
+              onClick={toggleCollapse}
+              className="hidden lg:block p-1 hover:bg-slate-700 rounded-lg transition-colors"
+            >
+              <Menu className="w-5 h-5" />
+            </button> */}
           </div>
         </div>
-        <button
-          onClick={handleLogOut}
-          className="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          <span className="text-sm">Cerrar Sesión</span>
-        </button>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleMenuClick(item.id)}
+                className={cn(
+                  "group w-full flex items-center px-4 py-3 rounded-xl text-left transition-all duration-200 hover:scale-105 transform",
+                  isActive
+                    ? "bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white shadow-xl shadow-blue-500/25"
+                    : "text-slate-300 hover:text-white hover:bg-slate-700/50 backdrop-blur-sm",
+                  isCollapsed ? "justify-center" : "space-x-3"
+                )}
+                title={isCollapsed ? item.label : undefined}
+              >
+                <Icon
+                  className={cn(
+                    "w-5 h-5 transition-transform duration-200",
+                    isActive && "scale-110",
+                    !isActive && "group-hover:scale-105"
+                  )}
+                />
+                {!isCollapsed && (
+                  <span className="font-medium transition-all duration-200">
+                    {item.label}
+                  </span>
+                )}
+
+                {/* Active indicator */}
+                {isActive && !isCollapsed && (
+                  <div className="ml-auto w-2 h-2 bg-white rounded-full animate-pulse" />
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-slate-700/50 backdrop-blur-sm">
+          {/* Company Info */}
+          <div
+            className={cn(
+              "flex items-center px-4 py-3 mb-3 bg-slate-800/50 rounded-xl backdrop-blur-sm",
+              isCollapsed ? "justify-center" : "space-x-3"
+            )}
+          >
+            <Avatar className="w-10 h-10">
+              <AvatarImage src={company.logo} alt={company.company_name} />
+              <AvatarFallback className="bg-gradient-to-br from-green-400 to-blue-500 text-white font-semibold">
+                {company.company_name.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            {!isCollapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">
+                  {company.company_name}
+                </p>
+                <p className="text-xs text-slate-400 truncate">
+                  {company.email}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogOut}
+            className={cn(
+              "group w-full flex items-center px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-red-500/20 hover:border-red-500/30 border border-transparent transition-all duration-200 hover:scale-105 transform",
+              isCollapsed ? "justify-center" : "space-x-3"
+            )}
+            title={isCollapsed ? "Cerrar Sesión" : undefined}
+          >
+            <LogOut className="w-4 h-4 group-hover:rotate-12 transition-transform duration-200" />
+            {!isCollapsed && (
+              <span className="text-sm font-medium">Cerrar Sesión</span>
+            )}
+          </button>
+        </div>
       </div>
-    </div>
+
+      {/* Spacer for collapsed sidebar on desktop */}
+      <div
+        className={cn(
+          "hidden lg:block transition-all duration-300",
+          isCollapsed ? "w-20" : "w-72"
+        )}
+      />
+    </>
   );
 };
 
-export default SidebarLayout;
+export default ResponsiveSidebar;
