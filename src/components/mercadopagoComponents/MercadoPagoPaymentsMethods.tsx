@@ -3,7 +3,7 @@ import mercadopagosvg from "../../../public/mercado-pago.svg"
 
 const MercadoPagoPaymentsMethods = () => {
   return (
-    <Card>
+    <Card className="max-w-4xl mx-auto bg-white rounded-3xl p-8 shadow-sm border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-300">
       <CardHeader>
         <CardTitle>Métodos de Pago Disponibles</CardTitle>
       </CardHeader>
@@ -18,6 +18,7 @@ const MercadoPagoPaymentsMethods = () => {
             <p className="text-sm font-medium">Mercado Pago</p>
           </div>
         </div>
+        
       </CardContent>
     </Card>
   );

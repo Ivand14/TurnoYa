@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-interface Company {
+export interface Company {
   address: string;
   company_name: string;
   company_type: string;

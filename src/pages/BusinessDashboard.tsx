@@ -26,6 +26,9 @@ import {
   salesmanContext,
   salesmanData,
 } from "@/context/MercadoPagoContext/salesmanContext";
+// import Statictics from "@/components/dashboarBusiness/Statistics";
+import SidebarLayout from "@/components/SideBar";
+import Statistics from "@/components/dashboarBusiness/Statistics";
 
 const BusinessDashboard = () => {
   const { company } = compnay_logged();
@@ -83,13 +86,13 @@ const BusinessDashboard = () => {
     identification,
   } = salesmanContext();
 
-  const [activeTab, setActiveTab] = useState(() => {
-    return localStorage.getItem("activeTab") || "overview";
+  const [tab, setTab] = useState(() => {
+    return localStorage.getItem("activeTab") || "resume";
   });
 
   useEffect(() => {
-    localStorage.setItem("activeTab", activeTab);
-  }, [activeTab]);
+    localStorage.setItem("activeTab", tab);
+  }, [tab]);
 
   const fetchData = useCallback(async () => {
     await fetchGetBooking(businessId);
@@ -114,7 +117,6 @@ const BusinessDashboard = () => {
       identification,
     });
   }, [brand_name, accountType, email, phone, picture_url, identification]);
-
 
   useEffect(() => {
     fetchGetServices(businessId);
@@ -141,110 +143,127 @@ const BusinessDashboard = () => {
   const stats = getDashboardStats(booking, allEmployees);
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
-
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Dashboard de Empresa</h1>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-8">
-            <TabsTrigger value="overview">Resumen</TabsTrigger>
-            <TabsTrigger value="services">Servicios</TabsTrigger>
-            <TabsTrigger value="employees">Empleados</TabsTrigger>
-            <TabsTrigger value="schedules">Horarios</TabsTrigger>
-            <TabsTrigger value="bookings">Reservas</TabsTrigger>
-            <TabsTrigger value="wallet">Mi billetera</TabsTrigger>
-          </TabsList>
-
+    <div className="flex  min-h-screen">
+      {/* <Navbar /> */}
+      <SidebarLayout activeTab={tab} onTabChange={setTab} company={company} />
+      <div className="flex flex-col w-full">
+        <main className="flex-1 container mx-auto px-4 py-8">
           {/* Tab: Resumen */}
-          <TabsContent value="overview" className="space-y-8">
-            <StatsOverview stats={stats} />
+          {tab === "resume" && (
+            <div className="space-y-8 ">
+              <h1 className="font-bold h-20 p-2 text-3xl font-sans">
+                Dashboard de {company.company_name}
+              </h1>
+              <StatsOverview stats={stats} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-1">
-                <Calendar
-                  selectedDate={selectedDate}
-                  onSelectDate={setSelectedDate}
-                  daysOfWeek={["dom", "lun", "mar", "mié", "jue", "vie", "sáb"]}
-                />
-              </div>
-              <div className="lg:col-span-2">
-                <DailyBookings
-                  bookings={booking}
-                  onCancelBooking={handleCancelBooking}
-                  selectedDate={selectedDate}
-                />
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2">
+                  <DailyBookings
+                    bookings={booking}
+                    onCancelBooking={handleCancelBooking}
+                    selectedDate={selectedDate}
+                  />
+                </div>
+                <div className="lg:col-span-1">
+                  <Calendar
+                    selectedDate={selectedDate}
+                    onSelectDate={setSelectedDate}
+                    daysOfWeek={[
+                      "dom",
+                      "lun",
+                      "mar",
+                      "mié",
+                      "jue",
+                      "vie",
+                      "sáb",
+                    ]}
+                  />
+                </div>
+                <div className="lg:col-span-3">{/* <Statictics /> */}</div>
               </div>
             </div>
-          </TabsContent>
+          )}
 
           {/* Tab: Servicios */}
-          <TabsContent value="services">
-            <ServiceForm
-              onSubmit={fetchCreateService}
-              employees={allEmployees}
-              businessId={businessId}
-            />
-            <ServiceList
-              services={services}
-              onDelete={fetchDeleteService}
-              employees={allEmployees}
-              onEdit={fetchPatchService}
-            />
-          </TabsContent>
+          {tab === "service" && (
+            <div>
+              <ServiceForm
+                onSubmit={fetchCreateService}
+                employees={allEmployees}
+                businessId={businessId}
+              />
+              <ServiceList
+                services={services}
+                onDelete={fetchDeleteService}
+                employees={allEmployees}
+                onEdit={fetchPatchService}
+              />
+            </div>
+          )}
 
           {/* Tab: Empleados */}
-          <TabsContent value="employees">
-            <EmployeeForm
-              newEmployee={newEmployee}
-              onChange={handleEmployeeFormChange}
-              onSubmit={handleAddEmployee}
-              businessId={businessId}
-            />
-            <EmployeeList
-              employees={allEmployees}
-              onDeleteEmployee={fetchDeleteEmployee}
-            />
-          </TabsContent>
+          {tab === "employees" && (
+            <div>
+              <EmployeeForm
+                newEmployee={newEmployee}
+                onChange={handleEmployeeFormChange}
+                onSubmit={handleAddEmployee}
+                businessId={businessId}
+              />
+              <EmployeeList
+                employees={allEmployees}
+                onDeleteEmployee={fetchDeleteEmployee}
+              />
+            </div>
+          )}
 
           {/* Tab: Horarios */}
-          <TabsContent value="schedules">
-            <ScheduleForm
-              activeEmployees={allEmployees}
-              onChange={handleScheduleFormChange}
-              onSubmit={handleAddSchedule}
-              businessId={businessId}
-              onEdit={fetchPatchBusinessHours}
-            />
-            <ScheduleList
-              schedules={schedules}
-              schedulesHrs={businessHours}
-              onDelete={fetchDeleteSchedule}
-              onEdit={fetchPatchBusinessHours}
-              businessId={businessId}
-            />
-          </TabsContent>
+          {tab === "schedules" && (
+            <div>
+              <ScheduleForm
+                activeEmployees={allEmployees}
+                onChange={handleScheduleFormChange}
+                onSubmit={handleAddSchedule}
+                businessId={businessId}
+                onEdit={fetchPatchBusinessHours}
+              />
+              <ScheduleList
+                schedules={schedules}
+                schedulesHrs={businessHours}
+                onDelete={fetchDeleteSchedule}
+                onEdit={fetchPatchBusinessHours}
+                businessId={businessId}
+              />
+            </div>
+          )}
 
           {/* Tab: Reservas */}
-          <TabsContent value="bookings">
+          {tab === "booking" && (
             <UpcomingBookings
-              bookings={upcomingBookings}
+              bookings={booking}
               onCancelBooking={handleCancelBooking}
             />
-          </TabsContent>
+          )}
 
-          <TabsContent value="wallet">
-            <MercadoPagoSettings
-              businessId={businessId}
-              oauthAccount={oauthAccount}
-              setOauthAccount={setOauthAccount}
-            />
-          </TabsContent>
-        </Tabs>
-      </main>
+          {tab === "wallet" && (
+            <div>
+              <MercadoPagoSettings
+                businessId={businessId}
+                oauthAccount={oauthAccount}
+                setOauthAccount={setOauthAccount}
+              />
+            </div>
+          )}
 
-      <Footer />
+          {tab === "statistics" && (
+            <div>
+              <Statistics />
+            </div>
+          )}
+          {/* </Tabs> */}
+        </main>
+        {/* <Footer /> */}
+      </div>
     </div>
   );
 };

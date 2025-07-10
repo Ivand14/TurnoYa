@@ -9,6 +9,7 @@ import EditableForm from "./../editableForm";
 import { Employee } from "@/types/dashboard";
 import { Service } from "@/types";
 import { toast } from "sonner";
+import { Edit3, X } from "lucide-react";
 
 interface editProps {
   service: Service;
@@ -49,39 +50,52 @@ const EditService: React.FC<editProps> = ({
       <Dialog.Trigger asChild>
         <Button
           onClick={fetch}
-          className="flex items-center gap-2 rounded-md bg-gray-100 p-2 text-sm font-medium text-gray-600 transition hover:bg-gray-200 hover:text-gray-800 focus-visible:outline-none"
+          variant="ghost"
+          size="sm"
+          className="group h-10 w-10 rounded-xl bg-gray-50 p-0 text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
         >
-          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M12.146 1.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1 0 .708L11.707 6H10V4.293l2.146-2.147zM9 5h1v1h1v1h1v1h1v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6zm0 1H3v5h6V6z" />
-          </svg>
-          Editar
+          <Edit3 className="h-4 w-4 transition-transform group-hover:scale-110" />
         </Button>
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-xl focus:outline-none">
-          <Dialog.Title className="text-lg font-semibold text-gray-900">
-            Editar Servicio
-          </Dialog.Title>
-          <Dialog.Description className="mb-4 text-sm text-gray-600">
-            Modifica la información de tu servicio.
-          </Dialog.Description>
+        <Dialog.Overlay className="fixed inset-0 bg-black/20 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Content className="fixed left-1/2 top-1/2 w-[95vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl border border-gray-100 focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
+          {/* Header */}
+          <div className="relative p-8 pb-6 border-b border-gray-100">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+                <Edit3 className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <Dialog.Title className="text-2xl font-semibold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                  Editar Servicio
+                </Dialog.Title>
+                <Dialog.Description className="text-gray-500 mt-1">
+                  Modifica la información de "{service.name_service}"
+                </Dialog.Description>
+              </div>
+            </div>
 
-          <EditableForm
-            service={service}
-            employeesAvailable={employeesAvailable}
-            onUpdateService={handleUpdateService}
-            loading={loading}
-          />
+            <Dialog.Close asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-6 top-6 h-10 w-10 rounded-xl p-0 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-200"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </Dialog.Close>
+          </div>
 
-          <Dialog.Close asChild>
-            <button
-              className="absolute right-4 top-4 rounded-full p-1 text-gray-600 transition hover:bg-gray-200 focus:outline-none"
-              aria-label="Cerrar"
-            >
-              <Cross2Icon />
-            </button>
-          </Dialog.Close>
+          {/* Content */}
+          <div className="p-8 max-h-[70vh] overflow-y-auto">
+            <EditableForm
+              service={service}
+              employeesAvailable={employeesAvailable}
+              onUpdateService={handleUpdateService}
+              loading={loading}
+            />
+          </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

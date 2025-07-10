@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { getAllBusiness } from "@/apis/business_apis";
 import { toast } from "sonner";
+import PricingCards from "@/components/pricingCards";
 
 const Index = () => {
   const [email, setEmail] = useState("");
@@ -37,7 +38,6 @@ const Index = () => {
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Gestiona tu agenda con <span className="block">Turnos Ya</span>
-              
             </h1>
             <p className="text-xl mb-8">
               La plataforma todo en uno para gestionar turnos y reservas de
@@ -353,6 +353,8 @@ const Index = () => {
           </div>
         </div>
       </section>
+      {/*Pricing*/}
+      <PricingCards />
 
       {/* Newsletter */}
       <section className="py-16 bg-booking-primary text-white">

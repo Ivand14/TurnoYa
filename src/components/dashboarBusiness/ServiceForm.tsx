@@ -1,21 +1,14 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
 import React, { useState } from "react";
-
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Employee } from "@/types/dashboard";
-import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Service } from "@/types";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { Info, Plus } from "lucide-react";
 
 interface ServiceFormProps {
   businessId: string;
@@ -26,16 +19,16 @@ interface ServiceFormProps {
 const ServiceForm: React.FC<ServiceFormProps> = ({
   businessId,
   employees,
-  onSubmit
+  onSubmit,
 }) => {
   const [newService, setNewService] = useState({
     name: "",
     description: "",
     duration: 30,
     price: 0,
-    capacity: 0, // 0 significa usar capacidad basada en empleados
+    capacity: 0,
     requiresSpecificEmployee: false,
-    allowedEmployeeIds: [] as string[]
+    allowedEmployeeIds: [] as string[],
   });
 
   const handleChange = (
@@ -48,7 +41,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
       [name]:
         name === "duration" || name === "price" || name === "capacity"
           ? parseFloat(value) || 0
-          : value
+          : value,
     }));
   };
 
@@ -57,7 +50,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
       ...prev,
       allowedEmployeeIds: checked
         ? [...prev.allowedEmployeeIds, employeeId]
-        : prev.allowedEmployeeIds.filter((id) => id !== employeeId)
+        : prev.allowedEmployeeIds.filter((id) => id !== employeeId),
     }));
   };
 
@@ -91,7 +84,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
 
     onSubmit({
       businessId,
-      id:`service-${Date.now()}`,
+      id: `service-${Date.now()}`,
       name_service: newService.name,
       description: newService.description,
       duration: newService.duration,
@@ -101,10 +94,9 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
       allowedEmployeeIds: newService.requiresSpecificEmployee
         ? newService.allowedEmployeeIds
         : [],
-      active: true
+      active: true,
     });
 
-    // Reset form
     setNewService({
       name: "",
       description: "",
@@ -112,159 +104,208 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
       price: 0,
       capacity: 0,
       requiresSpecificEmployee: false,
-      allowedEmployeeIds: []
+      allowedEmployeeIds: [],
     });
 
     toast.success("Servicio agregado correctamente");
   };
 
-  const activeEmployees = Array.isArray(employees) && employees?.filter((emp) => emp.status === "active");
+  const activeEmployees =
+    Array.isArray(employees) &&
+    employees?.filter((emp) => emp.status === "active");
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Agregar Nuevo Servicio</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid gap-2">
-            <Label htmlFor="name">Nombre del Servicio *</Label>
-            <Input
-              id="name"
-              name="name"
-              placeholder="Ej: Corte de cabello"
-              value={newService.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
+    <div className="max-w-2xl mx-auto mb-20">
+      {/* Header */}
+      <div className="mb-12 text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-6 shadow-lg shadow-blue-500/25">
+          <Plus className="w-8 h-8 text-white" />
+        </div>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+          Nuevo Servicio
+        </h1>
+        <p className="text-gray-500 mt-2">
+          Configura los detalles de tu servicio
+        </p>
+      </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="description">Descripción</Label>
-            <Textarea
-              id="description"
-              name="description"
-              placeholder="Describe el servicio"
-              value={newService.description}
-              onChange={handleChange}
-              rows={3}
-            />
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="duration">Duración (minutos) *</Label>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Basic Info */}
+        <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">
+                Nombre del servicio
+              </Label>
               <Input
-                id="duration"
-                name="duration"
-                type="number"
-                min="1"
-                placeholder="30"
-                value={newService.duration}
+                name="name"
+                placeholder="Ej: Corte de cabello premium"
+                value={newService.name}
                 onChange={handleChange}
+                className="border-0 bg-gray-50 rounded-xl px-4 py-3 text-lg focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
                 required
               />
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="price">Precio *</Label>
-              <Input
-                id="price"
-                name="price"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={newService.price}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">
+                Descripción
+              </Label>
+              <Textarea
+                name="description"
+                placeholder="Describe qué incluye este servicio..."
+                value={newService.description}
                 onChange={handleChange}
-                required
+                rows={3}
+                className="border-0 bg-gray-50 rounded-xl px-4 py-3 resize-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
               />
             </div>
+          </div>
+        </div>
 
-            <div className="grid gap-2">
-            <HoverCard>
-                <HoverCardTrigger className="flex space-x-3 items-center">
-                  <Label htmlFor="capacity">Cantidad de Turnos</Label>
-                  <InfoCircledIcon/>
-                </HoverCardTrigger>
-                <HoverCardContent className="border-black">
-                  <p className="text-sm">Si dejas la cantidad de turnos en 0, debes asignar turnos dependiendo la cantidad de empelados</p>
-                </HoverCardContent>
-              </HoverCard>
-                            
+        {/* Pricing & Duration */}
+        <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
+          <div className="grid grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">
+                Duración
+              </Label>
+              <div className="relative">
+                <Input
+                  name="duration"
+                  type="number"
+                  min="1"
+                  value={newService.duration}
+                  onChange={handleChange}
+                  className="border-0 bg-gray-50 rounded-xl px-4 py-3 text-center text-lg font-semibold focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                  required
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
+                  min
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">
+                Precio
+              </Label>
+              <div className="relative">
+                <Input
+                  name="price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={newService.price}
+                  onChange={handleChange}
+                  className="border-0 bg-gray-50 rounded-xl px-4 py-3 text-center text-lg font-semibold focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                  required
+                />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
+                  $
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Capacidad
+                </Label>
+                <div className="group relative">
+                  <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                    0 = Basado en empleados
+                  </div>
+                </div>
+              </div>
               <Input
-                id="capacity"
                 name="capacity"
                 type="number"
                 min="0"
-                placeholder="0"
                 value={newService.capacity}
                 onChange={handleChange}
+                className="border-0 bg-gray-50 rounded-xl px-4 py-3 text-center text-lg font-semibold focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
               />
             </div>
           </div>
+        </div>
 
-          {/* Configuración de empleados */}
-          <div className="space-y-4 p-4 border rounded-lg">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="requiresSpecificEmployee"
-                checked={newService.requiresSpecificEmployee}
-                onCheckedChange={(checked) =>
-                  setNewService((prev) => ({
-                    ...prev,
-                    requiresSpecificEmployee: checked,
-                    allowedEmployeeIds: checked ? prev.allowedEmployeeIds : []
-                  }))
-                }
-              />
-              <Label htmlFor="requiresSpecificEmployee">
-                Requiere empleados específicos
-              </Label>
+        {/* Employee Assignment */}
+        <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Asignación de empleados
+              </h3>
+              <p className="text-sm text-gray-500">
+                Configura qué empleados pueden realizar este servicio
+              </p>
             </div>
+            <Switch
+              checked={newService.requiresSpecificEmployee}
+              onCheckedChange={(checked) =>
+                setNewService((prev) => ({
+                  ...prev,
+                  requiresSpecificEmployee: checked,
+                  allowedEmployeeIds: checked ? prev.allowedEmployeeIds : [],
+                }))
+              }
+              className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-purple-600"
+            />
+          </div>
 
-            {newService.requiresSpecificEmployee && (
-              <div className="grid gap-2">
-                <Label>Empleados que pueden realizar este servicio:</Label>
-                <div className="grid grid-cols-2 gap-2">
+          {newService.requiresSpecificEmployee && (
+            <div className="space-y-3">
+              {activeEmployees.length > 0 ? (
+                <div className="grid gap-3">
                   {activeEmployees.map((employee) => (
-                    <div
+                    <label
                       key={employee.id}
-                      className="flex items-center space-x-2"
+                      className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:bg-blue-50 transition-colors duration-200 cursor-pointer group"
                     >
                       <Checkbox
-                        id={`employee-${employee.id}`}
                         checked={newService.allowedEmployeeIds.includes(
                           employee.id
                         )}
                         onCheckedChange={(checked) =>
                           handleEmployeeToggle(employee.id, checked as boolean)
                         }
+                        className="border-2 border-gray-300 data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-purple-600 data-[state=checked]:border-transparent"
                       />
-                      <Label
-                        htmlFor={`employee-${employee.id}`}
-                        className="text-sm"
-                      >
-                        {employee.name} - {employee.position}
-                      </Label>
-                    </div>
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-900 group-hover:text-blue-700 transition-colors">
+                          {employee.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {employee.position}
+                        </div>
+                      </div>
+                    </label>
                   ))}
                 </div>
-                {activeEmployees.length === 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    No hay empleados activos. Agrega empleados primero.
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Plus className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p>No hay empleados activos</p>
+                  <p className="text-sm">Agrega empleados primero</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
-          <Button type="submit" className="w-full">
-            Agregar Servicio
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 rounded-2xl text-lg font-semibold shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 transform hover:-translate-y-0.5"
+        >
+          Crear Servicio
+        </Button>
+      </form>
+    </div>
   );
 };
 

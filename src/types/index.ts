@@ -1,4 +1,4 @@
-export type BusinessType = 'barbershop' | 'beauty' | 'sports' | 'other';
+export type BusinessType = "barbershop" | "beauty" | "sports" | "other";
 
 export interface Business {
   address: string;
@@ -25,10 +25,14 @@ export interface Service {
   capacity?: number;
   requiresSpecificEmployee?: boolean;
   allowedEmployeeIds?: string[];
-  capacityMode?: 'fixed' | 'employee-based' | 'hybrid';
+  capacityMode?: "fixed" | "employee-based" | "hybrid";
 }
 
-export interface TimeSlot extends Omit<Booking, 'id' | 'userId' | 'userName' | 'userEmail' | 'userPhone'> {
+export interface TimeSlot
+  extends Omit<
+    Booking,
+    "id" | "userId" | "userName" | "userEmail" | "userPhone"
+  > {
   id: string;
   start: string; // ISO date string
   end: string; // ISO date string
@@ -37,8 +41,8 @@ export interface TimeSlot extends Omit<Booking, 'id' | 'userId' | 'userName' | '
   userName: string;
   serviceId: string;
   serviceName: string;
-  userEmail:string;
-  userPhone: string; 
+  userEmail: string;
+  userPhone: string;
 }
 
 export interface Booking {
@@ -55,7 +59,8 @@ export interface Booking {
   status: string;
   paymentStatus: string;
   notes?: string;
-  payment_id?:string;
+  payment_id?: string;
+  time?: string;
 }
 
 export interface User {
@@ -63,7 +68,7 @@ export interface User {
   name: string;
   email: string;
   phone?: string;
-  role: 'admin' | 'business' | 'customer';
+  role: "admin" | "business" | "customer";
   businessId?: string;
 }
 
@@ -95,9 +100,9 @@ export interface ScheduleSettings {
   };
   slotDuration: number; // en minutos
   breakBetweenSlots: number; // en minutos
-  days_business?:string[];
+  days_business?: string[];
   defaultCapacity: number; // cupos por defecto por horario (fallback)
-  capacityMode: 'fixed' | 'employee-based' | 'hybrid'; // modo de cálculo de capacidad
+  capacityMode: "fixed" | "employee-based" | "hybrid"; // modo de cálculo de capacidad
 }
 
 export interface firebaseSettings {

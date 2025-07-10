@@ -1,6 +1,4 @@
 import { Booking, Service } from "@/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { es } from "date-fns/locale";
@@ -8,17 +6,30 @@ import { format } from "date-fns";
 import { useServicesContext } from "@/context/apisContext/servicesContext";
 import { useEffect } from "react";
 import { PaymentDetails } from "./dashboarBusiness/paymentDetail";
+import {
+  Calendar,
+  Clock,
+  User,
+  Mail,
+  CreditCard,
+  ArrowRight,
+  CheckCircle,
+} from "lucide-react";
 
 interface BookingCardProps {
   booking: Booking;
   service?: Service;
   onCancel?: (bookingId: string) => void;
+  onConfirmAttendance?: (bookingId: string) => void;
+  onMarkAsCompleted?: (bookingId: string) => void;
 }
 
 export const BookingCard = ({
   booking,
   service,
   onCancel,
+  onConfirmAttendance,
+  onMarkAsCompleted,
 }: BookingCardProps) => {
   const bookingDate = new Date(booking.start);
   const { services, fetchGetServices } = useServicesContext();
@@ -35,28 +46,28 @@ export const BookingCard = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmed":
-        return "bg-green-100 text-green-800";
+        return "text-emerald-600";
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "text-amber-600";
       case "cancelled":
-        return "bg-red-100 text-red-800";
+        return "text-red-600";
       case "completed":
-        return "bg-blue-100 text-blue-800";
+        return "text-blue-600";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "text-gray-600";
     }
   };
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
       case "paid":
-        return "bg-green-100 text-green-800";
+        return "text-emerald-600";
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "text-amber-600";
       case "refunded":
-        return "bg-red-100 text-red-800";
+        return "text-red-600";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "text-gray-600";
     }
   };
 
@@ -90,87 +101,136 @@ export const BookingCard = ({
 
   console.log(booking);
 
+  // Check if booking is today and confirmed
+  const isToday = new Date().toDateString() === bookingDate.toDateString();
+  const isPastOrToday = bookingDate <= new Date();
+  const canConfirmAttendance = booking.status === "confirmed" && isToday;
+  const canMarkAsCompleted = booking.status === "confirmed" && isPastOrToday;
+
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="p-4 pb-2 bg-gray-50">
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-lg">
-            {nameOfService?.name_service}
-          </CardTitle>
-          <Badge className={getStatusColor(booking.status)}>
-            {getStatusLabel(booking.status)}
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="p-4">
-        <div className="grid gap-1 mb-3">
-          <div className="flex items-center text-sm">
-            <svg
-              className="w-4 h-4 mr-2 text-gray-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-            <span>
-              {format(bookingDate, "EEEE, d 'de' MMMM", { locale: es })}
-            </span>
+    <div className="group relative py-8 border-b border-gray-100 last:border-b-0 hover:bg-gray-50/30 transition-all duration-500">
+      {/* Status indicator line */}
+      <div
+        className={`absolute left-0 top-0 bottom-0 w-0.5 ${getStatusColor(
+          booking.status
+        )} bg-current opacity-30 group-hover:opacity-100 transition-opacity duration-300`}
+      />
+
+      <div className="pl-6 space-y-6">
+        {/* Header row */}
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <h3 className="text-xl font-light text-gray-900 tracking-wide">
+              {nameOfService?.name_service}
+            </h3>
+            <div className="flex items-center gap-6 text-sm text-gray-400">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-3.5 h-3.5" />
+                <span className="font-mono">
+                  {format(bookingDate, "dd.MM.yyyy", { locale: es })}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-3.5 h-3.5" />
+                <span className="font-mono">
+                  {format(bookingDate, "HH:mm")}—
+                  {format(new Date(booking.end), "HH:mm")}
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center text-sm">
-            <svg
-              className="w-4 h-4 mr-2 text-gray-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
+
+          <div className="text-right space-y-1">
+            <div
+              className={`text-xs font-medium uppercase tracking-wider ${getStatusColor(
+                booking.status
+              )}`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span>
-              {format(bookingDate, "HH:mm")} -{" "}
-              {format(new Date(booking.end), "HH:mm")}
+              {getStatusLabel(booking.status)}
+            </div>
+            <div className="w-12 h-px bg-gray-200 ml-auto" />
+          </div>
+        </div>
+
+        {/* Client and payment row */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-1 h-1 bg-gray-300 rounded-full" />
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2 text-sm">
+                <User className="w-3.5 h-3.5 text-gray-400" />
+                <span className="font-medium text-gray-700">
+                  {booking.userName}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-400">
+                <Mail className="w-3 h-3" />
+                <span className="font-mono">{booking.userEmail}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <CreditCard className="w-3.5 h-3.5 text-gray-300" />
+            <span
+              className={`text-xs font-medium uppercase tracking-wider ${getPaymentStatusColor(
+                booking.paymentStatus
+              )}`}
+            >
+              {getPaymentStatusLabel(booking.paymentStatus)}
             </span>
           </div>
         </div>
 
-        <div className="flex justify-between items-center mb-4">
-          <div className="text-sm">
-            <p className="font-semibold">{booking.userName}</p>
-            <p className="text-gray-600">{booking.userEmail}</p>
-          </div>
-          <Badge className={getPaymentStatusColor(booking.paymentStatus)}>
-            {getPaymentStatusLabel(booking.paymentStatus)}
-          </Badge>
-        </div>
-
+        {/* Actions row */}
         {booking.status !== "cancelled" && booking.status !== "completed" && (
-          <div className="flex space-x-5 items-center">
-            <Button
-              onClick={() => onCancel?.(booking.id)}
-              variant="outline"
-              className="w-full border-red-300 text-red-600 hover:bg-red-50"
-            >
-              Cancelar reserva
-            </Button>
-            <PaymentDetails
-              paymentId={booking.payment_id}
-              note={booking.notes}
-            />
+          <div className="flex items-center justify-between pt-2">
+            <div className="flex items-center gap-4">
+              <Button
+                onClick={() => onCancel?.(booking.id)}
+                variant="ghost"
+                size="sm"
+                className="text-xs text-red-500 hover:text-red-600 hover:bg-transparent font-normal p-0 h-auto uppercase tracking-wider"
+              >
+                Cancelar
+                <ArrowRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </Button>
+
+              {canConfirmAttendance && onConfirmAttendance && (
+                <Button
+                  onClick={() => onConfirmAttendance(booking.id)}
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-emerald-600 hover:text-emerald-700 hover:bg-transparent font-normal p-0 h-auto uppercase tracking-wider"
+                >
+                  Confirmar asistencia
+                  <ArrowRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Button>
+              )}
+
+              {canMarkAsCompleted && onMarkAsCompleted && (
+                <Button
+                  onClick={() => onMarkAsCompleted(booking.id)}
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-blue-600 hover:text-blue-700 hover:bg-transparent font-normal p-0 h-auto uppercase tracking-wider"
+                >
+                  <CheckCircle className="w-3 h-3 mr-1" />
+                  Marcar como completado
+                  <ArrowRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Button>
+              )}
+            </div>
+
+            <div className="opacity-60 hover:opacity-100 transition-opacity">
+              <PaymentDetails
+                paymentId={booking.payment_id}
+                note={booking.notes}
+              />
+            </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
