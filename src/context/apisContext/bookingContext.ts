@@ -22,7 +22,6 @@ interface BookingContext {
 }
 
 socket.on("new_book",({action,reserva})=>{
-  console.log("socket listen:",action,reserva);
   useBookingContext.setState((state) => {
     if (action === "crear") {
       return { booking: [...state.booking, reserva] };

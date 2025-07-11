@@ -14,7 +14,12 @@ import {
   X,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { cn, logout } from "@/lib/utils";
+import { current_user } from "@/context/currentUser";
+import { Logged } from "@/context/logged";
+import { compnay_logged } from "@/context/current_company";
+import { useNavigate } from "react-router-dom";
+import { salesmanContext } from "@/context/MercadoPagoContext/salesmanContext";
 
 interface Company {
   id: string;
@@ -36,10 +41,21 @@ const ResponsiveSidebar: React.FC<SidebarProps> = ({
 }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { setUser } = current_user();
+  const { setIsLogged } = Logged();
+  const { setCompany } = compnay_logged();
+
+  const navigate = useNavigate();
 
   const handleLogOut = () => {
-    // Simplified logout - in real app you'd handle this properly
-    console.log("Logging out...");
+    setIsLogged(false);
+    setUser(null);
+    setCompany(null);
+    logout();
+    localStorage.removeItem("salesman-store");
+    salesmanContext.getState().clearSalesman();
+    localStorage.removeItem("activeTab");
+    navigate("/login");
   };
 
   const menuItems = [
@@ -120,14 +136,6 @@ const ResponsiveSidebar: React.FC<SidebarProps> = ({
             >
               <X className="w-5 h-5" />
             </button>
-
-            {/* Collapse button for desktop */}
-            {/* <button
-              onClick={toggleCollapse}
-              className="hidden lg:block p-1 hover:bg-slate-700 rounded-lg transition-colors"
-            >
-              <Menu className="w-5 h-5" />
-            </button> */}
           </div>
         </div>
 
@@ -220,7 +228,7 @@ const ResponsiveSidebar: React.FC<SidebarProps> = ({
       <div
         className={cn(
           "hidden lg:block transition-all duration-300",
-          isCollapsed ? "w-20" : "w-72"
+          isCollapsed ? "w-20" : "w-0"
         )}
       />
     </>

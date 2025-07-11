@@ -61,6 +61,7 @@ export interface Booking {
   notes?: string;
   payment_id?: string;
   time?: string;
+  price?: number;
 }
 
 export interface User {

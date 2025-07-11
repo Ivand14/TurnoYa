@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   BarChart3,
   TrendingUp,
@@ -9,41 +9,54 @@ import {
   Star,
   Target,
 } from "lucide-react";
+import { Booking } from "@/types";
+import { useServicesContext } from "@/context/apisContext/servicesContext";
+import {
+  monthlyDataInt,
+  performanceMetricsInt,
+  topServiceInt,
+} from "@/types/statistics";
 
-const Statistics: React.FC = () => {
-  const monthlyData = [
-    { month: "Ene", reservas: 45, ingresos: 4500 },
-    { month: "Feb", reservas: 52, ingresos: 5200 },
-    { month: "Mar", reservas: 48, ingresos: 4800 },
-    { month: "Abr", reservas: 61, ingresos: 6100 },
-    { month: "May", reservas: 55, ingresos: 5500 },
-    { month: "Jun", reservas: 67, ingresos: 6700 },
-    { month: "Jul", reservas: 73, ingresos: 7300 },
-    { month: "Ago", reservas: 69, ingresos: 6900 },
-    { month: "Sep", reservas: 78, ingresos: 7800 },
-    { month: "Oct", reservas: 82, ingresos: 8200 },
-    { month: "Nov", reservas: 87, ingresos: 8700 },
-    { month: "Dec", reservas: 92, ingresos: 9200 },
-  ];
+interface statisticsProps {
+  booking: Booking[];
+  businessId: string;
+}
+
+const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
+  const { fetchGetServices, services } = useServicesContext();
+  const [serviceBooking, serServiceBooking] = useState([]);
+
+  useEffect(() => {
+    fetchGetServices(businessId);
+  }, [businessId]);
+
+  useEffect(() => {
+    if (services.length && booking.length) {
+      const bookingServiceIds = booking.map((bk) => bk.serviceId);
+      const serviceInBooking = services.filter((ser) =>
+        bookingServiceIds.includes(ser.id)
+      );
+      serServiceBooking(serviceInBooking);
+    }
+  }, [services, booking]);
+
+  const monthlyData: monthlyDataInt[] = [];
 
   const maxReservas = Math.max(...monthlyData.map((d) => d.reservas));
   const maxIngresos = Math.max(...monthlyData.map((d) => d.ingresos));
 
-  const topServices = [
-    { name: "Consulta Médica", bookings: 145, revenue: 14500 },
-    { name: "Limpieza Dental", bookings: 98, revenue: 9800 },
-    { name: "Terapia Física", bookings: 87, revenue: 8700 },
-    { name: "Masaje Terapéutico", bookings: 76, revenue: 7600 },
-    { name: "Consulta Nutrición", bookings: 63, revenue: 6300 },
-  ];
+  const topServices: topServiceInt[] = [];
 
-  const performanceMetrics = [
-    {
-      title: "Satisfacción Cliente",
-      value: "4.8/5",
-      icon: Star,
-      color: "text-yellow-500",
-    },
+  console.log(serviceBooking);
+
+  const monthlyMetrics = () => {
+    
+  };
+
+  monthlyMetrics();
+  console.log(monthlyData);
+
+  const performanceMetrics: performanceMetricsInt[] = [
     {
       title: "Tasa de Cancelación",
       value: "5.2%",

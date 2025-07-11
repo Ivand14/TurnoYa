@@ -8,9 +8,7 @@ import { useServicesContext } from "@/context/apisContext/servicesContext";
 import { compnay_logged } from "@/context/current_company";
 import { Logged } from "@/context/logged";
 import { getDashboardStats } from "@/utils/dashboardUtils";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { Calendar } from "@/components/Calendar";
 import StatsOverview from "@/components/dashboarBusiness/StatsOverview";
 import DailyBookings from "@/components/dashboarBusiness/DailyBookings";
@@ -26,7 +24,6 @@ import {
   salesmanContext,
   salesmanData,
 } from "@/context/MercadoPagoContext/salesmanContext";
-// import Statictics from "@/components/dashboarBusiness/Statistics";
 import SidebarLayout from "@/components/SideBar";
 import Statistics from "@/components/dashboarBusiness/Statistics";
 
@@ -141,6 +138,7 @@ const BusinessDashboard = () => {
   };
 
   const stats = getDashboardStats(booking, allEmployees);
+
 
   return (
     <div className="flex  min-h-screen">
@@ -257,7 +255,7 @@ const BusinessDashboard = () => {
 
           {tab === "statistics" && (
             <div>
-              <Statistics />
+              <Statistics booking={booking} businessId={businessId} />
             </div>
           )}
           {/* </Tabs> */}

@@ -147,7 +147,7 @@ const BusinessPage = () => {
           return;
         }
 
-        localStorage.removeItem("PendingBook")
+        localStorage.removeItem("PendingBook");
       }
 
       paymentStatus === "approved" &&
@@ -230,6 +230,7 @@ const BusinessPage = () => {
       paymentStatus: "pending",
       notes: formData.notes,
       payment_id: null,
+      price: selectedService.price,
     };
 
     localStorage.setItem("PendingBook", JSON.stringify(newBooking));
