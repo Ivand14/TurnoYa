@@ -1,7 +1,7 @@
 import {} from "@/context/login.state";
 
 import { Booking, ScheduleSettings, Service, TimeSlot } from "@/types";
-import { Navigate, useParams } from "react-router-dom";
+import { Navigate, useHref, useNavigate, useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 
@@ -24,6 +24,20 @@ import Loading from "@/components/loading";
 import { current_user } from "@/context/currentUser";
 import { useScheduleContext } from "@/context/apisContext/scheduleContext";
 import { useServicesContext } from "@/context/apisContext/servicesContext";
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  Star,
+  Users,
+  Calendar as CalendarIcon,
+  CheckCircle,
+  ArrowRight,
+  Sparkles,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { IconArrowBack } from "@tabler/icons-react";
 
 interface BookingFormData {
   name: string;
@@ -39,6 +53,7 @@ const BusinessPage = () => {
   const { fetchGetAllBusinessHours, businessHours } = useScheduleContext();
   const { fetchGetServices, services } = useServicesContext();
   const { user } = current_user();
+  const navigate = useNavigate();
 
   const [initialLoading, setInitialLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -236,396 +251,462 @@ const BusinessPage = () => {
     localStorage.setItem("PendingBook", JSON.stringify(newBooking));
   };
 
+  const getBusinessTypeInfo = (type: string) => {
+    const types = {
+      barbershop: {
+        label: "Barbería",
+        color: "bg-blue-100 text-blue-800 border-blue-200",
+        gradient: "from-blue-500 to-cyan-500",
+      },
+      beauty: {
+        label: "Centro de Belleza",
+        color: "bg-pink-100 text-pink-800 border-pink-200",
+        gradient: "from-pink-500 to-rose-500",
+      },
+      sports: {
+        label: "Centro Deportivo",
+        color: "bg-green-100 text-green-800 border-green-200",
+        gradient: "from-green-500 to-emerald-500",
+      },
+    };
+    return types[type] || types.barbershop;
+  };
+
   if (initialLoading) {
     return (
-      <div className="text-center py-8">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
         <Loading />
       </div>
     );
   }
 
+  const businessType = getBusinessTypeInfo(businessForId?.company_type);
+
   return (
-    <div className="flex flex-col min-h-screen" key={businessForId.id}>
-      <Navbar />
-
-      <main className="flex-1">
-        {/* Cabecera del negocio */}
-        <div className="bg-gray-100 py-8">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-              <div className="w-24 h-24 bg-white rounded-lg overflow-hidden shadow-sm flex-shrink-0">
-                {businessForId?.logo && (
-                  <img
-                    src={businessForId.logo}
-                    alt={businessForId.company_name}
-                    className="w-full h-full object-cover"
-                  />
-                )}
-              </div>
-
-              <div className="text-center md:text-left">
-                <h1 className="text-3xl font-bold mb-2">
-                  {businessForId?.company_name}
-                </h1>
-
-                <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-3">
-                  {businessForId?.company_type === "barbershop" && (
-                    <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">
-                      Barbería
-                    </Badge>
-                  )}
-                  {businessForId?.company_type === "beauty" && (
-                    <Badge className="bg-pink-100 text-pink-800 hover:bg-pink-200">
-                      Centro de Belleza
-                    </Badge>
-                  )}
-                  {businessForId?.company_type === "sports" && (
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-                      Centro Deportivo
-                    </Badge>
-                  )}
-                </div>
-
-                <p className="text-gray-600 mb-3">
-                  {businessForId?.description}
-                </p>
-
-                <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-gray-600">
-                  {businessForId?.address && (
-                    <div className="flex items-center">
-                      <svg
-                        className="w-4 h-4 mr-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                      {businessForId.address}
-                    </div>
-                  )}
-
-                  {businessForId?.phone && (
-                    <div className="flex items-center">
-                      <svg
-                        className="w-4 h-4 mr-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                        />
-                      </svg>
-                      {businessForId.phone}
-                    </div>
-                  )}
-
-                  <div className="flex items-center">
-                    <svg
-                      className="w-4 h-4 mr-1"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
+    <div
+      className="flex flex-col min-h-screen bg-gray-50"
+      key={businessForId.id}
+    >
+      {/* Hero Section */}
+      <div className="relative overflow-hidden">
+        <div
+          className={`absolute inset-0 bg-gradient-to-br ${businessType.gradient} opacity-10`}
+        ></div>
+        <div className="relative bg-white border-b border-gray-200">
+          <Navbar />
+          <div className="container mx-auto px-6 py-12 mt-20">
+            <motion.div
+              className="flex flex-col lg:flex-row items-center lg:items-start gap-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              {/* Logo */}
+              <motion.div
+                className="relative group"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="w-32 h-32 bg-white rounded-2xl overflow-hidden shadow-xl border-4 border-white group-hover:shadow-2xl transition-all duration-300">
+                  {businessForId?.logo ? (
+                    <img
+                      src={businessForId.logo}
+                      alt={businessForId.company_name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      className={`w-full h-full bg-gradient-to-br ${businessType.gradient} flex items-center justify-center`}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
-                    {businessForId?.email}
-                  </div>
+                      <Sparkles className="w-12 h-12 text-white" />
+                    </div>
+                  )}
                 </div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                  <CheckCircle className="w-4 h-4 text-white" />
+                </div>
+              </motion.div>
+
+              {/* Business Info */}
+              <div className="flex-1 text-center lg:text-left">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                >
+                  <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+                    {businessForId?.company_name}
+                  </h1>
+
+                  <div className="flex flex-wrap justify-center lg:justify-start gap-3 mb-6">
+                    <Badge
+                      className={`${businessType.color} border px-4 py-2 text-sm font-medium`}
+                    >
+                      {businessType.label}
+                    </Badge>
+                    {/* <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 px-4 py-2 text-sm font-medium">
+                      <Star className="w-4 h-4 mr-1" />
+                      4.8 (124 reseñas)
+                    </Badge> */}
+                  </div>
+
+                  <p className="text-lg text-gray-600 mb-6 max-w-2xl">
+                    {businessForId?.description}
+                  </p>
+
+                  {/* Contact Info */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    {businessForId?.address && (
+                      <div className="flex items-center justify-center lg:justify-start text-gray-600">
+                        <MapPin className="w-5 h-5 mr-2 text-indigo-600" />
+                        <span>{businessForId.address}</span>
+                      </div>
+                    )}
+
+                    {businessForId?.phone && (
+                      <div className="flex items-center justify-center lg:justify-start text-gray-600">
+                        <Phone className="w-5 h-5 mr-2 text-indigo-600" />
+                        <span>{businessForId.phone}</span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-center lg:justify-start text-gray-600">
+                      <Mail className="w-5 h-5 mr-2 text-indigo-600" />
+                      <span>{businessForId?.email}</span>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
+      </div>
 
-        {/* Contenido principal */}
-        <div className="container mx-auto px-4 py-8">
+      <main className="flex-grow">
+        <div className="container mx-auto px-6 py-8">
           <Tabs defaultValue="booking" className="w-full">
-            <TabsList className="mb-6">
-              <TabsTrigger value="booking">Reservar</TabsTrigger>
-              <TabsTrigger value="info">Información</TabsTrigger>
-            </TabsList>
+            <div className="flex justify-center mb-8">
+              <TabsList className="bg-white shadow-lg border border-gray-200 p-1 rounded-xl">
+                <TabsTrigger
+                  value="booking"
+                  className="px-6 py-3 rounded-lg font-medium data-[state=active]:bg-indigo-600 data-[state=active]:text-white"
+                >
+                  <CalendarIcon className="w-4 h-4 mr-2" />
+                  Reservar Cita
+                </TabsTrigger>
+                <TabsTrigger
+                  value="info"
+                  className="px-6 py-3 rounded-lg font-medium data-[state=active]:bg-indigo-600 data-[state=active]:text-white"
+                >
+                  <Clock className="w-4 h-4 mr-2" />
+                  Información
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="booking">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Listado de servicios */}
-                <div className="lg:col-span-1">
-                  <h2 className="text-xl font-semibold mb-4">Servicios</h2>
-
-                  <div className="space-y-4">
-                    {services.map((service) => (
-                      <ServiceCard
-                        key={service.id}
-                        service={service}
-                        onReserve={handleSelectService}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Selección de fecha y hora */}
-                <div className="lg:col-span-2">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h2 className="text-xl font-semibold mb-4">
-                        Seleccionar Fecha
+              <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+                {/* Services Section */}
+                <motion.div
+                  className="xl:col-span-1"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 sticky top-24">
+                    <div className="flex items-center mb-6">
+                      <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center mr-3">
+                        <Sparkles className="w-5 h-5 text-white" />
+                      </div>
+                      <h2 className="text-xl font-bold text-gray-900">
+                        Servicios
                       </h2>
-                      <Calendar
-                        selectedDate={selectedDate}
-                        onSelectDate={(date) => {
-                          setSelectedDate(date);
-                          setSelectedSlot(null);
-                        }}
-                        daysOfWeek={scheduleSettings.days_business}
-                      />
                     </div>
 
-                    <div>
-                      <h2 className="text-xl font-semibold mb-4">
-                        {selectedService
-                          ? `Horarios para ${selectedService.name_service}`
-                          : "Seleccione un servicio"}
-                      </h2>
+                    <div className="space-y-3">
+                      {services.map((service, index) => (
+                        <motion.div
+                          key={service.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: index * 0.1 }}
+                        >
+                          <ServiceCard
+                            service={service}
+                            onReserve={handleSelectService}
+                          />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
 
-                      {selectedService ? (
-                        <div>
-                          {selectedService.capacity > 0 && (
-                            <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                              <p className="text-sm text-blue-700">
-                                <strong>Servicio grupal:</strong> Hasta{" "}
-                                {selectedService.capacity} personas pueden
-                                reservar el mismo horario.
-                              </p>
-                            </div>
-                          )}
+                {/* Booking Section */}
+                <div className="xl:col-span-3">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Calendar */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.2 }}
+                    >
+                      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+                        <div className="flex items-center mb-6">
+                          <CalendarIcon className="w-6 h-6 text-indigo-600 mr-3" />
+                          <h2 className="text-xl font-bold text-gray-900">
+                            Seleccionar Fecha
+                          </h2>
+                        </div>
+                        <Calendar
+                          selectedDate={selectedDate}
+                          onSelectDate={(date) => {
+                            setSelectedDate(date);
+                            setSelectedSlot(null);
+                          }}
+                          daysOfWeek={scheduleSettings.days_business}
+                        />
+                      </div>
+                    </motion.div>
 
-                          {selectedService.requiresSpecificEmployee &&
-                            selectedService.allowedEmployeeIds.length > 0 && (
-                              <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                                <p className="text-sm text-blue-700">
-                                  <strong>Servicio grupal:</strong> Hasta{" "}
-                                  {selectedService.allowedEmployeeIds.length}{" "}
-                                  personas pueden reservar el mismo horario.
-                                </p>
+                    {/* Time Slots */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.4 }}
+                    >
+                      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+                        <div className="flex items-center mb-6">
+                          <Clock className="w-6 h-6 text-indigo-600 mr-3" />
+                          <h2 className="text-xl font-bold text-gray-900">
+                            {selectedService
+                              ? `Horarios para ${selectedService.name_service}`
+                              : "Seleccione un servicio"}
+                          </h2>
+                        </div>
+
+                        {selectedService ? (
+                          <div>
+                            {selectedService.capacity > 0 && (
+                              <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                                <div className="flex items-center">
+                                  <Users className="w-5 h-5 text-blue-600 mr-2" />
+                                  <p className="text-sm text-blue-800 font-medium">
+                                    <strong>Servicio grupal:</strong> Hasta{" "}
+                                    {selectedService.capacity} personas pueden
+                                    reservar el mismo horario.
+                                  </p>
+                                </div>
                               </div>
                             )}
-                          <TimeSlotGrid
-                            date={selectedDate}
-                            workHours={scheduleSettings.workHours}
-                            slotDuration={selectedService.duration}
-                            breakBetweenSlots={
-                              scheduleSettings.breakBetweenSlots
-                            }
-                            defaultCapacity={scheduleSettings.defaultCapacity}
-                            selectedService={selectedService}
-                            bookedSlots={getBookedTimeSlotsForDate(
-                              selectedDate
-                            )}
-                            onSelectSlot={handleSelectTimeSlot}
-                          />
-                        </div>
-                      ) : (
-                        <div className="bg-gray-50 p-8 rounded-lg text-center">
-                          <p className="text-gray-500">
-                            Por favor, seleccione un servicio para ver los
-                            horarios disponibles
-                          </p>
-                        </div>
-                      )}
-                    </div>
+
+                            <TimeSlotGrid
+                              date={selectedDate}
+                              workHours={scheduleSettings.workHours}
+                              slotDuration={selectedService.duration}
+                              breakBetweenSlots={
+                                scheduleSettings.breakBetweenSlots
+                              }
+                              defaultCapacity={scheduleSettings.defaultCapacity}
+                              selectedService={selectedService}
+                              bookedSlots={getBookedTimeSlotsForDate(
+                                selectedDate
+                              )}
+                              onSelectSlot={handleSelectTimeSlot}
+                            />
+                          </div>
+                        ) : (
+                          <div className="bg-gray-50 p-12 rounded-xl text-center">
+                            <CalendarIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                            <p className="text-gray-500 text-lg">
+                              Por favor, seleccione un servicio para ver los
+                              horarios disponibles
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
                   </div>
 
-                  {/* Resumen de la reserva */}
+                  {/* Booking Summary */}
                   {selectedService && selectedSlot && (
-                    <div className="mt-8 p-6 bg-gray-50 rounded-lg">
-                      <h2 className="text-xl font-semibold mb-4">
-                        Resumen de Reserva
-                      </h2>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-500 mb-1">
-                            Servicio:
-                          </h3>
-                          <p className="font-medium">
-                            {selectedService.name_service}
-                          </p>
+                    <motion.div
+                      className="mt-8"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6 }}
+                    >
+                      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-8 text-white">
+                        <div className="flex items-center mb-6">
+                          <CheckCircle className="w-8 h-8 mr-3" />
+                          <h2 className="text-2xl font-bold">
+                            Resumen de Reserva
+                          </h2>
                         </div>
 
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-500 mb-1">
-                            Precio:
-                          </h3>
-                          <p className="font-medium">
-                            ${selectedService.price}
-                          </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                            <h3 className="text-sm font-medium text-indigo-200 mb-2">
+                              Servicio:
+                            </h3>
+                            <p className="font-bold text-lg">
+                              {selectedService.name_service}
+                            </p>
+                          </div>
+
+                          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                            <h3 className="text-sm font-medium text-indigo-200 mb-2">
+                              Precio:
+                            </h3>
+                            <p className="font-bold text-lg">
+                              ${selectedService.price}
+                            </p>
+                          </div>
+
+                          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                            <h3 className="text-sm font-medium text-indigo-200 mb-2">
+                              Duración:
+                            </h3>
+                            <p className="font-bold text-lg">
+                              {selectedService.duration} minutos
+                            </p>
+                          </div>
+
+                          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                            <h3 className="text-sm font-medium text-indigo-200 mb-2">
+                              Fecha y hora:
+                            </h3>
+                            <p className="font-bold text-lg">
+                              {format(selectedDate, "EEEE, d 'de' MMMM", {
+                                locale: es,
+                              })}
+                            </p>
+                            <p className="font-bold text-lg">
+                              {format(selectedSlot.start, "HH:mm")} -{" "}
+                              {format(selectedSlot.end, "HH:mm")}
+                            </p>
+                          </div>
                         </div>
 
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-500 mb-1">
-                            Duración:
-                          </h3>
-                          <p className="font-medium">
-                            {selectedService.duration} minutos
-                          </p>
-                        </div>
-
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-500 mb-1">
-                            Fecha y hora:
-                          </h3>
-                          <p className="font-medium">
-                            {format(selectedDate, "EEEE, d 'de' MMMM", {
-                              locale: es,
-                            })}
-                            , {format(selectedSlot.start, "HH:mm")} -{" "}
-                            {format(selectedSlot.end, "HH:mm")}
-                          </p>
-                        </div>
+                        <Button
+                          className="w-full bg-white text-indigo-600 hover:bg-gray-100 font-bold py-4 text-lg rounded-xl shadow-lg group"
+                          onClick={() => setBookingFormOpen(true)}
+                        >
+                          Confirmar Reserva
+                          <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </Button>
                       </div>
-
-                      <Button
-                        className="mt-4 w-full"
-                        onClick={() => setBookingFormOpen(true)}
-                      >
-                        Confirmar Reserva
-                      </Button>
-                    </div>
+                    </motion.div>
                   )}
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="info" key={businessId}>
-              <div className="max-w-3xl mx-auto">
-                <h2 className="text-2xl font-semibold mb-4">
-                  Acerca de {businessForId?.company_name}
-                </h2>
-                <p className="text-gray-600 mb-6">
-                  {businessForId?.description}
-                </p>
+              <motion.div
+                className="max-w-4xl mx-auto"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-6">
+                    Acerca de {businessForId?.company_name}
+                  </h2>
+                  <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                    {businessForId?.description}
+                  </p>
 
-                <Separator className="my-6" />
+                  <Separator className="my-8" />
 
-                <h3 className="text-xl font-semibold mb-4">
-                  Horarios de Atención
-                </h3>
-                {businessHours.map((sch) => (
-                  <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                    <div className="grid grid-cols-2 gap-2">
-                      <p className="text-gray-600">{sch.day}</p>
-                      <p className="font-medium">
-                        {sch.startTime} - {sch.endTime}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-
-                <Separator className="my-6" />
-
-                <h3 className="text-xl font-semibold mb-4">Contacto</h3>
-                <div className="space-y-3">
-                  {businessForId?.address && (
-                    <div className="flex items-start">
-                      <svg
-                        className="w-5 h-5 mr-3 text-gray-500 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                      <div>
-                        <h4 className="font-medium">Dirección</h4>
-                        <p className="text-gray-600">{businessForId.address}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {businessForId?.phone && (
-                    <div className="flex items-start">
-                      <svg
-                        className="w-5 h-5 mr-3 text-gray-500 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                        />
-                      </svg>
-                      <div>
-                        <h4 className="font-medium">Teléfono</h4>
-                        <p className="text-gray-600">{businessForId.phone}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-start">
-                    <svg
-                      className="w-5 h-5 mr-3 text-gray-500 mt-0.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Schedule */}
                     <div>
-                      <h4 className="font-medium">Email</h4>
-                      <p className="text-gray-600">{businessForId?.email}</p>
+                      <div className="flex items-center mb-6">
+                        <Clock className="w-6 h-6 text-indigo-600 mr-3" />
+                        <h3 className="text-xl font-bold text-gray-900">
+                          Horarios de Atención
+                        </h3>
+                      </div>
+                      <div className="space-y-3">
+                        {businessHours.map((sch, index) => (
+                          <motion.div
+                            key={index}
+                            className="bg-gray-50 p-4 rounded-xl border border-gray-200"
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.3, delay: index * 0.1 }}
+                          >
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium text-gray-900">
+                                {sch.day}
+                              </span>
+                              <span className="text-indigo-600 font-semibold">
+                                {sch.startTime} - {sch.endTime}
+                              </span>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Contact */}
+                    <div>
+                      <div className="flex items-center mb-6">
+                        <Mail className="w-6 h-6 text-indigo-600 mr-3" />
+                        <h3 className="text-xl font-bold text-gray-900">
+                          Información de Contacto
+                        </h3>
+                      </div>
+                      <div className="space-y-4">
+                        {businessForId?.address && (
+                          <div className="flex items-start p-4 bg-gray-50 rounded-xl border border-gray-200">
+                            <MapPin className="w-6 h-6 text-indigo-600 mr-3 mt-0.5 flex-shrink-0" />
+                            <div>
+                              <h4 className="font-semibold text-gray-900 mb-1">
+                                Dirección
+                              </h4>
+                              <p className="text-gray-600">
+                                {businessForId.address}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {businessForId?.phone && (
+                          <div className="flex items-start p-4 bg-gray-50 rounded-xl border border-gray-200">
+                            <Phone className="w-6 h-6 text-indigo-600 mr-3 mt-0.5 flex-shrink-0" />
+                            <div>
+                              <h4 className="font-semibold text-gray-900 mb-1">
+                                Teléfono
+                              </h4>
+                              <p className="text-gray-600">
+                                {businessForId.phone}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex items-start p-4 bg-gray-50 rounded-xl border border-gray-200">
+                          <Mail className="w-6 h-6 text-indigo-600 mr-3 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <h4 className="font-semibold text-gray-900 mb-1">
+                              Email
+                            </h4>
+                            <p className="text-gray-600">
+                              {businessForId?.email}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </TabsContent>
           </Tabs>
         </div>
 
-        {/* Formulario de reserva */}
+        {/* Booking Form */}
         {selectedService && (
           <BookingForm
             service={selectedService}

@@ -1,7 +1,21 @@
 import {} from "@/context/login.state";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Eye, EyeOff, Image, Upload } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Image,
+  Upload,
+  Building2,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Briefcase,
+  FileText,
+  Sparkles,
+  CheckCircle,
+} from "lucide-react";
 import {
   Form,
   FormControl,
@@ -9,7 +23,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from "@/components/ui/form";
 import { useRef, useState } from "react";
 
@@ -43,20 +57,20 @@ const businessSchema = z
     password: z
       .string()
       .min(6, "La contraseña debe tener al menos 6 caracteres"),
-    confirmPassword: z.string()
+    confirmPassword: z.string(),
   })
   .refine((data) => !data.password || data.password === data.confirmPassword, {
     message: "Las contraseñas no coinciden",
-    path: ["confirmPassword"]
+    path: ["confirmPassword"],
   });
 
 const businessTypes = [
-  { id: "barbershop", label: "Barbería" },
-  { id: "beauty", label: "Centro de Belleza" },
-  { id: "sports", label: "Centro Deportivo" },
-  { id: "health", label: "Centro de Salud" },
-  { id: "restaurant", label: "Restaurante" },
-  { id: "other", label: "Otro" }
+  { id: "barbershop", label: "Barbería", icon: "✂️" },
+  { id: "beauty", label: "Centro de Belleza", icon: "💄" },
+  { id: "sports", label: "Centro Deportivo", icon: "🏋️" },
+  { id: "health", label: "Centro de Salud", icon: "🏥" },
+  { id: "restaurant", label: "Restaurante", icon: "🍽️" },
+  { id: "other", label: "Otro", icon: "🏢" },
 ];
 
 type BusinessFormValues = z.infer<typeof businessSchema>;
@@ -81,8 +95,8 @@ const RegisterBusiness = () => {
       description: "",
       logo: undefined,
       password: "",
-      confirmPassword: ""
-    }
+      confirmPassword: "",
+    },
   });
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,12 +136,14 @@ const RegisterBusiness = () => {
         setTimeout(() => {
           navigate("/dashboard");
         }, 1500);
-      }else if(response.details === 'The user with the provided email already exists (EMAIL_EXISTS).'){
+      } else if (
+        response.details ===
+        "The user with the provided email already exists (EMAIL_EXISTS)."
+      ) {
         toast.error(
           "Error al registrar el negocio. Correo electroinico en uso"
         );
       }
-
     } catch (error) {
       toast.error(
         "Error al registrar el negocio. Por favor intenta nuevamente."
@@ -138,308 +154,421 @@ const RegisterBusiness = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
-
-      <main className="flex-grow bg-gray-50">
-        <div className="container mx-auto py-10 px-4">
-          <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow">
-            <h1 className="text-3xl font-bold mb-2">Registra tu Negocio</h1>
-            <p className="text-gray-600 mb-6">
-              Completa el formulario para comenzar a gestionar tus reservas con
-              Turnify
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <main className="flex-grow">
+        <div className="container mx-auto py-12 px-4">
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <Navbar />
+            <div className="mx-auto w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-6 shadow-lg mt-20">
+              <Building2 className="w-10 h-10 text-white" />
+            </div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              Registra tu Negocio
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Únete a miles de negocios que ya confían en TurnosYa para
+              gestionar sus reservas
             </p>
+          </div>
 
-            <Alert className="mb-6">
-              <AlertTitle>¡Bienvenido a Turnify!</AlertTitle>
-              <AlertDescription>
-                Al registrar tu negocio, podrás comenzar a gestionar tus
-                reservas, administrar horarios y recibir pagos en línea. El
-                proceso de verificación tomará hasta 24 horas.
+          <div className="max-w-4xl mx-auto">
+            {/* Benefits Alert */}
+            <Alert className="mb-8 border-blue-200 bg-blue-50/50 backdrop-blur-sm">
+              <Sparkles className="h-5 w-5 text-blue-600" />
+              <AlertTitle className="text-blue-900 font-semibold">
+                ¡Bienvenido a TurnosYa!
+              </AlertTitle>
+              <AlertDescription className="text-blue-800">
+                Al registrar tu negocio, podrás gestionar reservas, administrar
+                horarios y recibir pagos en línea. El proceso de verificación
+                toma hasta 24 horas.
               </AlertDescription>
             </Alert>
 
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-6"
-              >
-                {/* Logo upload field */}
-                <FormField
-                  control={form.control}
-                  name="logo"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col items-center">
-                      <FormLabel className="text-center w-full mb-2">
-                        Logo del Negocio
-                      </FormLabel>
-                      <FormControl>
-                        <div className="flex flex-col items-center gap-4">
-                          <div
-                            className={cn(
-                              "cursor-pointer w-32 h-32 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden",
-                              logoPreview ? "border-solid border-primary" : ""
-                            )}
-                            onClick={triggerLogoUpload}
-                          >
-                            {logoPreview ? (
-                              <AspectRatio ratio={1}>
-                                <img
-                                  src={logoPreview}
-                                  alt="Logo preview"
-                                  className="w-full h-full object-cover"
+            {/* Main Form Card */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl border-0 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-white">
+                <h2 className="text-2xl font-semibold mb-2">
+                  Información del Negocio
+                </h2>
+                <p className="text-blue-100">
+                  Completa todos los campos para crear tu cuenta empresarial
+                </p>
+              </div>
+
+              <div className="p-8">
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-8"
+                  >
+                    {/* Logo Upload Section */}
+                    <div className="bg-gray-50 rounded-xl p-6">
+                      <FormField
+                        control={form.control}
+                        name="logo"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col items-center">
+                            <FormLabel className="text-lg font-semibold text-gray-900 mb-4">
+                              Logo del Negocio
+                            </FormLabel>
+                            <FormControl>
+                              <div className="flex flex-col items-center gap-6">
+                                <div
+                                  className={cn(
+                                    "cursor-pointer w-40 h-40 rounded-2xl border-2 border-dashed transition-all duration-300 flex items-center justify-center overflow-hidden hover:border-blue-400 hover:bg-blue-50/50",
+                                    logoPreview
+                                      ? "border-blue-500 bg-blue-50 shadow-lg"
+                                      : "border-gray-300 bg-white hover:shadow-md"
+                                  )}
+                                  onClick={triggerLogoUpload}
+                                >
+                                  {logoPreview ? (
+                                    <AspectRatio ratio={1}>
+                                      <img
+                                        src={logoPreview}
+                                        alt="Logo preview"
+                                        className="w-full h-full object-cover rounded-xl"
+                                      />
+                                    </AspectRatio>
+                                  ) : (
+                                    <div className="flex flex-col items-center p-6">
+                                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                        <Image className="w-8 h-8 text-gray-400" />
+                                      </div>
+                                      <span className="text-sm font-medium text-gray-600 text-center">
+                                        Haz clic para subir tu logo
+                                      </span>
+                                      <span className="text-xs text-gray-400 mt-1">
+                                        PNG, JPG hasta 5MB
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  ref={fileInputRef}
+                                  className="hidden"
+                                  onChange={handleLogoChange}
                                 />
-                              </AspectRatio>
-                            ) : (
-                              <div className="flex flex-col items-center p-4">
-                                <Image className="w-10 h-10 text-gray-400 mb-2" />
-                                <span className="text-xs text-gray-500 text-center">
-                                  Haz clic para subir
-                                </span>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={triggerLogoUpload}
+                                  className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
+                                >
+                                  <Upload className="mr-2 h-4 w-4" />
+                                  {logoPreview ? "Cambiar logo" : "Subir logo"}
+                                </Button>
                               </div>
-                            )}
-                          </div>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            ref={fileInputRef}
-                            className="hidden"
-                            onChange={handleLogoChange}
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={triggerLogoUpload}
-                            className="mt-2"
-                          >
-                            <Upload className="mr-2 h-4 w-4" />
-                            {logoPreview ? "Cambiar logo" : "Subir logo"}
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormDescription className="text-center">
-                        Sube una imagen para representar tu negocio.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                            </FormControl>
+                            <FormDescription className="text-center text-gray-600 mt-2">
+                              Sube una imagen que represente tu negocio
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
-                <FormField
-                  control={form.control}
-                  name="businessName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nombre del Negocio</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ej: Barbería El Corte" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="ownerName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nombre del Propietario</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Nombre completo" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="email"
-                            placeholder="tu@email.com"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Business Name */}
                     <FormField
                       control={form.control}
-                      name="password"
+                      name="businessName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Contraseña</FormLabel>
+                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
+                            <Building2 className="w-4 h-4 mr-2 text-blue-600" />
+                            Nombre del Negocio
+                          </FormLabel>
                           <FormControl>
-                            <div className="relative">
+                            <Input
+                              placeholder="Ej: Barbería El Corte Premium"
+                              className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Owner and Email */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="ownerName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
+                              <User className="w-4 h-4 mr-2 text-blue-600" />
+                              Nombre del Propietario
+                            </FormLabel>
+                            <FormControl>
                               <Input
-                                type={showPassword ? "text" : "password"}
-                                placeholder="Contraseña"
+                                placeholder="Nombre completo"
+                                className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
                                 {...field}
                               />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute right-0 top-0 h-full px-3"
-                                onClick={() => setShowPassword(!showPassword)}
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
+                              <Mail className="w-4 h-4 mr-2 text-blue-600" />
+                              Email Empresarial
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="email"
+                                placeholder="negocio@email.com"
+                                className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Password Fields */}
+                    <div className="bg-gray-50 rounded-xl p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <CheckCircle className="w-5 h-5 mr-2 text-green-600" />
+                        Configuración de Seguridad
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="password"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-semibold text-gray-700">
+                                Contraseña
+                              </FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Mínimo 6 caracteres"
+                                    className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200 pr-12"
+                                    {...field}
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                                    onClick={() =>
+                                      setShowPassword(!showPassword)
+                                    }
+                                  >
+                                    {showPassword ? (
+                                      <EyeOff className="h-4 w-4 text-gray-400" />
+                                    ) : (
+                                      <Eye className="h-4 w-4 text-gray-400" />
+                                    )}
+                                  </Button>
+                                </div>
+                              </FormControl>
+                              <FormDescription className="text-xs text-gray-500">
+                                Usa una contraseña segura con al menos 6
+                                caracteres
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="confirmPassword"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-semibold text-gray-700">
+                                Confirmar Contraseña
+                              </FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input
+                                    type={
+                                      showConfirmPassword ? "text" : "password"
+                                    }
+                                    placeholder="Repite tu contraseña"
+                                    className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200 pr-12"
+                                    {...field}
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                                    onClick={() =>
+                                      setShowConfirmPassword(
+                                        !showConfirmPassword
+                                      )
+                                    }
+                                  >
+                                    {showConfirmPassword ? (
+                                      <EyeOff className="h-4 w-4 text-gray-400" />
+                                    ) : (
+                                      <Eye className="h-4 w-4 text-gray-400" />
+                                    )}
+                                  </Button>
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Contact Information */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
+                              <Phone className="w-4 h-4 mr-2 text-blue-600" />
+                              Teléfono de Contacto
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="+54 11 1234 5678"
+                                className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="businessType"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
+                              <Briefcase className="w-4 h-4 mr-2 text-blue-600" />
+                              Tipo de Negocio
+                            </FormLabel>
+                            <FormControl>
+                              <select
+                                className="flex h-12 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus:border-blue-500 transition-all duration-200"
+                                {...field}
                               >
-                                {showPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                                ) : (
-                                  <Eye className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </div>
+                                <option value="" disabled>
+                                  Selecciona el tipo de negocio
+                                </option>
+                                {businessTypes.map((type) => (
+                                  <option key={type.id} value={type.id}>
+                                    {type.icon} {type.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Address */}
+                    <FormField
+                      control={form.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
+                            <MapPin className="w-4 h-4 mr-2 text-blue-600" />
+                            Dirección del Negocio
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Calle, número, ciudad, código postal"
+                              className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                              {...field}
+                            />
                           </FormControl>
-                          <FormDescription>
-                            Mínimo 6 caracteres.
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Description */}
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
+                            <FileText className="w-4 h-4 mr-2 text-blue-600" />
+                            Descripción del Negocio
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Describe tu negocio, servicios que ofreces, horarios especiales, etc. Esta información será visible para tus clientes."
+                              className="min-h-32 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200 resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription className="text-gray-600">
+                            Esta descripción aparecerá en tu perfil público y
+                            ayudará a los clientes a conocer mejor tu negocio.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
-                    <FormField
-                      control={form.control}
-                      name="confirmPassword"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Confirmar Contraseña</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                type={showConfirmPassword ? "text" : "password"}
-                                placeholder="Confirmar contraseña"
-                                {...field}
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute right-0 top-0 h-full px-3"
-                                onClick={() =>
-                                  setShowConfirmPassword(!showConfirmPassword)
-                                }
-                              >
-                                {showConfirmPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                                ) : (
-                                  <Eye className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </>
+                    {/* Submit Button */}
+                    <div className="pt-6">
+                      <Button
+                        type="submit"
+                        className="w-full h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <div className="flex items-center space-x-3">
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Registrando tu negocio...</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <Building2 className="w-5 h-5" />
+                            <span>Registrar Mi Negocio</span>
+                          </div>
+                        )}
+                      </Button>
+                    </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Teléfono</FormLabel>
-                        <FormControl>
-                          <Input placeholder="+54 11 1234 5678" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="businessType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tipo de Negocio</FormLabel>
-                        <FormControl>
-                          <select
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base md:text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                            {...field}
-                          >
-                            <option value="" disabled>
-                              Selecciona un tipo
-                            </option>
-                            {businessTypes.map((type) => (
-                              <option key={type.id} value={type.id}>
-                                {type.label}
-                              </option>
-                            ))}
-                          </select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Dirección</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Dirección completa del negocio"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Descripción del Negocio</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Describe brevemente tu negocio y los servicios que ofreces"
-                          {...field}
-                          className="min-h-28"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Esta descripción se mostrará en tu perfil público.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="pt-2">
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Registrando..." : "Registrar Negocio"}
-                  </Button>
-                </div>
-              </form>
-            </Form>
+                    {/* Additional Info */}
+                    <div className="bg-blue-50 rounded-xl p-6 text-center">
+                      <p className="text-sm text-blue-800 leading-relaxed">
+                        <CheckCircle className="w-4 h-4 inline mr-2 text-blue-600" />
+                        Al registrar tu negocio, aceptas nuestros términos de
+                        servicio y política de privacidad. Recibirás un email de
+                        confirmación una vez completado el proceso.
+                      </p>
+                    </div>
+                  </form>
+                </Form>
+              </div>
+            </div>
           </div>
         </div>
       </main>
