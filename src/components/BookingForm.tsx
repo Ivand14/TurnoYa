@@ -19,17 +19,17 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Calendar, 
-  Clock, 
-  DollarSign, 
-  Phone, 
-  MessageSquare, 
+import {
+  Calendar,
+  Clock,
+  DollarSign,
+  Phone,
+  MessageSquare,
   CreditCard,
   CheckCircle,
   ArrowRight,
   Sparkles,
-  User
+  User,
 } from "lucide-react";
 
 interface BookingData {
@@ -112,31 +112,31 @@ export const BookingForm = ({
   if (showPayment && formData) {
     return (
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden">
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[600px] p-0 overflow-hidden max-h-[95vh] overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
             className="relative"
           >
-            {/* Header con gradiente */}
-            <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-white">
+            {/* Header con gradiente - Responsive */}
+            <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-4 sm:p-6 text-white">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                  <CreditCard className="w-6 h-6" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0">
+                  <CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <div>
-                  <DialogTitle className="text-2xl font-bold text-white">
+                <div className="min-w-0 flex-1">
+                  <DialogTitle className="text-lg sm:text-2xl font-bold text-white leading-tight">
                     Pago de Reserva
                   </DialogTitle>
-                  <DialogDescription className="text-green-100">
+                  <DialogDescription className="text-green-100 text-sm sm:text-base mt-1">
                     Complete el pago para confirmar su reserva
                   </DialogDescription>
                 </div>
               </div>
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <PaymentForm
                 service={service}
                 bookingData={formData}
@@ -152,7 +152,7 @@ export const BookingForm = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden">
+      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[600px] p-0 overflow-hidden max-h-[95vh] overflow-y-auto">
         <AnimatePresence>
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -161,86 +161,108 @@ export const BookingForm = ({
             transition={{ duration: 0.3 }}
             className="relative"
           >
-            {/* Header con gradiente */}
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white relative overflow-hidden">
-              {/* Elementos decorativos */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
-              
-              <div className="relative flex items-center space-x-4">
-                <motion.div 
-                  className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center"
+            {/* Header con gradiente - Completamente responsive */}
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 sm:p-6 text-white relative overflow-hidden">
+              {/* Elementos decorativos - Ocultos en móviles */}
+              <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full -translate-y-12 translate-x-12 sm:-translate-y-16 sm:translate-x-16 hidden sm:block"></div>
+              <div className="absolute bottom-0 left-0 w-16 h-16 sm:w-24 sm:h-24 bg-white/5 rounded-full translate-y-8 -translate-x-8 sm:translate-y-12 sm:-translate-x-12 hidden sm:block"></div>
+
+              <div className="relative flex items-center space-x-3 sm:space-x-4">
+                <motion.div
+                  className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0"
                   whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <Calendar className="w-8 h-8" />
+                  <Calendar className="w-6 h-6 sm:w-8 sm:h-8" />
                 </motion.div>
-                <div>
-                  <DialogTitle className="text-2xl font-bold text-white mb-1">
+                <div className="min-w-0 flex-1">
+                  <DialogTitle className="text-lg sm:text-2xl font-bold text-white mb-1 leading-tight">
                     Reservar {service.name_service}
                   </DialogTitle>
                   <div className="flex items-center space-x-2 text-indigo-100">
-                    <Sparkles className="w-4 h-4" />
-                    <span className="text-sm">Confirma tu cita en segundos</span>
+                    <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span className="text-xs sm:text-sm">
+                      Confirma tu cita en segundos
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="p-6">
-              {/* Resumen de reserva mejorado */}
-              <motion.div 
-                className="mb-8 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200"
+            <div className="p-4 sm:p-6">
+              {/* Resumen de reserva completamente responsive */}
+              <motion.div
+                className="mb-6 sm:mb-8 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.1 }}
               >
-                <div className="flex items-center mb-4">
-                  <CheckCircle className="w-6 h-6 text-green-600 mr-3" />
-                  <h3 className="text-lg font-bold text-gray-900">Resumen de tu reserva</h3>
+                <div className="flex items-center mb-3 sm:mb-4">
+                  <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 mr-2 sm:mr-3 flex-shrink-0" />
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900">
+                    Resumen de tu reserva
+                  </h3>
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-white p-4 rounded-xl border border-gray-200">
-                    <div className="flex items-center mb-2">
-                      <User className="w-5 h-5 text-indigo-600 mr-2" />
-                      <span className="text-sm font-medium text-gray-500">Servicio</span>
-                    </div>
-                    <p className="font-bold text-gray-900">{service.name_service}</p>
-                  </div>
 
-                  <div className="bg-white p-4 rounded-xl border border-gray-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="bg-white p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200">
                     <div className="flex items-center mb-2">
-                      <DollarSign className="w-5 h-5 text-green-600 mr-2" />
-                      <span className="text-sm font-medium text-gray-500">Precio</span>
+                      <User className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 mr-2 flex-shrink-0" />
+                      <span className="text-xs sm:text-sm font-medium text-gray-500">
+                        Servicio
+                      </span>
                     </div>
-                    <p className="font-bold text-gray-900">${service.price}</p>
-                  </div>
-
-                  <div className="bg-white p-4 rounded-xl border border-gray-200">
-                    <div className="flex items-center mb-2">
-                      <Clock className="w-5 h-5 text-blue-600 mr-2" />
-                      <span className="text-sm font-medium text-gray-500">Duración</span>
-                    </div>
-                    <p className="font-bold text-gray-900">{service.duration} minutos</p>
-                  </div>
-
-                  <div className="bg-white p-4 rounded-xl border border-gray-200">
-                    <div className="flex items-center mb-2">
-                      <Calendar className="w-5 h-5 text-purple-600 mr-2" />
-                      <span className="text-sm font-medium text-gray-500">Fecha</span>
-                    </div>
-                    <p className="font-bold text-gray-900">
-                      {format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })}
+                    <p className="font-bold text-gray-900 text-sm sm:text-base leading-tight">
+                      {service.name_service}
                     </p>
                   </div>
 
-                  <div className="bg-white p-4 rounded-xl border border-gray-200 md:col-span-2">
+                  <div className="bg-white p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200">
                     <div className="flex items-center mb-2">
-                      <Clock className="w-5 h-5 text-orange-600 mr-2" />
-                      <span className="text-sm font-medium text-gray-500">Horario</span>
+                      <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mr-2 flex-shrink-0" />
+                      <span className="text-xs sm:text-sm font-medium text-gray-500">
+                        Precio
+                      </span>
                     </div>
-                    <p className="font-bold text-gray-900">
+                    <p className="font-bold text-gray-900 text-sm sm:text-base">
+                      ${service.price}
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200">
+                    <div className="flex items-center mb-2">
+                      <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2 flex-shrink-0" />
+                      <span className="text-xs sm:text-sm font-medium text-gray-500">
+                        Duración
+                      </span>
+                    </div>
+                    <p className="font-bold text-gray-900 text-sm sm:text-base">
+                      {service.duration} minutos
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200">
+                    <div className="flex items-center mb-2">
+                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 mr-2 flex-shrink-0" />
+                      <span className="text-xs sm:text-sm font-medium text-gray-500">
+                        Fecha
+                      </span>
+                    </div>
+                    <p className="font-bold text-gray-900 text-sm sm:text-base leading-tight">
+                      {format(selectedDate, "EEEE, d 'de' MMMM", {
+                        locale: es,
+                      })}
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200 sm:col-span-2">
+                    <div className="flex items-center mb-2">
+                      <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 mr-2 flex-shrink-0" />
+                      <span className="text-xs sm:text-sm font-medium text-gray-500">
+                        Horario
+                      </span>
+                    </div>
+                    <p className="font-bold text-gray-900 text-sm sm:text-base">
                       {selectedSlot
                         ? `${format(selectedSlot.start, "HH:mm")} - ${format(
                             selectedSlot.end,
@@ -252,15 +274,21 @@ export const BookingForm = ({
                 </div>
               </motion.div>
 
-              {/* Formulario */}
-              <form onSubmit={handleSubmit(submitForm)} className="space-y-6">
+              {/* Formulario completamente responsive */}
+              <form
+                onSubmit={handleSubmit(submitForm)}
+                className="space-y-4 sm:space-y-6"
+              >
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.2 }}
                 >
-                  <Label htmlFor="phone" className="flex items-center text-sm font-semibold text-gray-700 mb-2">
-                    <Phone className="w-4 h-4 mr-2 text-indigo-600" />
+                  <Label
+                    htmlFor="phone"
+                    className="flex items-center text-sm font-semibold text-gray-700 mb-2"
+                  >
+                    <Phone className="w-4 h-4 mr-2 text-indigo-600 flex-shrink-0" />
                     Número de teléfono
                   </Label>
                   <Input
@@ -273,16 +301,20 @@ export const BookingForm = ({
                       },
                     })}
                     placeholder="+54 11 1234-5678"
-                    className="h-12 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-0 transition-all duration-300"
+                    className="h-11 sm:h-12 rounded-lg sm:rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-0 transition-all duration-300 text-base"
                   />
                   {errors.phone && (
-                    <motion.p 
-                      className="mt-2 text-sm text-red-600 flex items-center"
+                    <motion.p
+                      className="mt-2 text-sm text-red-600 flex items-start"
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                     >
-                      <span className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center mr-2">!</span>
-                      {errors.phone.message as string}
+                      <span className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center mr-2 mt-0.5 text-xs flex-shrink-0">
+                        !
+                      </span>
+                      <span className="leading-tight">
+                        {errors.phone.message as string}
+                      </span>
                     </motion.p>
                   )}
                 </motion.div>
@@ -292,35 +324,40 @@ export const BookingForm = ({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.3 }}
                 >
-                  <Label htmlFor="notes" className="flex items-center text-sm font-semibold text-gray-700 mb-2">
-                    <MessageSquare className="w-4 h-4 mr-2 text-indigo-600" />
+                  <Label
+                    htmlFor="notes"
+                    className="flex items-center text-sm font-semibold text-gray-700 mb-2"
+                  >
+                    <MessageSquare className="w-4 h-4 mr-2 text-indigo-600 flex-shrink-0" />
                     Notas adicionales (opcional)
                   </Label>
                   <Textarea
                     id="notes"
                     {...register("notes")}
                     placeholder="¿Hay algo específico que deberíamos saber para tu cita?"
-                    rows={4}
-                    className="rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-0 transition-all duration-300 resize-none"
+                    rows={3}
+                    className="rounded-lg sm:rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-0 transition-all duration-300 resize-none text-base"
                   />
                 </motion.div>
 
-                <DialogFooter className="pt-6 border-t border-gray-200">
+                <DialogFooter className="pt-4 sm:pt-6 border-t border-gray-200">
                   <div className="flex flex-col sm:flex-row gap-3 w-full">
                     <Button
                       type="button"
                       variant="ghost"
                       onClick={onClose}
-                      className="flex-1 h-12 rounded-xl border-2 border-gray-200 hover:bg-gray-50 font-semibold transition-all duration-300"
+                      className="flex-1 h-11 sm:h-12 rounded-lg sm:rounded-xl border-2 border-gray-200 hover:bg-gray-50 font-semibold transition-all duration-300 text-base"
                     >
                       Cancelar
                     </Button>
-                    <Button 
+                    <Button
                       type="submit"
-                      className="flex-1 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
+                      className="flex-1 h-11 sm:h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group text-base"
                     >
-                      Continuar al Pago
-                      <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      <span className="flex items-center justify-center">
+                        <span className="mr-2">Continuar al Pago</span>
+                        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+                      </span>
                     </Button>
                   </div>
                 </DialogFooter>

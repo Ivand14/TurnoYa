@@ -5,6 +5,7 @@ import { BookingCard } from "@/components/BookingCard";
 import { Calendar } from "@/components/Calendar";
 import { Booking } from "@/types";
 import { es } from "date-fns/locale";
+import { Navbar } from "./Navbar";
 
 interface dashProps {
   upcomingBookings: Booking[];
@@ -42,6 +43,9 @@ function DashboardBody({
   return (
     <main className="flex-1 container mx-auto px-4 py-8">
       {/* <h1 className="text-3xl font-bold mb-6">Dashboard de {user.user_data.name}</h1> */}
+      <div className="mb-20">
+        <Navbar />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Estadísticas */}

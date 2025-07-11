@@ -39,6 +39,7 @@ export const Navbar = () => {
     { name: "Inicio", href: "/" },
     { name: "Negocios", href: "/businesses" },
     { name: "Sobre nosotros", href: "/about" },
+    { name: "Dashboard", href: "/dashboard" },
   ];
 
   useEffect(() => {
@@ -150,7 +151,7 @@ export const Navbar = () => {
   };
 
   const getMobileMenuStyles = () => {
-    if (isHomePage|| isAbout || isBusinesses) {
+    if (isHomePage || isAbout || isBusinesses) {
       return isScrolled
         ? "bg-white/95 backdrop-blur-xl border-gray-200/20"
         : "bg-black/20 backdrop-blur-xl border-white/10";
@@ -160,7 +161,7 @@ export const Navbar = () => {
   };
 
   const getMobileBorderStyles = () => {
-    if (isHomePage|| isAbout || isBusinesses) {
+    if (isHomePage || isAbout || isBusinesses) {
       return isScrolled
         ? "border-t border-gray-200/50"
         : "border-t border-white/20";
