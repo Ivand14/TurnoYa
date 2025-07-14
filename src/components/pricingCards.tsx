@@ -9,14 +9,18 @@ import {
   BarChart,
   CreditCard,
   Shield,
-  Zap,
-  Star,
-  Building,
   Smartphone,
   HeadphonesIcon,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-function PricingCards() {
+function PricingCards({
+  onPlanSelect,
+  selectedPlan,
+}: {
+  onPlanSelect?: (planId: string) => void;
+  selectedPlan?: string;
+}) {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">(
     "monthly"
   );
@@ -32,14 +36,14 @@ function PricingCards() {
         { text: "Gestión de hasta 2 empleados", included: true },
         { text: "Base de datos de clientes", included: true },
         // { text: "Recordatorios por SMS", included: true },
-        { text: "Calendario básico", included: true },
-        { text: "Soporte por email", included: false },
-        { text: "Reportes avanzados", included: false },
-        // { text: "Múltiples ubicaciones", included: false },
         {
           text: "Integración con mercado pago reduciendo perdidas de dinero",
           included: true,
         },
+        { text: "Calendario básico", included: true },
+        { text: "Soporte por email", included: false },
+        { text: "Reportes avanzados", included: false },
+        // { text: "Múltiples ubicaciones", included: false },
         // { text: "App móvil personalizada", included: false },
       ],
       ctaText: "Comenzar Gratis",
@@ -48,7 +52,7 @@ function PricingCards() {
     {
       name: "Profesional",
       description: "Ideal para negocios en crecimiento",
-      monthlyPrice: 35,
+      monthlyPrice: 25,
       popular: true,
       features: [
         { text: "Citas ilimitadas", included: true },
@@ -90,42 +94,11 @@ function PricingCards() {
     },
   ];
 
-  const features = [
-    {
-      icon: <Calendar className="w-6 h-6" />,
-      title: "Gestión de Citas",
-      description: "Sistema completo de reservas online",
-    },
-    {
-      icon: <Users className="w-6 h-6" />,
-      title: "Gestión de Clientes",
-      description: "Base de datos completa con historial",
-    },
-    {
-      icon: <Bell className="w-6 h-6" />,
-      title: "Recordatorios",
-      description: "SMS y email automáticos",
-    },
-    {
-      icon: <BarChart className="w-6 h-6" />,
-      title: "Reportes",
-      description: "Analytics y métricas de negocio",
-    },
-    {
-      icon: <CreditCard className="w-6 h-6" />,
-      title: "Pagos",
-      description: "Cobros y facturación integrada",
-    },
-    {
-      icon: <Smartphone className="w-6 h-6" />,
-      title: "App Móvil",
-      description: "Para clientes y empleados",
-    },
-  ];
-
   const getPrice = (plan: (typeof plans)[0]) => {
     return plan.monthlyPrice;
   };
+
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen ">
@@ -145,11 +118,12 @@ function PricingCards() {
             {plans.map((plan, index) => (
               <div
                 key={index}
-                className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${
-                  plan.popular
+                className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer ${
+                  selectedPlan === plan.name
                     ? "ring-2 ring-blue-500 transform scale-105"
                     : "hover:transform hover:scale-105"
                 }`}
+                onClick={() => onPlanSelect(plan.name)}
               >
                 {plan.popular && (
                   <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -203,6 +177,7 @@ function PricingCards() {
                   </div>
 
                   <button
+                    onClick={() => navigate("/register-business")}
                     className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-200 ${
                       plan.ctaVariant === "primary"
                         ? "bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl"
