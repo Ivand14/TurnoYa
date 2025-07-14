@@ -12,7 +12,7 @@ import { getDashboardStats } from "@/utils/dashboardUtils";
 import { Calendar } from "@/components/Calendar";
 import StatsOverview from "@/components/dashboarBusiness/StatsOverview";
 import DailyBookings from "@/components/dashboarBusiness/DailyBookings";
-import UpcomingBookings from "@/components/dashboarBusiness/UpcomingBookings";
+import UpcomingBookings from "@/components/analytics/UpcomingBookings";
 import EmployeeForm from "@/components/dashboarBusiness/EmployeeForm";
 import EmployeeList from "@/components/dashboarBusiness/EmployeeList";
 import ScheduleForm from "@/components/dashboarBusiness/ScheduleForm";
@@ -138,7 +138,6 @@ const BusinessDashboard = () => {
   };
 
   const stats = getDashboardStats(booking, allEmployees);
-
 
   return (
     <div className="flex  min-h-screen">

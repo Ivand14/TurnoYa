@@ -42,40 +42,93 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
 
   const monthlyData: monthlyDataInt[] = [];
 
-  const maxReservas = Math.max(...monthlyData.map((d) => d.reservas));
-  const maxIngresos = Math.max(...monthlyData.map((d) => d.ingresos));
+  const maxReservas = Math.max(...monthlyData.map((d) => d.booking));
+  const maxIngresos = Math.max(...monthlyData.map((d) => d.income));
 
   const topServices: topServiceInt[] = [];
 
-  console.log(serviceBooking);
-
   const monthlyMetrics = () => {
-    
+    const now = new Date();
+    const monthNumber = now.toLocaleString("es-ES", { month: "2-digit" });
+    const month = now.toLocaleDateString("es-ES", { month: "long" });
+
+    const bookingMonth = booking.filter(
+      (bk) => bk.date.split("-")[1] === monthNumber
+    );
+
+    const income = bookingMonth.reduce((acc, bk) => acc + bk.price, 0);
+
+    return {
+      month,
+      booking: bookingMonth.length,
+      income,
+    };
   };
 
-  monthlyMetrics();
-  console.log(monthlyData);
+  const topServiceMetrics = () => {
+    const serviceCount = booking.reduce((acc, bk) => {
+      const service = services.find((ser) => ser.id === bk.serviceId);
+      if (!service) return acc;
+      const name = service.name_service;
+      acc[name] = (acc[name] || 0) + 1;
+      return acc;
+    }, {});
+
+    const result = Object.entries(serviceCount).map(([name, cant]) => ({
+      name,
+      bookings: cant as number,
+    }));
+
+    return result;
+  };
+
+  const timeProm = () => {
+    const durations = booking
+      .map((bk) => {
+        const service = services.find((ser) => ser.id === bk.serviceId);
+        return service?.duration ?? 0;
+      })
+      .filter((duration) => duration > 0);
+
+    if (durations.length === 0) return 0;
+
+    const promedio =
+      durations.reduce((acc, dur) => acc + dur, 0) / durations.length;
+
+    return Math.round(promedio);
+  };
+
+  const recurringClients = () => {
+    const clients = booking.reduce((acc, bk) => {
+      const client = bk.userEmail;
+      acc[client] = (acc[client] ?? 0) + 1;
+      return acc;
+    }, {});
+
+    const totalClients = Object.keys(clients).length;
+    const recurringCount = Object.values(clients).filter(
+      (count: number) => count > 3
+    ).length;
+    return `${Math.round((recurringCount / totalClients) * 100)}%`;
+  };
 
   const performanceMetrics: performanceMetricsInt[] = [
     {
-      title: "Tasa de Cancelación",
-      value: "5.2%",
-      icon: Calendar,
-      color: "text-red-500",
-    },
-    {
       title: "Tiempo Promedio",
-      value: "45 min",
+      value: timeProm(),
       icon: Clock,
       color: "text-blue-500",
     },
     {
       title: "Clientes Recurrentes",
-      value: "78%",
+      value: recurringClients(),
       icon: Users,
       color: "text-green-500",
     },
   ];
+  monthlyData.push(monthlyMetrics());
+  topServiceMetrics();
+  topServices.push(...topServiceMetrics());
 
   return (
     <div className="p-8 min-h-screen">
@@ -138,11 +191,11 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
                     <div
                       className="bg-gradient-to-r from-blue-500 to-purple-600 h-6 rounded-full flex items-center justify-end pr-2"
                       style={{
-                        width: `${(data.reservas / maxReservas) * 100}%`,
+                        width: `${(data.booking / maxReservas) * 100}%`,
                       }}
                     >
                       <span className="text-white text-xs font-medium">
-                        {data.reservas}
+                        {data.booking}
                       </span>
                     </div>
                   </div>
@@ -169,11 +222,11 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
                     <div
                       className="bg-gradient-to-r from-green-500 to-emerald-600 h-6 rounded-full flex items-center justify-end pr-2"
                       style={{
-                        width: `${(data.ingresos / maxIngresos) * 100}%`,
+                        width: `${(data.income / maxIngresos) * 100}%`,
                       }}
                     >
                       <span className="text-white text-xs font-medium">
-                        ${data.ingresos}
+                        ${data.income}
                       </span>
                     </div>
                   </div>
@@ -198,7 +251,7 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
                   <th className="pb-3">Servicio</th>
                   <th className="pb-3">Reservas</th>
                   <th className="pb-3">Ingresos</th>
-                  <th className="pb-3">Popularidad</th>
+                  {/* <th className="pb-3">Popularidad</th> */}
                 </tr>
               </thead>
               <tbody className="text-sm">
