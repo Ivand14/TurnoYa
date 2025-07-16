@@ -188,7 +188,7 @@ const Index = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 1, delay: 0.5 }}
                 >
-                  Turnos Ya
+                  UTurns
                 </motion.span>
               </motion.h1>
 
@@ -277,7 +277,7 @@ const Index = () => {
               <h2 className="text-5xl md:text-6xl font-bold mb-6 text-gray-900">
                 ¿Por qué elegir{" "}
                 <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  TurnosYa?
+                  UTurns?
                 </span>
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">

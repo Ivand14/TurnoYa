@@ -78,7 +78,6 @@ export const useEmployeeContext = create<EmployeeContext>((set, get) => ({
     }
   },
 
-  // ✅ Obtener todos los empleados de un negocio
   fetchGetAllEmployees: async (businessId: string) => {
     set({ loading: true, error: null });
     try {
@@ -101,7 +100,6 @@ export const useEmployeeContext = create<EmployeeContext>((set, get) => ({
     }
   },
 
-  // ✅ Obtener detalles de un empleado por ID
   fetchGetEmployeeById: async (id: string) => {
     set({ loading: true, error: null });
     try {
@@ -124,7 +122,6 @@ export const useEmployeeContext = create<EmployeeContext>((set, get) => ({
     }
   },
 
-  // ✅ Actualizar estado de un empleado (Activo/Inactivo)
   fetchPatchEmployee: async (id: string, status: string) => {
     set({ loading: true, error: null });
 

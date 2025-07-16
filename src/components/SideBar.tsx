@@ -123,7 +123,7 @@ const ResponsiveSidebar: React.FC<SidebarProps> = ({
               {!isCollapsed && (
                 <div className="transition-opacity duration-200">
                   <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                    TurnosYa
+                    UTurns
                   </h1>
                 </div>
               )}

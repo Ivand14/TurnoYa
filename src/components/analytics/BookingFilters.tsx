@@ -40,6 +40,7 @@ export const BookingFilters: React.FC<BookingFiltersProps> = ({
   onToggleFilters,
   hasActiveFilters,
 }) => {
+
   return (
     <div className="space-y-4">
       {/* Search and Filter Toggle */}

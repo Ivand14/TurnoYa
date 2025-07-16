@@ -209,7 +209,7 @@ export const Navbar = () => {
               <span
                 className={`text-xl font-bold transition-all duration-500 ${getLogoTextColor()}`}
               >
-                TurnosYa
+                UTurns
               </span>
               <span
                 className={`text-xs transition-colors duration-500 ${getLogoSubtextColor()}`}

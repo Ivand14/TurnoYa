@@ -26,6 +26,7 @@ import {
 } from "@/context/MercadoPagoContext/salesmanContext";
 import SidebarLayout from "@/components/SideBar";
 import Statistics from "@/components/dashboarBusiness/Statistics";
+import AccountSettings from "@/components/dashboarBusiness/AccountSettings";
 
 const BusinessDashboard = () => {
   const { company } = compnay_logged();
@@ -176,7 +177,6 @@ const BusinessDashboard = () => {
                     ]}
                   />
                 </div>
-                <div className="lg:col-span-3">{/* <Statictics /> */}</div>
               </div>
             </div>
           )}
@@ -255,6 +255,12 @@ const BusinessDashboard = () => {
           {tab === "statistics" && (
             <div>
               <Statistics booking={booking} businessId={businessId} />
+            </div>
+          )}
+
+          {tab === "configuracion" && (
+            <div>
+              <AccountSettings />
             </div>
           )}
           {/* </Tabs> */}

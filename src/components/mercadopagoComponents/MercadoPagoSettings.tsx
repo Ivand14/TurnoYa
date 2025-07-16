@@ -76,7 +76,6 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
   };
 
   const handleRevokeAuthorization = () => {
-    // En un entorno real, esto revocaría los permisos en MercadoPago
     setOauthAccount(null);
     setIsConnected(false);
     setAccessToken("");

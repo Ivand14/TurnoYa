@@ -102,7 +102,7 @@ const RegisterBusiness = () => {
       logo: undefined,
       password: "",
       confirmPassword: "",
-      subscriptionPlan: "basic", // Default to basic plan
+      subscriptionPlan: "basic",
     },
   });
 
@@ -123,6 +123,7 @@ const RegisterBusiness = () => {
   };
 
   const handlePlanSelect = (planId: string) => {
+    console.log(planId);
     form.setValue("subscriptionPlan", planId, { shouldValidate: true });
   };
 
@@ -140,10 +141,9 @@ const RegisterBusiness = () => {
         values.description,
         values.logo,
         values.password,
-        // values.subscriptionPlan // Add subscription plan to API call
+        values.subscriptionPlan 
       );
 
-      console.log(response);
       if (response.status === 200) {
         toast.success("¡Negocio registrado correctamente!");
         setTimeout(() => {
@@ -186,7 +186,7 @@ const RegisterBusiness = () => {
               Registra tu Negocio
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Únete a miles de negocios que ya confían en TurnosYa para
+              Únete a miles de negocios que ya confían en UTurns para
               gestionar sus reservas
             </p>
           </div>
@@ -234,7 +234,7 @@ const RegisterBusiness = () => {
             <Alert className="mb-8 border-blue-200 bg-blue-50/50 backdrop-blur-sm">
               <Sparkles className="h-5 w-5 text-blue-600" />
               <AlertTitle className="text-blue-900 font-semibold">
-                ¡Bienvenido a TurnosYa!
+                ¡Bienvenido a UTurns!
               </AlertTitle>
               <AlertDescription className="text-blue-800">
                 Al registrar tu negocio, podrás gestionar reservas, administrar

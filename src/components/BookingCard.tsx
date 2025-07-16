@@ -15,24 +15,24 @@ import {
   ArrowRight,
   CheckCircle,
 } from "lucide-react";
+import { useBookingContext } from "@/context/apisContext/bookingContext";
+import { compnay_logged } from "@/context/current_company";
 
 interface BookingCardProps {
   booking: Booking;
   service?: Service;
   onCancel?: (bookingId: string) => void;
-  onConfirmAttendance?: (bookingId: string) => void;
-  onMarkAsCompleted?: (bookingId: string) => void;
 }
 
 export const BookingCard = ({
   booking,
   service,
   onCancel,
-  onConfirmAttendance,
-  onMarkAsCompleted,
 }: BookingCardProps) => {
   const bookingDate = new Date(booking.start);
   const { services, fetchGetServices } = useServicesContext();
+  const { fetchPatchStatusBooking } = useBookingContext();
+  const { company } = compnay_logged();
 
   useEffect(() => {
     const loadService = async () => {
@@ -99,12 +99,20 @@ export const BookingCard = ({
     }
   };
 
-  console.log(booking);
+  const onMarkAsCompleted = async (booking_id: string) => {
+    await fetchPatchStatusBooking(booking_id, "completed");
+  };
 
-  // Check if booking is today and confirmed
-  const isToday = new Date().toDateString() === bookingDate.toDateString();
-  const isPastOrToday = bookingDate <= new Date();
-  const canConfirmAttendance = booking.status === "confirmed" && isToday;
+  const date = new Date();
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  };
+  const currentDate = date.toLocaleDateString("en-CA", options);
+  const bookingToDate = bookingDate.toLocaleDateString("en-CA", options);
+
+  const isPastOrToday = bookingToDate <= currentDate;
   const canMarkAsCompleted = booking.status === "confirmed" && isPastOrToday;
 
   return (
@@ -184,8 +192,19 @@ export const BookingCard = ({
 
         {/* Actions row */}
         {booking.status !== "cancelled" && booking.status !== "completed" && (
-          <div className="flex items-center justify-between pt-2">
-            <div className="flex items-center gap-4">
+          <div className="flex items-start justify-between  pt-2">
+            <div className="flex flex-col items-start gap-4">
+              {canMarkAsCompleted && company && (
+                <Button
+                  onClick={() => onMarkAsCompleted(booking.id)}
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-blue-600 hover:text-blue-700 hover:bg-transparent font-normal p-0 h-auto uppercase tracking-wider"
+                >
+                  Marcar completado
+                  <ArrowRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Button>
+              )}
               <Button
                 onClick={() => onCancel?.(booking.id)}
                 variant="ghost"
@@ -195,31 +214,6 @@ export const BookingCard = ({
                 Cancelar
                 <ArrowRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
               </Button>
-
-              {canConfirmAttendance && onConfirmAttendance && (
-                <Button
-                  onClick={() => onConfirmAttendance(booking.id)}
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs text-emerald-600 hover:text-emerald-700 hover:bg-transparent font-normal p-0 h-auto uppercase tracking-wider"
-                >
-                  Confirmar asistencia
-                  <ArrowRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </Button>
-              )}
-
-              {canMarkAsCompleted && onMarkAsCompleted && (
-                <Button
-                  onClick={() => onMarkAsCompleted(booking.id)}
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs text-blue-600 hover:text-blue-700 hover:bg-transparent font-normal p-0 h-auto uppercase tracking-wider"
-                >
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  Marcar como completado
-                  <ArrowRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </Button>
-              )}
             </div>
 
             <div className="opacity-60 hover:opacity-100 transition-opacity">

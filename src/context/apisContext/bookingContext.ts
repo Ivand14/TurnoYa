@@ -5,8 +5,10 @@ import {
   delete_booking,
   get_booking,
   get_user_booking,
+  patch_status_book,
 } from "@/apis/booking_apis";
 import { socket } from "@/utils/socket";
+import { match } from "assert";
 
 interface BookingContext {
   booking: Booking[];
@@ -14,25 +16,40 @@ interface BookingContext {
   loading: boolean;
   error: string | null;
   selectedDate: Date;
-  setSelectedDate:(date:Date) => void
+  setSelectedDate: (date: Date) => void;
   fetchCreateBooking: (booking: Booking) => Promise<void>;
   fetchGetBooking: (businessId: string) => Promise<void>;
   fetchGetUserBooking: (userId: string) => Promise<void>;
   fetchDeleteBooking: (bookingId: string) => Promise<void>;
+  fetchPatchStatusBooking: (
+    booking_id: string,
+    new_status: string
+  ) => Promise<void>;
 }
 
-socket.on("new_book",({action,reserva})=>{
+socket.on("new_book", ({ action, reserva }) => {
   useBookingContext.setState((state) => {
     if (action === "crear") {
       return { booking: [...state.booking, reserva] };
-    }else if(action === "cancel"){
+    } else if (action === "cancel") {
       return {
-        booking: state.booking.filter((bk) => bk.id !== reserva)
-      }
+        booking: state.booking.filter((bk) => bk.id !== reserva),
+      };
     }
     return {};
-  })
-})
+  });
+});
+
+socket.on("update_status", ({ action, updates }) => {
+  if (action === "update" && Array.isArray(updates)) {
+    useBookingContext.setState((state) => ({
+      booking: state.booking.map((bk) => {
+        const match = updates.find((u) => u.id === bk.id);
+        return match ? match : bk;
+      }),
+    }));
+  }
+});
 
 export const useBookingContext = create<BookingContext>((set) => ({
   booking: [],
@@ -47,7 +64,7 @@ export const useBookingContext = create<BookingContext>((set) => ({
     try {
       const responseCreate = await createBooking(booking);
       if (responseCreate.status === 200) {
-        socket.emit("new_book",{action:"crear",reserva:booking})
+        socket.emit("new_book", { action: "crear", reserva: booking });
         set((state) => ({
           booking: [...state.booking, responseCreate.details],
           loading: false,
@@ -129,5 +146,31 @@ export const useBookingContext = create<BookingContext>((set) => ({
       set({ loading: false, error: (error as Error).message });
     }
   },
+  fetchPatchStatusBooking: async (booking_id: string, new_status: string) => {
+    set({ loading: true, error: null });
+    try {
+      const responsePatch = await patch_status_book(booking_id, new_status);
+      if (responsePatch?.status === 200) {
+        const updatedBooking = responsePatch?.details;
+        set((state) => ({
+          booking: state.booking.map((bk) =>
+            bk.id === updatedBooking.id ? updatedBooking : bk
+          ),
+          loading: false,
+          error: null,
+        }));
+        socket.emit("update_status", {
+          action: "update",
+          updates: updatedBooking,
+        });
+      } else {
+        set({
+          loading: false,
+          error: responsePatch.data.message || "Error updating booking status",
+        });
+      }
+    } catch (error) {
+      set({ loading: false, error: (error as Error).message });
+    }
+  },
 }));
-

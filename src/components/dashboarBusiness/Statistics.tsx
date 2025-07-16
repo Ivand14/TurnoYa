@@ -3,11 +3,10 @@ import {
   BarChart3,
   TrendingUp,
   Users,
-  Calendar,
   DollarSign,
   Clock,
-  Star,
   Target,
+  CalendarCheck,
 } from "lucide-react";
 import { Booking } from "@/types";
 import { useServicesContext } from "@/context/apisContext/servicesContext";
@@ -24,7 +23,7 @@ interface statisticsProps {
 
 const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
   const { fetchGetServices, services } = useServicesContext();
-  const [serviceBooking, serServiceBooking] = useState([]);
+  const [serviceBooking, setServiceBooking] = useState([]);
 
   useEffect(() => {
     fetchGetServices(businessId);
@@ -36,7 +35,7 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
       const serviceInBooking = services.filter((ser) =>
         bookingServiceIds.includes(ser.id)
       );
-      serServiceBooking(serviceInBooking);
+      setServiceBooking(serviceInBooking);
     }
   }, [services, booking]);
 
@@ -66,17 +65,28 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
   };
 
   const topServiceMetrics = () => {
-    const serviceCount = booking.reduce((acc, bk) => {
-      const service = services.find((ser) => ser.id === bk.serviceId);
-      if (!service) return acc;
-      const name = service.name_service;
-      acc[name] = (acc[name] || 0) + 1;
-      return acc;
-    }, {});
+    const serviceData = booking.reduce(
+      (acc: Record<string, { bookings: number; revenue: number }>, bk) => {
+        const service = services.find((ser) => ser.id === bk.serviceId);
+        if (!service) return acc;
 
-    const result = Object.entries(serviceCount).map(([name, cant]) => ({
+        const name = service.name_service;
+        if (!acc[name]) {
+          acc[name] = { bookings: 0, revenue: 0 };
+        }
+
+        acc[name].bookings += 1;
+        acc[name].revenue += bk.price;
+
+        return acc;
+      },
+      {}
+    );
+
+    const result = Object.entries(serviceData).map(([name, data]) => ({
       name,
-      bookings: cant as number,
+      bookings: data.bookings,
+      revenue: data.revenue,
     }));
 
     return result;
@@ -112,17 +122,37 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
     return `${Math.round((recurringCount / totalClients) * 100)}%`;
   };
 
+  const assistProm = () => {
+    const bookCompleted = booking.reduce((acc: Record<string, number>, bk) => {
+      acc[bk.status] = (acc[bk.status] ?? 0) + 1;
+      return acc;
+    }, {});
+
+    const quantityCompleted = bookCompleted["completed"] ?? 0;
+    const quantityConfirmed = bookCompleted["confirmed"] ?? 0;
+
+    if (quantityConfirmed === 0) return 0;
+
+    return Math.round((quantityCompleted / quantityConfirmed) * 100);
+  };
+
   const performanceMetrics: performanceMetricsInt[] = [
     {
       title: "Tiempo Promedio",
-      value: timeProm(),
+      value: `${timeProm() || 0}`,
       icon: Clock,
       color: "text-blue-500",
     },
     {
       title: "Clientes Recurrentes",
-      value: recurringClients(),
+      value: `${recurringClients() || "0"}`,
       icon: Users,
+      color: "text-green-500",
+    },
+    {
+      title: "Promedio de asistencia",
+      value: `${assistProm() || "0"}%`,
+      icon: CalendarCheck,
       color: "text-green-500",
     },
   ];
@@ -251,51 +281,53 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
                   <th className="pb-3">Servicio</th>
                   <th className="pb-3">Reservas</th>
                   <th className="pb-3">Ingresos</th>
-                  {/* <th className="pb-3">Popularidad</th> */}
+                  <th className="pb-3">Popularidad</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
-                {topServices.map((service, index) => (
-                  <tr key={index} className="border-b border-gray-100">
-                    <td className="py-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                          <span className="text-white font-medium text-xs">
-                            {index + 1}
+                {[...topServices]
+                  .sort((a, b) => b.bookings - a.bookings)
+                  .map((service, index) => (
+                    <tr key={index} className="border-b border-gray-100">
+                      <td className="py-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <span className="text-white font-medium text-xs">
+                              {index + 1}
+                            </span>
+                          </div>
+                          <span className="font-medium text-gray-900">
+                            {service.name}
                           </span>
                         </div>
-                        <span className="font-medium text-gray-900">
-                          {service.name}
+                      </td>
+                      <td className="py-4">
+                        <span className="text-gray-900 font-medium">
+                          {service.bookings}
                         </span>
-                      </div>
-                    </td>
-                    <td className="py-4">
-                      <span className="text-gray-900 font-medium">
-                        {service.bookings}
-                      </span>
-                    </td>
-                    <td className="py-4">
-                      <span className="text-green-600 font-medium">
-                        ${service.revenue}
-                      </span>
-                    </td>
-                    <td className="py-4">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 bg-gray-100 rounded-full h-2">
-                          <div
-                            className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full"
-                            style={{
-                              width: `${(service.bookings / 145) * 100}%`,
-                            }}
-                          />
+                      </td>
+                      <td className="py-4">
+                        <span className="text-green-600 font-medium">
+                          ${service.revenue}
+                        </span>
+                      </td>
+                      <td className="py-4">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-24 bg-gray-100 rounded-full h-2">
+                            <div
+                              className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full"
+                              style={{
+                                width: `${(service.bookings / 145) * 100}%`,
+                              }}
+                            />
+                          </div>
+                          <span className="text-xs text-gray-600">
+                            {Math.round((service.bookings / 145) * 100)}%
+                          </span>
                         </div>
-                        <span className="text-xs text-gray-600">
-                          {Math.round((service.bookings / 145) * 100)}%
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

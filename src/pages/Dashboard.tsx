@@ -91,14 +91,14 @@ const Dashboard = () => {
 
   // Resumen de estadísticas
   const getDashboardStats = () => {
-    const totalBookings = booking.length;
-    const confirmedBookings = booking.filter(
+    const totalBookings = userBooking.length;
+    const confirmedBookings = userBooking.filter(
       (b) => b.status === "confirmed"
     ).length;
-    const pendingBookings = booking.filter(
+    const pendingBookings = userBooking.filter(
       (b) => b.status === "pending"
     ).length;
-    const cancelledBookings = booking.filter(
+    const cancelledBookings = userBooking.filter(
       (b) => b.status === "cancelled"
     ).length;
 
@@ -110,12 +110,10 @@ const Dashboard = () => {
     };
   };
 
-  const stats = useMemo(() => getDashboardStats(), [booking]);
+  const stats = getDashboardStats();
 
   return (
     <div className="flex flex-col min-h-screen">
-      
-
       <DashboardBody
         upcomingBookings={upcomingBookings}
         pastBookings={pastBookings}

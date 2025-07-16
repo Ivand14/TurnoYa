@@ -50,18 +50,32 @@ export const useBookingFilters = ({
   // Advanced filtering and sorting
   const processedBookings = useMemo(() => {
     let result = bookings;
-
     // Filter by search term
-    if (searchTerm.trim()) {
-      const search = searchTerm.toLowerCase().trim();
-      result = result.filter(
-        (booking) =>
-          booking.userName.toLowerCase().includes(search) ||
-          booking.userEmail.toLowerCase().includes(search) ||
-          services[booking.serviceId]?.name_service
-            ?.toLowerCase()
-            .includes(search)
-      );
+    if (searchTerm) {
+      const normalizeText = (text: string): string =>
+        text
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .trim();
+
+      const search = normalizeText(searchTerm);
+
+      result = result.filter((booking) => {
+        const userName = normalizeText(booking.userName);
+        const userEmail = normalizeText(booking.userEmail);
+        const serviceName = normalizeText(
+          services[booking.serviceId]?.name_service || ""
+        );
+
+        return (
+          userName.includes(search) ||
+          userEmail.includes(search) ||
+          serviceName.includes(search)
+        );
+      });
+
+      console.log(result);
     }
 
     // Filter by service types

@@ -9,7 +9,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="text-lg font-semibold text-booking-primary mb-4">
-              TurnosYa
+              UTurns
             </h3>
             <p className="text-sm text-gray-600">
               Plataforma de reservas online para todo tipo de negocios. Gestiona
@@ -134,7 +134,7 @@ export const Footer = () => {
 
         <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col md:flex-row justify-between">
           <p className="text-xs text-gray-500">
-            &copy; {currentYear} TurnosYa. Todos los derechos reservados.
+            &copy; {currentYear} UTurns. Todos los derechos reservados.
           </p>
           <div className="mt-4 md:mt-0 flex space-x-6">
             {/* <Link

@@ -113,7 +113,7 @@ const AboutPage: React.FC = () => {
                   transition={{ duration: 0.6, delay: 0.2 }}
                 >
                   <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-                    <span className="text-indigo-600">TurnosYa</span>
+                    <span className="text-indigo-600">UTurns</span>
                   </h1>
 
                   <div className="flex flex-wrap justify-center lg:justify-start gap-4 mb-8">
@@ -303,7 +303,7 @@ const AboutPage: React.FC = () => {
                     <TeamCard
                       name="Ana Rodríguez"
                       role="CEO & Fundadora"
-                      description="Visionaria con más de 10 años de experiencia en tecnología. Fundó TurnosYa con el objetivo de revolucionar la gestión de turnos para pequeños y medianos negocios."
+                      description="Visionaria con más de 10 años de experiencia en tecnología. Fundó UTurns con el objetivo de revolucionar la gestión de turnos para pequeños y medianos negocios."
                       icon={<User className="w-8 h-8" />}
                     />
                     <TeamCard
@@ -410,7 +410,7 @@ const AboutPage: React.FC = () => {
                     </h3>
                     <div className="prose prose-lg max-w-none text-gray-600 space-y-6">
                       <p className="text-lg leading-relaxed">
-                        TurnosYa comenzó en 2023 cuando nuestra fundadora, Ana
+                        UTurns comenzó en 2023 cuando nuestra fundadora, Ana
                         Rodríguez, experimentó de primera mano las dificultades
                         que enfrentan los pequeños negocios para gestionar sus
                         reservas. Después de esperar más de una hora en una
@@ -420,14 +420,14 @@ const AboutPage: React.FC = () => {
                       <p className="text-lg leading-relaxed">
                         Junto con un pequeño equipo de desarrolladores y
                         diseñadores, Ana comenzó a construir lo que
-                        eventualmente se convertiría en TurnosYa. La visión era
+                        eventualmente se convertiría en UTurns. La visión era
                         clara: crear una plataforma que fuera lo suficientemente
                         flexible para adaptarse a diferentes tipos de negocios,
                         pero lo suficientemente simple para que cualquiera
                         pudiera usarla.
                       </p>
                       <p className="text-lg leading-relaxed">
-                        Hoy, TurnosYa ayuda a cientos de negocios a gestionar
+                        Hoy, UTurns ayuda a cientos de negocios a gestionar
                         eficientemente sus reservas, ahorrando tiempo tanto a
                         ellos como a sus clientes. Y esto es solo el comienzo de
                         nuestro viaje hacia la transformación digital de los
@@ -456,17 +456,17 @@ const AboutPage: React.FC = () => {
                     Preguntas Frecuentes
                   </h2>
                   <p className="text-xl text-gray-600">
-                    Respuestas a las dudas más comunes sobre TurnosYa
+                    Respuestas a las dudas más comunes sobre UTurns
                   </p>
                 </div>
 
                 <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="item-1">
                     <AccordionTrigger>
-                      ¿Para qué tipos de negocios es adecuado TurnosYa?
+                      ¿Para qué tipos de negocios es adecuado UTurns?
                     </AccordionTrigger>
                     <AccordionContent>
-                      TurnosYa está diseñado para adaptarse a diversos tipos de
+                      UTurns está diseñado para adaptarse a diversos tipos de
                       negocios que funcionan con sistema de reservas o citas. Es
                       ideal para barberías, salones de belleza, centros de
                       estética, consultorios médicos, dentistas, centros de
@@ -478,7 +478,7 @@ const AboutPage: React.FC = () => {
 
                   <AccordionItem value="item-2">
                     <AccordionTrigger>
-                      ¿Cómo puedo registrar mi negocio en TurnosYa?
+                      ¿Cómo puedo registrar mi negocio en UTurns?
                     </AccordionTrigger>
                     <AccordionContent>
                       El proceso es muy sencillo y solo toma unos minutos. Haz
@@ -525,7 +525,7 @@ const AboutPage: React.FC = () => {
                       ¿Tienen una aplicación móvil?
                     </AccordionTrigger>
                     <AccordionContent>
-                      Actualmente, TurnosYa es una aplicación web progresiva
+                      Actualmente, UTurns es una aplicación web progresiva
                       (PWA) optimizada para todos los dispositivos móviles.
                       Funciona perfectamente en navegadores móviles y puede
                       instalarse en tu dispositivo como una app nativa. Estamos
@@ -540,7 +540,7 @@ const AboutPage: React.FC = () => {
                       ¿Puedo personalizar mi página de reservas?
                     </AccordionTrigger>
                     <AccordionContent>
-                      Absolutamente. TurnosYa te permite personalizar
+                      Absolutamente. UTurns te permite personalizar
                       completamente tu página de reservas: agrega tu logo y
                       colores corporativos, personaliza textos y descripciones,
                       configura campos adicionales específicos para tu negocio,
@@ -576,7 +576,7 @@ const AboutPage: React.FC = () => {
                 </div>
 
                 <p className="text-xl text-indigo-100 mb-10 max-w-2xl mx-auto">
-                  Únete a cientos de negocios que ya confían en TurnosYa para
+                  Únete a cientos de negocios que ya confían en UTurns para
                   gestionar sus reservas de manera eficiente y profesional.
                 </p>
 
