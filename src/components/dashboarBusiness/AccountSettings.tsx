@@ -22,6 +22,7 @@ const AccountSettings = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { company, fetchUpdateProfile } = compnay_logged();
+  const [imagePreview, setImagePreview] = useState("");
 
   // Estados del formulario
   const { form, handleInputChange, resetForm, setForm } = useForm<
@@ -51,6 +52,12 @@ const AccountSettings = () => {
       ...prev,
       logo: file,
     }));
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -70,6 +77,7 @@ const AccountSettings = () => {
     } finally {
       resetForm();
       setIsLoading(false);
+      setImagePreview("");
     }
   };
 
@@ -96,7 +104,7 @@ const AccountSettings = () => {
           <div className="relative">
             {company.logo ? (
               <img
-                src={company.logo}
+                src={imagePreview ? imagePreview : company.logo}
                 alt="Profile"
                 className="w-16 h-16 rounded-full object-cover"
               />
@@ -236,6 +244,7 @@ const AccountSettings = () => {
               <input
                 type={showPassword ? "text" : "password"}
                 name="currentPassword"
+                required={true}
                 value={form.currentPassword}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

@@ -11,6 +11,7 @@ import {
   salesmanContext,
   salesmanData,
 } from "@/context/MercadoPagoContext/salesmanContext";
+import { reauthenticateWithCredential } from "firebase/auth";
 
 interface MercadoPagoSettingsProps {
   businessId: string;
@@ -29,12 +30,28 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { company } = compnay_logged();
+  const { fetchDeleteMpAccount, clearSalesman } = salesmanContext();
+  const mpAccount = localStorage.getItem("salesman-store");
+
+  const connected = () => {
+    const raw = localStorage.getItem("company");
+    const companyData = raw ? JSON.parse(raw) : null;
+
+    if (!companyData) return;
+
+    if (mpAccount) {
+      const updated = {
+        ...companyData,
+        mercado_pago_connect: true,
+      };
+      localStorage.setItem("company", JSON.stringify(updated));
+      setIsConnected(true);
+    }
+  };
 
   useEffect(() => {
-    company?.mercado_pago_connect == true
-      ? setIsConnected(true)
-      : setIsConnected(false);
-  }, [businessId]);
+    connected();
+  }, [mpAccount]);
 
   const handleOAuthAuthorization = () => {
     const baseUrl =
@@ -67,20 +84,24 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
     toast.success("Configuración guardada correctamente");
   };
 
-  const handleDisconnect = () => {
+  const handleRevokeAuthorization = async () => {
+    await fetchDeleteMpAccount(businessId);
     setAccessToken("");
     setPublicKey("");
     setIsConnected(false);
     setOauthAccount(null);
+    clearSalesman();
+    localStorage.removeItem("salesman-store");
+    const companyUpdate = localStorage.getItem("company");
+    if (companyUpdate) {
+      const companyData = JSON.parse(companyUpdate);
+      const update = {
+        ...companyData,
+        mercado_pago_connect: false,
+      };
+      localStorage.setItem("company", JSON.stringify(update));
+    }
     toast.success("Desconectado de MercadoPago");
-  };
-
-  const handleRevokeAuthorization = () => {
-    setOauthAccount(null);
-    setIsConnected(false);
-    setAccessToken("");
-    setPublicKey("");
-    toast.success("Autorización revocada correctamente");
   };
 
   return (
@@ -110,7 +131,6 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
         handleTestConnection={handleTestConnection}
         handleSaveSettings={handleSaveSettings}
         isConnected={isConnected}
-        handleDisconnect={handleDisconnect}
       />
 
       {/* Payment Methods Preview */}

@@ -1,6 +1,6 @@
 import { API_URL } from "@/apis/api_url";
-import { access_token_salesman } from "@/apis/MercadoPagoApis/salesmanData";
 import axios from "axios";
+import { toast } from "sonner";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -13,6 +13,7 @@ export interface salesmanData {
   };
   picture_url: string;
   fetchAccessTokenData?: (businessId: string) => Promise<void>;
+  fetchDeleteMpAccount?: (businessId: string) => Promise<void>;
   accountType: string;
   phone: string;
 }
@@ -34,8 +35,8 @@ export const salesmanContext = create<salesmanStore>()(
 
       fetchAccessTokenData: async (businessId) => {
         try {
-          const res = await axios(`${API_URL}/salesman/${businessId}`);
-          const data = await res.data.details;
+          const res = await axios.get(`${API_URL}/salesman/${businessId}`);
+          const data = res.data.details;
 
           const {
             first_name,
@@ -52,13 +53,37 @@ export const salesmanContext = create<salesmanStore>()(
             identification: identification || { number: 0, type: "" },
             picture_url: thumbnail?.picture_url || "",
             accountType: "oauth",
-            phone: `+${registration_identifiers[0]?.metadata?.country_code} ${registration_identifiers[0]?.metadata?.number}`,
+            phone:
+              `+${registration_identifiers[0]?.metadata?.country_code} ${registration_identifiers[0]?.metadata?.number}` ||
+              "",
           });
         } catch (error) {
           console.error("fetchAccessTokenData error:", error);
         }
       },
-      setSalesman: (data: salesmanData) => set({ ...data }),
+
+      fetchDeleteMpAccount: async (businessId) => {
+        try {
+          const res = await axios.delete(`${API_URL}/delete/mp`, {
+            data: { businessId },
+          });
+
+
+          set({
+            brand_name: "",
+            email: "",
+            identification: { number: 0, type: "" },
+            picture_url: "",
+            accountType: "",
+            phone: "",
+          });
+        } catch (error) {
+          toast.error("Error al eliminar cuenta MP:", error);
+        }
+      },
+
+      setSalesman: (data) => set({ ...data }),
+
       clearSalesman: () =>
         set({
           brand_name: "",

@@ -45,6 +45,7 @@ export const resetPassword = async (
       user.email,
       currentPassword
     );
+
     await reauthenticateWithCredential(user, credential);
     await updatePassword(user, newPassword);
 
@@ -106,13 +107,3 @@ export const emailForResetPass = async (email: string) => {
     toast.error("Error al actualizar la contraseña:", error.message);
   }
 };
-
-// const verifyEmailChange = async () => {
-//   onAuthStateChanged(getAuth(), (user) => {
-//     if (user) {
-//       console.log(user.email);
-//     }
-//   });
-// };
-
-// verifyEmailChange();

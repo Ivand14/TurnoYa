@@ -23,14 +23,12 @@ interface MercadoPagoConnectionsProps {
   handleTestConnection: () => void;
   handleSaveSettings: () => void;
   isConnected: boolean;
-  handleDisconnect: () => void;
 }
 
 const MercadoPagoConnections: React.FC<MercadoPagoConnectionsProps> = ({
   isLoading,
   handleOAuthAuthorization,
   isConnected,
-  handleDisconnect,
 }) => {
   const [activeTab, setActiveTab] = useState("oauth");
 
@@ -62,8 +60,8 @@ const MercadoPagoConnections: React.FC<MercadoPagoConnectionsProps> = ({
               value="oauth"
               className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm"
             >
-              <Shield/>
-              OAuth 
+              <Shield />
+              OAuth
             </TabsTrigger>
           </TabsList>
 
@@ -157,19 +155,6 @@ const MercadoPagoConnections: React.FC<MercadoPagoConnectionsProps> = ({
             )}
           </TabsContent>
         </Tabs>
-
-        {isConnected && (
-          <div className="flex gap-3 pt-6 border-t border-gray-200 mt-8">
-            <Button
-              variant="outline"
-              onClick={handleDisconnect}
-              className="h-12 px-6 rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
-            >
-              <AlertCircle className="h-5 w-5 mr-2" />
-              Desconectar
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
