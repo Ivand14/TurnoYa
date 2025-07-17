@@ -62,7 +62,7 @@ const AccountSettings = () => {
         resetPassword(form.currentPassword, form.newPassword);
         form.currentPassword = form.newPassword;
       }
-      resetEmail(form.email);
+      await resetEmail(form.email);
       await fetchUpdateProfile(form, company.id);
     } catch (error) {
       console.log(error);
@@ -156,7 +156,7 @@ const AccountSettings = () => {
                 value={form.email}
                 onChange={handleInputChange}
                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder={company.email}
+                placeholder="nuevoemail@gmail.com"
               />
             </div>
           </div>

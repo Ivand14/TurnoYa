@@ -1,6 +1,7 @@
 import { profileSettings } from "@/apis/config/businessConfig";
 import { settings } from "@/types/accountSettings";
 import { socket } from "@/utils/socket";
+
 import { create } from "zustand";
 
 export interface Company {
@@ -62,3 +63,33 @@ export const compnay_logged = create<current_company>((set) => ({
     }
   },
 }));
+
+// company:
+
+// {
+
+//   id: 'dufCoirvZOSbEXWlIFEJwKIbnL42',
+
+//   subscriptionPlan: 'Profesional',
+
+//   owner: 'Ivan Dicesare',
+
+//   phone: '+542615540317',
+
+//   company_type: 'sports',
+
+//   address: 'Calle Palma 330',
+
+//   logo:
+
+//     'https://storage.googleapis.com/turnosya-c5672.firebasestorage.app/company_profile/plantilla-logotipo-futbol-dibujado-mano_23-2149364523.jpg',
+
+//   company_name: 'Futbol club',
+
+//   rol: 'business',
+
+//   email: 'ivanmoyano993@gmail.com',
+
+//   description: 'Canchas de cesped natural y sintetico futbol 5/7/8'
+
+// }

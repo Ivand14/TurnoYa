@@ -119,7 +119,8 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
     const recurringCount = Object.values(clients).filter(
       (count: number) => count > 3
     ).length;
-    return `${Math.round((recurringCount / totalClients) * 100)}%`;
+
+    return NaN ? `${Math.round((recurringCount / totalClients) * 100)}%` : "0%";
   };
 
   const assistProm = () => {
@@ -148,7 +149,7 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
     },
     {
       title: "Clientes Recurrentes",
-      value: `${recurringClients() || "0"}`,
+      value: `${recurringClients() || 0}`,
       icon: Users,
       color: "text-green-500",
     },

@@ -66,13 +66,12 @@ const ResponsiveSidebar: React.FC<SidebarProps> = ({
     { id: "schedules", label: "Horarios", icon: Clock },
     { id: "service", label: "Servicios", icon: MapPin },
     { id: "wallet", label: "Pagos", icon: CreditCard },
-    { id: "reportes", label: "Reportes", icon: FileText },
     { id: "configuracion", label: "Configuración", icon: Settings },
   ];
 
   const handleMenuClick = (itemId: string) => {
     onTabChange(itemId);
-    setIsMobileOpen(false); // Close mobile menu after selection
+    setIsMobileOpen(false); 
   };
 
   const toggleCollapse = () => {

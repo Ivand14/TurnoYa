@@ -4,6 +4,7 @@ import { clsx, type ClassValue } from "clsx";
 import {
   EmailAuthProvider,
   getAuth,
+  onAuthStateChanged,
   reauthenticateWithCredential,
   sendPasswordResetEmail,
   signOut,
@@ -27,7 +28,7 @@ export const logout = async () => {
       toast.success("Has cerrado sesion");
     })
     .catch((error) => {
-      console.log(error);
+      toast.error(error);
     });
 };
 
@@ -102,6 +103,16 @@ export const emailForResetPass = async (email: string) => {
       );
     }
   } catch (error) {
-    console.error("Error al actualizar la contraseña:", error.message);
+    toast.error("Error al actualizar la contraseña:", error.message);
   }
 };
+
+// const verifyEmailChange = async () => {
+//   onAuthStateChanged(getAuth(), (user) => {
+//     if (user) {
+//       console.log(user.email);
+//     }
+//   });
+// };
+
+// verifyEmailChange();

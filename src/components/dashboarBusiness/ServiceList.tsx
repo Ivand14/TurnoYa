@@ -17,7 +17,7 @@ const ServiceList: React.FC<ServiceListProps> = ({
   services,
   employees,
   onDelete,
-  onEdit
+  onEdit,
 }) => {
   const getEmployeeNames = (employeeIds?: string[]): string => {
     if (!employeeIds || employeeIds.length === 0) return "Todos los empleados";
@@ -40,7 +40,9 @@ const ServiceList: React.FC<ServiceListProps> = ({
           <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
             Servicios
           </h1>
-          <p className="text-gray-500 mt-2">Gestiona los servicios de tu negocio</p>
+          <p className="text-gray-500 mt-2">
+            Gestiona los servicios de tu negocio
+          </p>
         </div>
 
         {/* Empty State */}
@@ -70,7 +72,8 @@ const ServiceList: React.FC<ServiceListProps> = ({
           Servicios Registrados
         </h1>
         <p className="text-gray-500 mt-2">
-          {services.length} servicio{services.length !== 1 ? 's' : ''} disponible{services.length !== 1 ? 's' : ''}
+          {services.length} servicio{services.length !== 1 ? "s" : ""}{" "}
+          disponible{services.length !== 1 ? "s" : ""}
         </p>
       </div>
 
@@ -116,7 +119,9 @@ const ServiceList: React.FC<ServiceListProps> = ({
                     </div>
                     <div>
                       <div className="text-sm text-gray-500">Duración</div>
-                      <div className="font-semibold text-gray-900">{service.duration} min</div>
+                      <div className="font-semibold text-gray-900">
+                        {service.duration} min
+                      </div>
                     </div>
                   </div>
 
@@ -126,7 +131,9 @@ const ServiceList: React.FC<ServiceListProps> = ({
                     </div>
                     <div>
                       <div className="text-sm text-gray-500">Precio</div>
-                      <div className="font-semibold text-gray-900">${service.price.toFixed(2)}</div>
+                      <div className="font-semibold text-gray-900">
+                        ${service.price.toFixed(2)}
+                      </div>
                     </div>
                   </div>
 
@@ -139,9 +146,9 @@ const ServiceList: React.FC<ServiceListProps> = ({
                       )}
                     </div>
                     <div>
-                      <div className="text-sm text-gray-500">Capacidad</div>
+                      <div className="text-sm text-gray-500">Cantidad</div>
                       <div className="font-semibold text-gray-900">
-                        {service.capacity > 0 ? `${service.capacity} personas` : "Por empleados"}
+                        {service.capacity} Turnos
                       </div>
                     </div>
                   </div>
