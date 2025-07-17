@@ -1,4 +1,4 @@
-import {  } from "@/context/login.state";
+import {} from "@/context/login.state";
 
 import {
   Card,
@@ -6,7 +6,7 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
 
 import { Button } from "@/components/ui/button";
@@ -15,9 +15,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
-import { recoverPass } from "@/apis/forgot_pass";
 import { toast } from "sonner";
 import { useState } from "react";
+import { emailForResetPass } from "@/lib/utils";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -34,7 +34,7 @@ const ForgotPassword = () => {
 
     try {
       setLoading(true);
-      await recoverPass(email);
+      await emailForResetPass(email);
       setEmailSent(true);
       toast.success(
         "Se ha enviado un email con instrucciones para restablecer su contraseña"

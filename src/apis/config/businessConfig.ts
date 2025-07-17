@@ -20,8 +20,6 @@ export const profileSettings = async (
     formData.append("logo", profile.logo);
   }
 
-  console.log(profile);
-
   try {
     const response = await axios.patch(url, formData, {
       headers: {

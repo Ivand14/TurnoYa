@@ -5,16 +5,15 @@ import {
   EmailAuthProvider,
   getAuth,
   reauthenticateWithCredential,
+  sendPasswordResetEmail,
   signOut,
   updateEmail,
+  verifyBeforeUpdateEmail,
 } from "firebase/auth";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
 import { updatePassword } from "firebase/auth";
 import { auth } from "@/firebase.config";
-
-const user = auth.currentUser;
-console.log(user);
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -61,18 +60,48 @@ export const resetPassword = async (
   }
 };
 
-export const resetEmail = (email: string) => {
-  console.log(email);
-  if (email) {
-    updateEmail(user, email)
-      .then(() => {
-        toast.success("Email actualizado!");
-      })
-      .catch((error) => {
-        error.code === "auth/email-already-in-use" &&
-          toast.error("El correo ya esta ocupado por otro usuario");
-        error.code === "auth/invalid-email" &&
-          toast.error("El formato del correo es invalido");
-      });
+export const resetEmail = async (email: string) => {
+  const user = getAuth().currentUser;
+
+  if (!user) return toast.error("No hay sesión activa");
+
+  try {
+    if (email) {
+      await verifyBeforeUpdateEmail(user, email);
+      toast.success(
+        "Mail de verificación enviado. Confirmalo para aplicar el cambio."
+      );
+    }
+  } catch (error: any) {
+    switch (error.code) {
+      case "auth/email-already-in-use":
+        toast.error("Ese correo ya está vinculado a otra cuenta");
+        break;
+      case "auth/invalid-email":
+        toast.error("El formato del correo es inválido");
+        break;
+      case "auth/requires-recent-login":
+        toast.error(
+          "Por seguridad, volvé a iniciar sesión para cambiar tu correo"
+        );
+        break;
+      default:
+        toast.error("Error al actualizar el correo");
+    }
+  }
+};
+
+export const emailForResetPass = async (email: string) => {
+  const auth = getAuth();
+
+  try {
+    if (email) {
+      await sendPasswordResetEmail(auth, email);
+      toast.success(
+        "Mail de verificación enviado. Confirmalo para aplicar el cambio."
+      );
+    }
+  } catch (error) {
+    console.error("Error al actualizar la contraseña:", error.message);
   }
 };

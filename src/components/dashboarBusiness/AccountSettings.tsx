@@ -63,9 +63,9 @@ const AccountSettings = () => {
         form.currentPassword = form.newPassword;
       }
       resetEmail(form.email);
-
       await fetchUpdateProfile(form, company.id);
     } catch (error) {
+      console.log(error);
       toast.error("Error al guardar la configuración");
     } finally {
       resetForm();

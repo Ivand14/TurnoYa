@@ -92,10 +92,10 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col  bg-gray-50">
       {/* <Navbar /> */}
 
-      <div className="flex-1 flex">
+      <div className="flex-1 flex min-h-screen">
         {/* Left Side - Branding */}
         <div className="hidden lg:flex lg:flex-1 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600"></div>
