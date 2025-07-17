@@ -54,7 +54,7 @@ const businessSchema = z
     phone: z.string().min(8, "Por favor ingresa un número de teléfono válido"),
     address: z.string().min(5, "La dirección es requerida"),
     businessType: z.string().min(2, "El tipo de negocio es requerido"),
-    description: z.string().optional(),
+    description: z.string().min(50,"Descripcion obligatoria"),
     logo: z.instanceof(File),
     password: z
       .string()
@@ -141,7 +141,7 @@ const RegisterBusiness = () => {
         values.description,
         values.logo,
         values.password,
-        values.subscriptionPlan 
+        values.subscriptionPlan
       );
 
       if (response.status === 200) {
@@ -186,8 +186,8 @@ const RegisterBusiness = () => {
               Registra tu Negocio
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Únete a miles de negocios que ya confían en UTurns para
-              gestionar sus reservas
+              Únete a miles de negocios que ya confían en UTurns para gestionar
+              sus reservas
             </p>
           </div>
 

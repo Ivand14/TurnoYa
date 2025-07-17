@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import {
   User,
   Lock,
-  Bell,
-  Shield,
   Camera,
   Mail,
   Phone,
@@ -11,21 +9,19 @@ import {
   Save,
   Eye,
   EyeOff,
-  CreditCard,
-  Trash2,
-  Upload,
 } from "lucide-react";
 import { compnay_logged } from "@/context/current_company";
 import { settings } from "@/types/accountSettings";
 import { useForm } from "@/hooks/useForms";
+import { toast } from "sonner";
+import { resetEmail, resetPassword } from "@/lib/utils";
 
 const AccountSettings = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
-  const [profileImage, setProfileImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { company } = compnay_logged();
+  const { company, fetchUpdateProfile } = compnay_logged();
 
   // Estados del formulario
   const { form, handleInputChange, resetForm, setForm } = useForm<
@@ -37,57 +33,49 @@ const AccountSettings = () => {
     phone: "",
     address: "",
     description: "",
+    logo: null,
 
     // Seguridad
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-    twoFactorEnabled: false,
-
-    // Notificaciones
-    emailNotifications: true,
-    pushNotifications: false,
-    marketingEmails: true,
-
-    // Privacidad
-    profilePublic: true,
-    showEmail: true,
-    dataCollection: true,
   });
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-
-    console.log(file);
-
     if (!file) return;
-
     const formData = new FormData();
     formData.append("logo", file);
+
+    setForm((prev) => ({
+      ...prev,
+      logo: file,
+    }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Simular llamada API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log("Datos guardados:", form);
-      alert("Configuración guardada exitosamente");
+      if (form.newPassword) {
+        resetPassword(form.currentPassword, form.newPassword);
+        form.currentPassword = form.newPassword;
+      }
+      resetEmail(form.email);
+
+      await fetchUpdateProfile(form, company.id);
     } catch (error) {
-      alert("Error al guardar la configuración");
+      toast.error("Error al guardar la configuración");
     } finally {
+      resetForm();
       setIsLoading(false);
     }
   };
 
-  console.log(form);
-
   const tabs = [
     { id: "profile", label: "Perfil", icon: User },
     { id: "security", label: "Seguridad", icon: Lock },
-    { id: "privacy", label: "Privacidad", icon: Shield },
   ];
 
   const renderProfileTab = () => (
@@ -304,91 +292,6 @@ const AccountSettings = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-
-          <button
-            type="button"
-            disabled={
-              !form.currentPassword ||
-              !form.newPassword ||
-              form.newPassword !== form.confirmPassword
-            }
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            Actualizar contraseña
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderPrivacyTab = () => (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">
-          Configuración de Privacidad
-        </h2>
-        <p className="text-gray-600">
-          Controla tu privacidad y gestiona tus datos
-        </p>
-      </div>
-
-      <div className="bg-white p-6 rounded-lg border border-gray-200">
-        <h3 className="font-medium text-gray-900 mb-4">
-          Privacidad del perfil
-        </h3>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between py-2">
-            <div>
-              <p className="font-medium text-gray-900">Perfil público</p>
-              <p className="text-sm text-gray-600">
-                Permite que otros usuarios vean tu perfil
-              </p>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                name="profilePublic"
-                checked={form.profilePublic}
-                onChange={handleInputChange}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
-          </div>
-
-          <div className="flex items-center justify-between py-2">
-            <div>
-              <p className="font-medium text-gray-900">Mostrar email público</p>
-              <p className="text-sm text-gray-600">
-                Hacer visible tu email en el perfil
-              </p>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                name="showEmail"
-                checked={form.showEmail}
-                onChange={handleInputChange}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      {/* Zona de peligro */}
-      <div className="bg-red-50 p-6 rounded-lg border border-red-200">
-        <h3 className="font-medium text-red-900 mb-4">Zona de peligro</h3>
-        <div className="space-y-3">
-          <button className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
-            <Trash2 className="w-4 h-4" />
-            <span>Eliminar cuenta</span>
-          </button>
-          <p className="text-sm text-red-600">
-            Esta acción no se puede deshacer. Se eliminarán permanentemente
-            todos tus datos.
-          </p>
         </div>
       </div>
     </div>
@@ -400,8 +303,6 @@ const AccountSettings = () => {
         return renderProfileTab();
       case "security":
         return renderSecurityTab();
-      case "privacy":
-        return renderPrivacyTab();
       default:
         return renderProfileTab();
     }

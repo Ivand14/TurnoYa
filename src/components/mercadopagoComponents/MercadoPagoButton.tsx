@@ -28,7 +28,6 @@ const MercadoPagoButton: React.FC<Props> = ({
     setLoading(true);
     try {
       const res = await create_preferences(businessId, title, price);
-      console.log(res);
       setPreferenceId(res.data.preferenceId);
     } catch (err) {
       console.error("Error al crear preferencia:", err);

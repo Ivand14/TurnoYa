@@ -133,7 +133,10 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
 
     if (quantityConfirmed === 0) return 0;
 
-    return Math.round((quantityCompleted / quantityConfirmed) * 100);
+    return Math.min(
+      100,
+      Math.round(quantityCompleted / quantityConfirmed) * 100
+    );
   };
 
   const performanceMetrics: performanceMetricsInt[] = [

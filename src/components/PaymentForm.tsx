@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CreditCard, ExternalLink, Loader2 } from "lucide-react";
+import { AlertCircle, AlertCircleIcon, CreditCard, ExternalLink, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -26,23 +26,21 @@ interface PaymentFormProps {
     notes?: string;
   };
   onCancel: () => void;
-  businessId:string
+  businessId: string;
 }
 
 export const PaymentForm: React.FC<PaymentFormProps> = ({
   service,
   bookingData,
   businessId,
-  onCancel
+  onCancel,
 }) => {
-
   const { user } = current_user();
-
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("es-AR", {
       style: "currency",
-      currency: "ARS"
+      currency: "ARS",
     }).format(amount);
   };
 
@@ -98,13 +96,18 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
 
         {/* Botones de acción */}
         <div className="space-y-2 pt-4">
-         
-          <MercadoPagoButton
-            businessId={businessId}
-            title={service.name_service}
-            price={service.price}
-          />
-
+          {user ? (
+            <MercadoPagoButton
+              businessId={businessId}
+              title={service.name_service}
+              price={service.price}
+            />
+          ) : (
+            <div className="flex items-center justify-center bg-red-200 p-4 rounded-2xl m-3">
+              <AlertCircleIcon/>
+              <p className="ml-2">Para poder para inicia sesion</p>
+            </div>
+          )}
 
           <Button variant="ghost" onClick={onCancel} className="w-full">
             Cancelar

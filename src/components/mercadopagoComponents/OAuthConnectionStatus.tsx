@@ -1,11 +1,11 @@
 import React from "react";
 import {
   AlertCircle,
-  UserCheck,
   Mail,
   Phone,
   User,
   IdCard,
+  UserCheck2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { salesmanData } from "@/context/MercadoPagoContext/salesmanContext";
@@ -20,18 +20,18 @@ const OAuthConnectionStatus: React.FC<OAuthAccountProps> = ({
   oauthAccount,
   handleRevokeAuthorization,
 }) => {
+  console.log(!oauthAccount.picture_url);
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-300">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br rounded-2xl shadow-lg shadow-emerald-500/25">
-            {!oauthAccount.picture_url.startsWith("https") ? (
-              <UserCheck className="w-7 h-7 text-white" />
-            ) : (
-              <MercadoPagoAvatar picture_url={oauthAccount.picture_url} />
-            )}
-          </div>
+          {oauthAccount.picture_url ? (
+            <MercadoPagoAvatar picture_url={oauthAccount.picture_url} />
+          ) : (
+            <UserCheck2 />
+          )}
+
           <div>
             <h3 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
               Cuenta Conectada
