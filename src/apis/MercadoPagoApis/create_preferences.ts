@@ -8,7 +8,6 @@ export const create_preferences = async(businessId:string,title:string,price:num
             title,
             price
         })
-        console.log(response);
         const { init_point } = response.data;
         if(init_point){
             window.location.href = init_point

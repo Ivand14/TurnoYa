@@ -37,7 +37,6 @@ export const salesmanContext = create<salesmanStore>()(
         try {
           const res = await axios.get(`${API_URL}/salesman/${businessId}`);
           const data = res.data.details;
-
           const {
             first_name,
             last_name,
@@ -58,6 +57,7 @@ export const salesmanContext = create<salesmanStore>()(
               "",
           });
         } catch (error) {
+          toast.error(error.response.data.message)
           console.error("fetchAccessTokenData error:", error);
         }
       },
@@ -67,7 +67,6 @@ export const salesmanContext = create<salesmanStore>()(
           const res = await axios.delete(`${API_URL}/delete/mp`, {
             data: { businessId },
           });
-
 
           set({
             brand_name: "",

@@ -19,8 +19,6 @@ const useCheckPaymentStatus = () => {
             }
           );
 
-          console.log(response.data);
-
           if (response?.data?.status === "approved") {
             toast.success("Pago realizado con éxito!");
           } else {
