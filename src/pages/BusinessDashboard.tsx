@@ -24,15 +24,19 @@ import {
   salesmanContext,
   salesmanData,
 } from "@/context/MercadoPagoContext/salesmanContext";
-import SidebarLayout from "@/components/SideBar";
 import Statistics from "@/components/dashboarBusiness/Statistics";
 import AccountSettings from "@/components/dashboarBusiness/AccountSettings";
+
+import ResponsiveSidebar from "@/components/SideBarContent";
+import Onboarding from "@/components/Onboarding";
 
 const BusinessDashboard = () => {
   const { company } = compnay_logged();
   const { businessId } = useParams();
   const { isLogged } = Logged();
   const [oauthAccount, setOauthAccount] = useState<salesmanData | null>(null);
+  const [activeTab, setActiveTab] = useState("resume");
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   if (!isLogged || !company || company.rol !== "business") {
     return <Navigate to="/login" />;
@@ -84,13 +88,13 @@ const BusinessDashboard = () => {
     identification,
   } = salesmanContext();
 
-  const [tab, setTab] = useState(() => {
-    return localStorage.getItem("activeTab") || "resume";
-  });
+  const handleTabChange = (activeTab: string) => {
+    setActiveTab(activeTab);
+  };
 
-  useEffect(() => {
-    localStorage.setItem("activeTab", tab);
-  }, [tab]);
+  const handleOnboardingToggle = () => {
+    setShowOnboarding(!showOnboarding);
+  };
 
   const fetchData = useCallback(async () => {
     await fetchGetBooking(businessId);
@@ -143,11 +147,25 @@ const BusinessDashboard = () => {
   return (
     <div className="flex  min-h-screen">
       {/* <Navbar /> */}
-      <SidebarLayout activeTab={tab} onTabChange={setTab} company={company} />
+      <div className="min-h-screen bg-gray-50 flex">
+        {/* Sidebar with Onboarding Integration */}
+        <ResponsiveSidebar
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          onToggleOnboarding={handleOnboardingToggle}
+        />
+
+        {/* Onboarding Component */}
+        <Onboarding
+          isOpen={showOnboarding}
+          onClose={() => setShowOnboarding(false)}
+          isCollapsed={false}
+        />
+      </div>
       <div className="flex flex-col w-full">
         <main className="flex-1 container mx-auto px-4 py-8">
-          {/* Tab: Resumen */}
-          {tab === "resume" && (
+          {/* activeTab: Resumen */}
+          {activeTab === "resume" && (
             <div className="space-y-8 ">
               <h1 className="font-bold h-20 p-2 text-3xl font-sans">
                 Dashboard de {company.company_name}
@@ -181,8 +199,8 @@ const BusinessDashboard = () => {
             </div>
           )}
 
-          {/* Tab: Servicios */}
-          {tab === "service" && (
+          {/* activeTab: Servicios */}
+          {activeTab === "service" && (
             <div>
               <ServiceForm
                 onSubmit={fetchCreateService}
@@ -198,8 +216,8 @@ const BusinessDashboard = () => {
             </div>
           )}
 
-          {/* Tab: Empleados */}
-          {tab === "employees" && (
+          {/* activeTab: Empleados */}
+          {activeTab === "employees" && (
             <div>
               <EmployeeForm
                 newEmployee={newEmployee}
@@ -214,8 +232,8 @@ const BusinessDashboard = () => {
             </div>
           )}
 
-          {/* Tab: Horarios */}
-          {tab === "schedules" && (
+          {/* activeTab: Horarios */}
+          {activeTab === "schedules" && (
             <div>
               <ScheduleForm
                 activeEmployees={allEmployees}
@@ -234,15 +252,15 @@ const BusinessDashboard = () => {
             </div>
           )}
 
-          {/* Tab: Reservas */}
-          {tab === "booking" && (
+          {/* activeTab: Reservas */}
+          {activeTab === "booking" && (
             <UpcomingBookings
               bookings={booking}
               onCancelBooking={handleCancelBooking}
             />
           )}
 
-          {tab === "wallet" && (
+          {activeTab === "wallet" && (
             <div>
               <MercadoPagoSettings
                 businessId={businessId}
@@ -252,20 +270,18 @@ const BusinessDashboard = () => {
             </div>
           )}
 
-          {tab === "statistics" && (
+          {activeTab === "statistics" && (
             <div>
               <Statistics booking={booking} businessId={businessId} />
             </div>
           )}
 
-          {tab === "configuracion" && (
+          {activeTab === "configuracion" && (
             <div>
               <AccountSettings />
             </div>
           )}
-          {/* </Tabs> */}
         </main>
-        {/* <Footer /> */}
       </div>
     </div>
   );

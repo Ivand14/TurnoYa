@@ -12,14 +12,11 @@ import {
   LogOut,
   Menu,
   X,
+  Info,
 } from "lucide-react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { cn, logout } from "@/lib/utils";
-import { current_user } from "@/context/currentUser";
-import { Logged } from "@/context/logged";
+import { cn } from "@/lib/utils";
 import { compnay_logged } from "@/context/current_company";
-import { useNavigate } from "react-router-dom";
-import { salesmanContext } from "@/context/MercadoPagoContext/salesmanContext";
+import MercadoPagoAvatar from "./mercadopagoComponents/MercadoPagoAvatar";
 
 interface Company {
   id: string;
@@ -31,31 +28,21 @@ interface Company {
 interface SidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  company: Company;
+  onToggleOnboarding?: () => void;
 }
 
 const ResponsiveSidebar: React.FC<SidebarProps> = ({
   activeTab,
   onTabChange,
-  company,
+  onToggleOnboarding,
 }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { setUser } = current_user();
-  const { setIsLogged } = Logged();
-  const { setCompany } = compnay_logged();
-
-  const navigate = useNavigate();
+  const { company } = compnay_logged();
 
   const handleLogOut = () => {
-    setIsLogged(false);
-    setUser(null);
-    setCompany(null);
-    logout();
-    localStorage.removeItem("salesman-store");
-    salesmanContext.getState().clearSalesman();
-    localStorage.removeItem("activeTab");
-    navigate("/login");
+    // Mock logout functionality
+    console.log("Logging out...");
   };
 
   const menuItems = [
@@ -71,7 +58,7 @@ const ResponsiveSidebar: React.FC<SidebarProps> = ({
 
   const handleMenuClick = (itemId: string) => {
     onTabChange(itemId);
-    setIsMobileOpen(false); 
+    setIsMobileOpen(false);
   };
 
   const toggleCollapse = () => {
@@ -106,7 +93,7 @@ const ResponsiveSidebar: React.FC<SidebarProps> = ({
           // Desktop collapse styles
           isCollapsed ? "lg:w-20" : "lg:w-72",
           // Mobile width
-          "w-72z"
+          "w-72"
         )}
       >
         {/* Header */}
@@ -120,10 +107,22 @@ const ResponsiveSidebar: React.FC<SidebarProps> = ({
                 <Calendar className="w-6 h-6 text-white" />
               </button>
               {!isCollapsed && (
-                <div className="transition-opacity duration-200">
+                <div className="flex transition-opacity duration-200 items-center">
                   <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                     UTurns
                   </h1>
+                  <div className="relative group">
+                    <button
+                      className="ml-4 p-1 hover:bg-slate-700 rounded-lg transition-colors"
+                      onClick={onToggleOnboarding}
+                      title="como usar la app"
+                    >
+                      <Info className="w-4 h-4 text-gray-400 hover:text-white" />
+                    </button>
+                    <div className="absolute left-0 top-8 bg-slate-700 text-white text-xs rounded-lg px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                      Como usar la app
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -148,6 +147,7 @@ const ResponsiveSidebar: React.FC<SidebarProps> = ({
               <button
                 key={item.id}
                 onClick={() => handleMenuClick(item.id)}
+                data-onboarding-target={item.id}
                 className={cn(
                   "group w-full flex items-center px-4 py-3 rounded-xl text-left transition-all duration-200 hover:scale-105 transform",
                   isActive
@@ -188,12 +188,15 @@ const ResponsiveSidebar: React.FC<SidebarProps> = ({
               isCollapsed ? "justify-center" : "space-x-3"
             )}
           >
-            <Avatar className="w-10 h-10">
-              <AvatarImage src={company.logo} alt={company.company_name} />
-              <AvatarFallback className="bg-gradient-to-br from-green-400 to-blue-500 text-white font-semibold">
-                {company.company_name.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            {company.logo === "" ? (
+              <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-semibold">
+                  {company.company_name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            ) : (
+              <MercadoPagoAvatar picture_url={company.logo} />
+            )}
             {!isCollapsed && (
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">
