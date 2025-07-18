@@ -14,9 +14,13 @@ import {
   X,
   Info,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, logout } from "@/lib/utils";
 import { compnay_logged } from "@/context/current_company";
 import MercadoPagoAvatar from "./mercadopagoComponents/MercadoPagoAvatar";
+import { current_user } from "@/context/currentUser";
+import { Logged } from "@/context/logged";
+import { useLocation, useNavigate } from "react-router-dom";
+import { salesmanContext } from "@/context/MercadoPagoContext/salesmanContext";
 
 interface Company {
   id: string;
@@ -38,11 +42,21 @@ const ResponsiveSidebar: React.FC<SidebarProps> = ({
 }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { company } = compnay_logged();
+
+  const { setUser } = current_user();
+  const { setIsLogged, isLogged } = Logged();
+  const { company, setCompany } = compnay_logged();
+  const navigate = useNavigate();
 
   const handleLogOut = () => {
-    // Mock logout functionality
-    console.log("Logging out...");
+    setIsLogged(false);
+    setUser(null);
+    setCompany(null);
+    logout();
+    localStorage.removeItem("salesman-store");
+    salesmanContext.getState().clearSalesman();
+    localStorage.removeItem("activeTab");
+    navigate("/login");
   };
 
   const menuItems = [

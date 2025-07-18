@@ -35,7 +35,9 @@ const BusinessDashboard = () => {
   const { businessId } = useParams();
   const { isLogged } = Logged();
   const [oauthAccount, setOauthAccount] = useState<salesmanData | null>(null);
-  const [activeTab, setActiveTab] = useState("resume");
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem("activeTab") || "resume";
+  });
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   if (!isLogged || !company || company.rol !== "business") {
@@ -123,6 +125,10 @@ const BusinessDashboard = () => {
   useEffect(() => {
     fetchGetServices(businessId);
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("activeTab", activeTab);
+  }, [activeTab]);
 
   const upcomingBookings = booking
     .filter(
