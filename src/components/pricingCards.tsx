@@ -1,17 +1,5 @@
 import React, { useState } from "react";
-import {
-  Check,
-  X,
-  Calendar,
-  Users,
-  Clock,
-  Bell,
-  BarChart,
-  CreditCard,
-  Shield,
-  Smartphone,
-  HeadphonesIcon,
-} from "lucide-react";
+import { Check, X, Clock, Shield, HeadphonesIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 function PricingCards({
@@ -35,7 +23,6 @@ function PricingCards({
         { text: "Hasta 40 citas por mes", included: true },
         { text: "Gestión de hasta 2 empleados", included: true },
         { text: "Base de datos de clientes", included: true },
-        // { text: "Recordatorios por SMS", included: true },
         {
           text: "Integración con mercado pago reduciendo perdidas de dinero",
           included: true,
@@ -43,8 +30,6 @@ function PricingCards({
         { text: "Calendario básico", included: true },
         { text: "Soporte por email", included: false },
         { text: "Reportes avanzados", included: false },
-        // { text: "Múltiples ubicaciones", included: false },
-        // { text: "App móvil personalizada", included: false },
       ],
       ctaText: "Comenzar Gratis",
       ctaVariant: "secondary",
@@ -62,12 +47,10 @@ function PricingCards({
         { text: "Calendario avanzado", included: true },
         { text: "Soporte prioritario", included: true },
         { text: "Reportes y analytics", included: true },
-        // { text: "Hasta 3 ubicaciones", included: true },
         {
           text: "Integración con mercado pago reduciendo perdidas de dinero",
           included: true,
         },
-        // { text: "App móvil personalizada", included: false },
       ],
       ctaText: "Probar 14 días gratis",
       ctaVariant: "primary",
@@ -82,12 +65,9 @@ function PricingCards({
         { text: "Empleados ilimitados", included: true },
         { text: "CRM completo + automatizaciones con IA", included: true },
         { text: "Recordatorios multicanal", included: true },
-        // { text: "Calendario empresarial", included: true },
         { text: "Soporte 24/7 dedicado", included: true },
         { text: "Reportes personalizados", included: true },
-        // { text: "Ubicaciones ilimitadas", included: true },
         { text: "Integración completa pagos", included: true },
-        // { text: "App móvil personalizada", included: true },
       ],
       ctaText: "Contactar Ventas",
       ctaVariant: "secondary",

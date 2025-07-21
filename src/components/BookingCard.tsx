@@ -13,7 +13,6 @@ import {
   Mail,
   CreditCard,
   ArrowRight,
-  CheckCircle,
 } from "lucide-react";
 import { useBookingContext } from "@/context/apisContext/bookingContext";
 import { compnay_logged } from "@/context/current_company";
@@ -114,6 +113,8 @@ export const BookingCard = ({
 
   const isPastOrToday = bookingToDate <= currentDate;
   const canMarkAsCompleted = booking.status === "confirmed" && isPastOrToday;
+
+  console.log(booking);
 
   return (
     <div className="group relative py-8 border-b border-gray-100 last:border-b-0 hover:bg-gray-50/30 transition-all duration-500">

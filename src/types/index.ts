@@ -26,6 +26,8 @@ export interface Service {
   requiresSpecificEmployee?: boolean;
   allowedEmployeeIds?: string[];
   capacityMode?: "fixed" | "employee-based" | "hybrid";
+  requiresDeposit?: boolean;
+  paymentPercentage?: number;
 }
 
 export interface TimeSlot
