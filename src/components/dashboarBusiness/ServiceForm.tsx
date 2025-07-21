@@ -8,7 +8,7 @@ import { Service } from "@/types";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Info, Plus } from "lucide-react";
+import { Info, Percent, Plus } from "lucide-react";
 
 interface ServiceFormProps {
   businessId: string;
@@ -29,6 +29,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
     capacity: 0,
     requiresSpecificEmployee: false,
     allowedEmployeeIds: [] as string[],
+    requiresDeposit: false,
+    paymentPercentage: 0,
   });
 
   const handleChange = (
@@ -53,6 +55,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
         : prev.allowedEmployeeIds.filter((id) => id !== employeeId),
     }));
   };
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,6 +98,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
         ? newService.allowedEmployeeIds
         : [],
       active: true,
+      requiresDeposit: newService.requiresDeposit,
+      paymentPercentage: newService.paymentPercentage,
     });
 
     setNewService({
@@ -105,6 +110,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
       capacity: 0,
       requiresSpecificEmployee: false,
       allowedEmployeeIds: [],
+      requiresDeposit: false,
+      paymentPercentage: 0,
     });
 
     toast.success("Servicio agregado correctamente");
@@ -163,9 +170,35 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
           </div>
         </div>
 
+        {/*advancement*/}
+
+        <div className="flex items-center justify-between mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+              <Percent className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">Cobrar seña</h3>
+              <p className="text-sm text-gray-600">
+                Requiere pago adelantado al reservar
+              </p>
+            </div>
+          </div>
+          <Switch
+            checked={newService.requiresDeposit}
+            onCheckedChange={(checked) =>
+              setNewService((prev) => ({
+                ...prev,
+                requiresDeposit: checked,
+              }))
+            }
+            className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-green-500 data-[state=checked]:to-emerald-600"
+          />
+        </div>
+
         {/* Pricing & Duration */}
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700">
                 Duración
@@ -187,7 +220,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">
+              <Label className="text-sm font-medium text-gray-700 gap-2">
                 Precio
               </Label>
               <div className="relative">
@@ -210,12 +243,43 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Label className="text-sm font-medium text-gray-700">
+                  % Adelanto
+                </Label>
+                <div className="group relative">
+                  <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                    Porcentaje a cobrar al reservar
+                  </div>
+                </div>
+              </div>
+              <div className="relative">
+                <Input
+                  name="paymentPercentage"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={newService.paymentPercentage}
+                  onChange={handleChange}
+                  className={`border-0 rounded-xl px-4 py-3 text-center text-lg font-semibold transition-all duration-200 ${
+                    newService.requiresDeposit
+                      ? "bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                      : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  }`}
+                  disabled={!newService.requiresDeposit}
+                />
+                <Percent className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label className="text-sm font-medium text-gray-700">
                   Turnos
                 </Label>
                 <div className="group relative">
                   <Info className="w-4 h-4 text-gray-400 cursor-help" />
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-                    0 = Basado en empleados 
+                    0 = Basado en empleados
                   </div>
                 </div>
               </div>

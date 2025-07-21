@@ -1,5 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, AlertCircleIcon, CreditCard, ExternalLink, Loader2 } from "lucide-react";
+import {
+  AlertCircle,
+  AlertCircleIcon,
+  CreditCard,
+  ExternalLink,
+  Loader2,
+} from "lucide-react";
 import React, { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -24,6 +30,8 @@ interface PaymentFormProps {
     start: string;
     end: string;
     notes?: string;
+    paymentPercentage: number;
+    paymentAmount: number;
   };
   onCancel: () => void;
   businessId: string;
@@ -43,6 +51,8 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
       currency: "ARS",
     }).format(amount);
   };
+
+  console.log(bookingData.paymentAmount);
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -84,7 +94,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           <div className="flex justify-between items-center text-lg font-semibold">
             <span>Total a pagar:</span>
             <span className="text-green-600">
-              {formatCurrency(service.price)}
+              {formatCurrency(bookingData.paymentAmount)}
             </span>
           </div>
         </div>
@@ -100,11 +110,11 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
             <MercadoPagoButton
               businessId={businessId}
               title={service.name_service}
-              price={service.price}
+              price={bookingData.paymentAmount}
             />
           ) : (
             <div className="flex items-center justify-center bg-red-200 p-4 rounded-2xl m-3">
-              <AlertCircleIcon/>
+              <AlertCircleIcon />
               <p className="ml-2">Para poder para inicia sesion</p>
             </div>
           )}
