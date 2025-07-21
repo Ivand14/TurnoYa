@@ -52,7 +52,6 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     }).format(amount);
   };
 
-  console.log(bookingData.paymentAmount);
 
   return (
     <Card className="w-full max-w-md mx-auto">
