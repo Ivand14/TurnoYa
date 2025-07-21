@@ -17,7 +17,7 @@ import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
@@ -45,7 +45,7 @@ interface BookingData {
   paymentData?: PaymentData;
   paymentStatus?: "pending" | "paid" | "refunded";
   employeeId?: string | null;
-  paymentPercentage: 50 | 100;
+  paymentPercentage: number;
   paymentAmount: number;
 }
 
@@ -84,10 +84,17 @@ export const BookingForm = ({
   } = useForm();
   const [showPayment, setShowPayment] = useState(false);
   const [formData, setFormData] = useState<BookingData | null>(null);
-  const [paymentPercentage, setPaymentPercentage] = useState<50 | 100>(100);
+  const [paymentPercentage, setPaymentPercentage] = useState<number>(100);
 
-  // Calcular el monto a pagar basado en el porcentaje seleccionado
-  const paymentAmount = (service.price * paymentPercentage) / 100;
+  const [paymentAmount, setPaymentAmount] = useState(0);
+
+  useEffect(() => {
+    const amount = service.requiresDeposit
+      ? (service.price * paymentPercentage) / 100
+      : service.price;
+
+    setPaymentAmount(amount);
+  }, [service.price, service.requiresDeposit, paymentPercentage]);
 
   const submitForm = (data: BookingData) => {
     if (!selectedSlot) {
@@ -114,6 +121,7 @@ export const BookingForm = ({
     setShowPayment(false);
     setFormData(null);
   };
+
 
   if (showPayment && formData) {
     return (
@@ -257,7 +265,9 @@ export const BookingForm = ({
                       </span>
                     </div>
                     <p className="font-bold text-emerald-600 text-sm sm:text-base">
-                      ${paymentAmount} ({paymentPercentage}%)
+                      {service.requiresDeposit
+                        ? `${paymentAmount}$ (${paymentPercentage}% )`
+                        : `${paymentAmount}$`}
                     </p>
                   </div>
 
@@ -338,105 +348,116 @@ export const BookingForm = ({
                     </motion.p>
                   )}
                 </motion.div>
-
                 {/* Opción de porcentaje de pago */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.25 }}
-                >
-                  <Label className="flex items-center text-sm font-semibold text-gray-700 mb-3">
-                    <Percent className="w-4 h-4 mr-2 text-indigo-600 flex-shrink-0" />
-                    Opción de pago
-                  </Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <motion.button
-                      type="button"
-                      onClick={() => setPaymentPercentage(50)}
-                      className={`p-4 rounded-xl border-2 transition-all duration-300 text-left ${
-                        paymentPercentage === 50
-                          ? "border-indigo-500 bg-indigo-50 shadow-lg"
-                          : "border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-25"
-                      }`}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center">
-                          <div
-                            className={`w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center ${
-                              paymentPercentage === 50
-                                ? "border-indigo-500 bg-indigo-500"
-                                : "border-gray-300"
+                {service.requiresDeposit && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.25 }}
+                  >
+                    <Label className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                      <Percent className="w-4 h-4 mr-2 text-indigo-600 flex-shrink-0" />
+                      Opción de pago
+                    </Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <motion.button
+                        type="button"
+                        onClick={() =>
+                          setPaymentPercentage(
+                            Number(service.paymentPercentage)
+                          )
+                        }
+                        className={`p-4 rounded-xl border-2 transition-all duration-300 text-left ${
+                          paymentPercentage ===
+                          Number(service.paymentPercentage)
+                            ? "border-indigo-500 bg-indigo-50 shadow-lg"
+                            : "border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-25"
+                        }`}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            <div
+                              className={`w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center ${
+                                paymentPercentage ===
+                                Number(service.paymentPercentage)
+                                  ? "border-indigo-500 bg-indigo-500"
+                                  : "border-gray-300"
+                              }`}
+                            >
+                              {paymentPercentage ===
+                                Number(service.paymentPercentage) && (
+                                <div className="w-2 h-2 bg-white rounded-full"></div>
+                              )}
+                            </div>
+                            <span className="font-semibold text-gray-900">
+                              Pago del {Number(service.paymentPercentage)} %
+                            </span>
+                          </div>
+                          <span
+                            className={`text-lg font-bold ${
+                              paymentPercentage === Number(service.paymentPercentage)
+                                ? "text-indigo-600"
+                                : "text-gray-600"
                             }`}
                           >
-                            {paymentPercentage === 50 && (
-                              <div className="w-2 h-2 bg-white rounded-full"></div>
-                            )}
-                          </div>
-                          <span className="font-semibold text-gray-900">
-                            Pago del 50%
+                            $
+                            {(service.price *
+                              Number(service.paymentPercentage)) /
+                              100}
                           </span>
                         </div>
-                        <span
-                          className={`text-lg font-bold ${
-                            paymentPercentage === 50
-                              ? "text-indigo-600"
-                              : "text-gray-600"
-                          }`}
-                        >
-                          ${(service.price * 50) / 100}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-500 leading-relaxed">
-                        Paga la mitad ahora, el resto al finalizar el servicio
-                      </p>
-                    </motion.button>
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                          Paga un porcentaje, el resto al finalizar el servicio
+                        </p>
+                      </motion.button>
 
-                    <motion.button
-                      type="button"
-                      onClick={() => setPaymentPercentage(100)}
-                      className={`p-4 rounded-xl border-2 transition-all duration-300 text-left ${
-                        paymentPercentage === 100
-                          ? "border-emerald-500 bg-emerald-50 shadow-lg"
-                          : "border-gray-200 bg-white hover:border-emerald-300 hover:bg-emerald-25"
-                      }`}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center">
-                          <div
-                            className={`w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center ${
+                      <motion.button
+                        type="button"
+                        onClick={() => setPaymentPercentage(100)}
+                        className={`p-4 rounded-xl border-2 transition-all duration-300 text-left ${
+                          paymentPercentage === 100
+                            ? "border-emerald-500 bg-emerald-50 shadow-lg"
+                            : "border-gray-200 bg-white hover:border-emerald-300 hover:bg-emerald-25"
+                        }`}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            <div
+                              className={`w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center ${
+                                paymentPercentage === 100
+                                  ? "border-emerald-500 bg-emerald-500"
+                                  : "border-gray-300"
+                              }`}
+                            >
+                              {paymentPercentage === 100 && (
+                                <div className="w-2 h-2 bg-white rounded-full"></div>
+                              )}
+                            </div>
+                            <span className="font-semibold text-gray-900">
+                              Pago completo
+                            </span>
+                          </div>
+                          <span
+                            className={`text-lg font-bold ${
                               paymentPercentage === 100
-                                ? "border-emerald-500 bg-emerald-500"
-                                : "border-gray-300"
+                                ? "text-emerald-600"
+                                : "text-gray-600"
                             }`}
                           >
-                            {paymentPercentage === 100 && (
-                              <div className="w-2 h-2 bg-white rounded-full"></div>
-                            )}
-                          </div>
-                          <span className="font-semibold text-gray-900">
-                            Pago completo
+                            ${service.price}
                           </span>
                         </div>
-                        <span
-                          className={`text-lg font-bold ${
-                            paymentPercentage === 100
-                              ? "text-emerald-600"
-                              : "text-gray-600"
-                          }`}
-                        >
-                          ${service.price}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-500 leading-relaxed">
-                        Paga el monto completo y asegura tu reserva
-                      </p>
-                    </motion.button>
-                  </div>
-                </motion.div>
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                          Paga el monto completo y asegura tu reserva
+                        </p>
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                )}
 
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}

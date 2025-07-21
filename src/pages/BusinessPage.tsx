@@ -246,6 +246,8 @@ const BusinessPage = () => {
       notes: formData.notes,
       payment_id: null,
       price: selectedService.price,
+      paymentPercentage: selectedService.paymentPercentage,
+      requiredDeposit: selectedService.requiresDeposit,
     };
 
     localStorage.setItem("PendingBook", JSON.stringify(newBooking));
