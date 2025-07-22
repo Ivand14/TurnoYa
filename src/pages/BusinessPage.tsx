@@ -263,11 +263,9 @@ const BusinessPage = () => {
       requiresDeposit: selectedService.requiresDeposit || false,
     };
     setBookingId(newBooking.id);
-    console.log(newBooking);
     await fetchCreateBooking(newBooking);
   };
 
-  console.log(bookingId);
 
   const getBusinessTypeInfo = (type: string) => {
     const types = {
