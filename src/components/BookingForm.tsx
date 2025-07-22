@@ -113,6 +113,8 @@ export const BookingForm = ({
       paymentAmount,
     };
 
+    onSubmit(bookingData);
+
     setFormData(bookingData);
     setShowPayment(true);
   };
@@ -121,7 +123,6 @@ export const BookingForm = ({
     setShowPayment(false);
     setFormData(null);
   };
-
 
   if (showPayment && formData) {
     return (
@@ -397,7 +398,8 @@ export const BookingForm = ({
                           </div>
                           <span
                             className={`text-lg font-bold ${
-                              paymentPercentage === Number(service.paymentPercentage)
+                              paymentPercentage ===
+                              Number(service.paymentPercentage)
                                 ? "text-indigo-600"
                                 : "text-gray-600"
                             }`}

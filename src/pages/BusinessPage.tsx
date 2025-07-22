@@ -44,6 +44,8 @@ interface BookingFormData {
   email: string;
   phone: string;
   notes?: string;
+  paymentAmount: number;
+  paymentPercentage: number;
 }
 
 const BusinessPage = () => {
@@ -139,36 +141,46 @@ const BusinessPage = () => {
     const paymentCheck = async () => {
       const params = new URLSearchParams(window.location.search);
       const payment_id = params.get("payment_id");
-      const paymentStatus = params.get("status");
+      const paymentStatus = params.get("collection_status");
+      const bookingId = params.get("external_reference"); // 👈 clave
 
-      console.log(payment_id, paymentStatus);
+      if (payment_id && paymentStatus === "approved" && bookingId) {
+        try {
+          const res = await fetch(
+            "https://turnosya-backend.onrender.com/status_payment",
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                bookingId,
+                payment_id,
+                payment_status: paymentStatus,
+                status: "confirmed",
+              }),
+            }
+          );
 
-      if (payment_id && paymentStatus === "approved") {
-        const bookInLs = localStorage.getItem("PendingBook");
-        !bookInLs && toast.error("No se encontró la reserva pendiente.");
-        const book = JSON.parse(bookInLs);
-        book.status = "confirmed";
-        book.paymentStatus = paymentStatus;
-        book.payment_id = payment_id;
-        localStorage.setItem("PendingBook", JSON.stringify(book));
-        await fetchCreateBooking(book);
-        await fetchGetBooking(businessId);
+          if (!res.ok) {
+            throw new Error("No se pudo confirmar la reserva");
+          }
 
-        setBookingFormOpen(false);
-        setSelectedSlot(null);
+          await fetchGetBooking(businessId);
 
-        if (!payment_id) {
-          toast.error("No se encontró el ID del pago.");
-          return;
+          setBookingFormOpen(false);
+          setSelectedSlot(null);
+
+          toast.success("¡Reserva confirmada con éxito!");
+        } catch (error) {
+          toast.error("Error al confirmar la reserva");
+          console.error(error);
         }
-
-        localStorage.removeItem("PendingBook");
       }
 
-      paymentStatus === "approved" &&
-        toast.success("¡Reserva creada con éxito!");
-
-      paymentStatus === "cancel" && toast.error("No se pudo hacer el pago");
+      if (paymentStatus === "cancel") {
+        toast.error("No se pudo hacer el pago");
+      }
     };
 
     paymentCheck();
@@ -246,11 +258,10 @@ const BusinessPage = () => {
       notes: formData.notes,
       payment_id: null,
       price: selectedService.price,
-      paymentPercentage: selectedService.paymentPercentage,
-      requiredDeposit: selectedService.requiresDeposit,
+      paymentPercentage: formData.paymentPercentage,
+      paymentAmount: formData.paymentAmount,
     };
-
-    localStorage.setItem("PendingBook", JSON.stringify(newBooking));
+    await fetchCreateBooking(newBooking);
   };
 
   const getBusinessTypeInfo = (type: string) => {
