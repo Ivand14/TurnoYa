@@ -22,7 +22,9 @@ interface BookingContext {
   fetchDeleteBooking: (bookingId: string) => Promise<void>;
   fetchPatchStatusBooking: (
     booking_id: string,
-    new_status: string
+    new_status: string,
+    paymentAmount: number,
+    price: number
   ) => Promise<void>;
 }
 
@@ -146,10 +148,20 @@ export const useBookingContext = create<BookingContext>((set) => ({
       set({ loading: false, error: (error as Error).message });
     }
   },
-  fetchPatchStatusBooking: async (booking_id: string, new_status: string) => {
+  fetchPatchStatusBooking: async (
+    booking_id: string,
+    new_status: string,
+    paymentAmount: number,
+    price: number
+  ) => {
     set({ loading: true, error: null });
     try {
-      const responsePatch = await patch_status_book(booking_id, new_status);
+      const responsePatch = await patch_status_book(
+        booking_id,
+        new_status,
+        paymentAmount,
+        price
+      );
       if (responsePatch?.status === 200) {
         const updatedBooking = responsePatch?.details;
         set((state) => ({

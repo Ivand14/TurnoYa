@@ -13,12 +13,22 @@ import {
   Mail,
   CreditCard,
   ArrowRight,
+  DollarSign,
+  CheckCircle2,
+  AlertCircle,
+  XCircle,
+  Wallet,
+  TrendingUp,
 } from "lucide-react";
 import { useBookingContext } from "@/context/apisContext/bookingContext";
 import { compnay_logged } from "@/context/current_company";
 
 interface BookingCardProps {
-  booking: Booking;
+  booking: Booking & {
+    totalAmount?: number;
+    paidAmount?: number;
+    depositAmount?: number;
+  };
   service?: Service;
   onCancel?: (bookingId: string) => void;
 }
@@ -42,64 +52,94 @@ export const BookingCard = ({
 
   const nameOfService = services.find((serv) => serv.id === booking.serviceId);
 
-  const getStatusColor = (status: string) => {
+  // Cálculos de pagos
+  const totalAmount = booking.price || 0;
+  const paidAmount = booking.paymentAmount || 0;
+  const remainingAmount = totalAmount - paidAmount;
+  const hasDeposit = paidAmount > 0 && remainingAmount > 0;
+  const isFullyPaid = paidAmount >= totalAmount;
+
+  const getStatusConfig = (status: string) => {
     switch (status) {
       case "confirmed":
-        return "text-emerald-600";
+        return {
+          color: "bg-gradient-to-r from-emerald-50 to-green-50",
+          textColor: "text-emerald-700",
+          borderColor: "border-emerald-200",
+          icon: CheckCircle2,
+          label: "Confirmado",
+        };
       case "pending":
-        return "text-amber-600";
+        return {
+          color: "bg-gradient-to-r from-amber-50 to-orange-50",
+          textColor: "text-amber-700",
+          borderColor: "border-amber-200",
+          icon: AlertCircle,
+          label: "Pendiente",
+        };
       case "cancelled":
-        return "text-red-600";
+        return {
+          color: "bg-gradient-to-r from-red-50 to-rose-50",
+          textColor: "text-red-700",
+          borderColor: "border-red-200",
+          icon: XCircle,
+          label: "Cancelado",
+        };
       case "completed":
-        return "text-blue-600";
+        return {
+          color: "bg-gradient-to-r from-blue-50 to-indigo-50",
+          textColor: "text-blue-700",
+          borderColor: "border-blue-200",
+          icon: CheckCircle2,
+          label: "Completado",
+        };
       default:
-        return "text-gray-600";
+        return {
+          color: "bg-gradient-to-r from-gray-50 to-slate-50",
+          textColor: "text-gray-700",
+          borderColor: "border-gray-200",
+          icon: AlertCircle,
+          label: status,
+        };
     }
   };
 
-  const getPaymentStatusColor = (status: string) => {
+  const getPaymentStatusConfig = (status: string) => {
     switch (status) {
       case "paid":
-        return "text-emerald-600";
+        return {
+          color: "text-emerald-600 bg-emerald-50",
+          label: "Pagado",
+          icon: CheckCircle2,
+        };
       case "pending":
-        return "text-amber-600";
+        return {
+          color: "text-amber-600 bg-amber-50",
+          label: "Pendiente",
+          icon: AlertCircle,
+        };
       case "refunded":
-        return "text-red-600";
+        return {
+          color: "text-red-600 bg-red-50",
+          label: "Reembolsado",
+          icon: XCircle,
+        };
       default:
-        return "text-gray-600";
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "confirmed":
-        return "Confirmado";
-      case "pending":
-        return "Pendiente";
-      case "cancelled":
-        return "Cancelado";
-      case "completed":
-        return "Completado";
-      default:
-        return status;
-    }
-  };
-
-  const getPaymentStatusLabel = (status: string) => {
-    switch (status) {
-      case "paid":
-        return "Pagado";
-      case "pending":
-        return "Pendiente";
-      case "refunded":
-        return "Reembolsado";
-      default:
-        return status;
+        return {
+          color: "text-gray-600 bg-gray-50",
+          label: status,
+          icon: AlertCircle,
+        };
     }
   };
 
   const onMarkAsCompleted = async (booking_id: string) => {
-    await fetchPatchStatusBooking(booking_id, "completed");
+    await fetchPatchStatusBooking(
+      booking_id,
+      "completed",
+      booking.paymentAmount,
+      booking.price
+    );
   };
 
   const date = new Date();
@@ -114,110 +154,200 @@ export const BookingCard = ({
   const isPastOrToday = bookingToDate <= currentDate;
   const canMarkAsCompleted = booking.status === "confirmed" && isPastOrToday;
 
-  console.log(booking);
+  const statusConfig = getStatusConfig(booking.status);
+  const paymentConfig = getPaymentStatusConfig(booking.paymentStatus);
+  const StatusIcon = statusConfig.icon;
+  const PaymentIcon = paymentConfig.icon;
 
   return (
-    <div className="group relative py-8 border-b border-gray-100 last:border-b-0 hover:bg-gray-50/30 transition-all duration-500">
-      {/* Status indicator line */}
+    <div className="group relative bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-lg transition-all duration-500 overflow-hidden">
+      {/* Gradient header */}
       <div
-        className={`absolute left-0 top-0 bottom-0 w-0.5 ${getStatusColor(
-          booking.status
-        )} bg-current opacity-30 group-hover:opacity-100 transition-opacity duration-300`}
-      />
-
-      <div className="pl-6 space-y-6">
-        {/* Header row */}
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <h3 className="text-xl font-light text-gray-900 tracking-wide">
-              {nameOfService?.name_service}
-            </h3>
-            <div className="flex items-center gap-6 text-sm text-gray-400">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-3.5 h-3.5" />
-                <span className="font-mono">
-                  {format(bookingDate, "dd.MM.yyyy", { locale: es })}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5" />
-                <span className="font-mono">
-                  {format(bookingDate, "HH:mm")}—
-                  {format(new Date(booking.end), "HH:mm")}
-                </span>
+        className={`${statusConfig.color} px-6 py-4 ${statusConfig.borderColor} border-b`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div
+              className={`p-2 ${statusConfig.color} rounded-xl border ${statusConfig.borderColor}`}
+            >
+              <StatusIcon className={`w-4 h-4 ${statusConfig.textColor}`} />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 tracking-tight">
+                {nameOfService?.name_service}
+              </h3>
+              <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="w-3 h-3" />
+                  <span className="font-medium">
+                    {format(bookingDate, "dd MMM yyyy", { locale: es })}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-3 h-3" />
+                  <span className="font-medium">
+                    {format(bookingDate, "HH:mm")} -{" "}
+                    {format(new Date(booking.end), "HH:mm")}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="text-right space-y-1">
-            <div
-              className={`text-xs font-medium uppercase tracking-wider ${getStatusColor(
-                booking.status
-              )}`}
+          <div className="text-right">
+            <Badge
+              className={`${statusConfig.textColor} ${statusConfig.color} border-0 font-medium px-3 py-1`}
             >
-              {getStatusLabel(booking.status)}
-            </div>
-            <div className="w-12 h-px bg-gray-200 ml-auto" />
+              {statusConfig.label}
+            </Badge>
           </div>
         </div>
+      </div>
 
-        {/* Client and payment row */}
+      {/* Main content */}
+      <div className="p-6 space-y-6">
+        {/* Client information */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-1 h-1 bg-gray-300 rounded-full" />
-            <div className="space-y-0.5">
-              <div className="flex items-center gap-2 text-sm">
-                <User className="w-3.5 h-3.5 text-gray-400" />
-                <span className="font-medium text-gray-700">
-                  {booking.userName}
-                </span>
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center">
+              <User className="w-4 h-4 text-blue-600" />
+            </div>
+            <div>
+              <div className="font-medium text-gray-900">
+                {booking.userName}
               </div>
-              <div className="flex items-center gap-2 text-xs text-gray-400">
+              <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
                 <Mail className="w-3 h-3" />
-                <span className="font-mono">{booking.userEmail}</span>
+                <span>{booking.userEmail}</span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <CreditCard className="w-3.5 h-3.5 text-gray-300" />
-            <span
-              className={`text-xs font-medium uppercase tracking-wider ${getPaymentStatusColor(
-                booking.paymentStatus
-              )}`}
+          <div className="text-right">
+            <Badge
+              className={`${paymentConfig.color} border-0 font-medium px-3 py-1`}
             >
-              {getPaymentStatusLabel(booking.paymentStatus)}
-            </span>
+              <PaymentIcon className="w-3 h-3 mr-1" />
+              {paymentConfig.label}
+            </Badge>
           </div>
         </div>
 
-        {/* Actions row */}
+        {/* Payment information */}
+        {totalAmount > 0 && (
+          <div className="bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl p-4 border border-gray-100">
+            <div className="flex items-center gap-2 mb-3">
+              <Wallet className="w-4 h-4 text-gray-600" />
+              <span className="font-medium text-gray-900 text-sm">
+                Información de Pago
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="space-y-1">
+                <div className="text-xs text-gray-500 uppercase tracking-wide">
+                  Total
+                </div>
+                <div className="text-lg font-semibold text-gray-900">
+                  ${totalAmount.toLocaleString()}
+                </div>
+              </div>
+
+              {hasDeposit && (
+                <>
+                  <div className="space-y-1">
+                    <div className="text-xs text-gray-500 uppercase tracking-wide">
+                      Seña Pagada
+                    </div>
+                    <div className="text-lg font-semibold text-emerald-600">
+                      ${paidAmount.toLocaleString()}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="text-xs text-gray-500 uppercase tracking-wide">
+                      Resta Pagar
+                    </div>
+                    <div className="text-lg font-semibold text-amber-600">
+                      ${remainingAmount.toLocaleString()}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {isFullyPaid && !hasDeposit && (
+                <div className="col-span-2 space-y-1">
+                  <div className="text-xs text-gray-500 uppercase tracking-wide">
+                    Estado
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span className="text-sm font-medium text-emerald-600">
+                      Completamente Pagado
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Progress bar for partial payments */}
+            {hasDeposit && (
+              <div className="mt-4">
+                <div className="flex justify-between text-xs text-gray-500 mb-2">
+                  <span>Progreso de Pago</span>
+                  <span>{Math.round((paidAmount / totalAmount) * 100)}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-gradient-to-r from-emerald-500 to-green-500 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${(paidAmount / totalAmount) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Notes */}
+        {booking.notes && (
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+            <div className="text-xs text-blue-600 uppercase tracking-wide mb-1">
+              Notas
+            </div>
+            <div className="text-sm text-gray-700">{booking.notes}</div>
+          </div>
+        )}
+
+        {/* Actions */}
         {booking.status !== "cancelled" && booking.status !== "completed" && (
-          <div className="flex items-start justify-between  pt-2">
-            <div className="flex flex-col items-start gap-4">
+          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+            <div className="flex gap-3">
               {canMarkAsCompleted && company && (
                 <Button
                   onClick={() => onMarkAsCompleted(booking.id)}
                   variant="ghost"
                   size="sm"
-                  className="text-xs text-blue-600 hover:text-blue-700 hover:bg-transparent font-normal p-0 h-auto uppercase tracking-wider"
+                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium px-4 py-2 rounded-lg transition-all duration-200 group/btn"
                 >
-                  Marcar completado
-                  <ArrowRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CheckCircle2 className="w-4 h-4 mr-2" />
+                  Marcar Completado
+                  <ArrowRight className="w-3 h-3 ml-2 opacity-0 group-hover/btn:opacity-100 transform translate-x-0 group-hover/btn:translate-x-1 transition-all duration-200" />
                 </Button>
               )}
+
               <Button
                 onClick={() => onCancel?.(booking.id)}
                 variant="ghost"
                 size="sm"
-                className="text-xs text-red-500 hover:text-red-600 hover:bg-transparent font-normal p-0 h-auto uppercase tracking-wider"
+                className="text-red-500 hover:text-red-600 hover:bg-red-50 font-medium px-4 py-2 rounded-lg transition-all duration-200 group/btn"
               >
+                <XCircle className="w-4 h-4 mr-2" />
                 Cancelar
-                <ArrowRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowRight className="w-3 h-3 ml-2 opacity-0 group-hover/btn:opacity-100 transform translate-x-0 group-hover/btn:translate-x-1 transition-all duration-200" />
               </Button>
             </div>
 
-            <div className="opacity-60 hover:opacity-100 transition-opacity">
+            <div className="opacity-60 hover:opacity-100 transition-opacity duration-200">
               <PaymentDetails
                 paymentId={booking.payment_id}
                 note={booking.notes}

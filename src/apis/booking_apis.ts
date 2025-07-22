@@ -24,12 +24,16 @@ export const delete_booking = async (bookingId: string) => {
 
 export const patch_status_book = async (
   booking_id: string,
-  new_status: string
+  new_status: string,
+  paymentAmount: number,
+  price: number
 ) => {
   try {
     const response = await axios.patch(`${API_URL}/status_book`, {
       booking_id,
       new_status,
+      paymentAmount,
+      price,
     });
 
     return response.data;
