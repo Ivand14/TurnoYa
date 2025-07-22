@@ -76,6 +76,7 @@ export const useBookingContext = create<BookingContext>((set) => ({
         });
       }
     } catch (error) {
+      console.log(error);
       set({ loading: false, error: (error as Error).message });
     }
   },

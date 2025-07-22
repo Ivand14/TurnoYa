@@ -23,7 +23,6 @@ interface PaymentData {
 interface PaymentFormProps {
   service: Service;
   bookingData: {
-    id: string;
     name: string;
     email: string;
     phone?: string;
@@ -36,6 +35,7 @@ interface PaymentFormProps {
   };
   onCancel: () => void;
   businessId: string;
+  bookingId?: string;
 }
 
 export const PaymentForm: React.FC<PaymentFormProps> = ({
@@ -43,6 +43,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   bookingData,
   businessId,
   onCancel,
+  bookingId,
 }) => {
   const { user } = current_user();
 
@@ -52,6 +53,8 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
       currency: "ARS",
     }).format(amount);
   };
+
+  console.log(bookingId);
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -110,7 +113,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
               businessId={businessId}
               title={service.name_service}
               price={bookingData.paymentAmount}
-              bookingId={bookingData.id}
+              bookingId={bookingId}
             />
           ) : (
             <div className="flex items-center justify-center bg-red-200 p-4 rounded-2xl m-3">

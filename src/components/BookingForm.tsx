@@ -60,6 +60,7 @@ interface BookingFormProps {
   onClose: () => void;
   onSubmit: (data: BookingData) => void;
   businessId: string;
+  bookingId: string;
 }
 
 interface PaymentData {
@@ -76,6 +77,7 @@ export const BookingForm = ({
   onClose,
   onSubmit,
   businessId,
+  bookingId,
 }: BookingFormProps) => {
   const {
     register,
@@ -87,6 +89,8 @@ export const BookingForm = ({
   const [paymentPercentage, setPaymentPercentage] = useState<number>(100);
 
   const [paymentAmount, setPaymentAmount] = useState(0);
+
+  console.log(bookingId);
 
   useEffect(() => {
     const amount = service.requiresDeposit
@@ -159,6 +163,7 @@ export const BookingForm = ({
                 bookingData={formData}
                 onCancel={handlePaymentCancel}
                 businessId={businessId}
+                bookingId={bookingId}
               />
             </div>
           </motion.div>

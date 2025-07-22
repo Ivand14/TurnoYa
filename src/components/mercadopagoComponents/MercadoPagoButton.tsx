@@ -26,6 +26,7 @@ const MercadoPagoButton: React.FC<Props> = ({
   const [preferenceId, setPreferenceId] = useState("");
   const [loading, setLoading] = useState(false);
 
+  
   const handlePago = async () => {
     setLoading(true);
     try {
