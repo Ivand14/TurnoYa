@@ -23,6 +23,7 @@ interface PaymentData {
 interface PaymentFormProps {
   service: Service;
   bookingData: {
+    id: string;
     name: string;
     email: string;
     phone?: string;
@@ -109,7 +110,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
               businessId={businessId}
               title={service.name_service}
               price={bookingData.paymentAmount}
-              bookingId={service.id}
+              bookingId={bookingData.id}
             />
           ) : (
             <div className="flex items-center justify-center bg-red-200 p-4 rounded-2xl m-3">

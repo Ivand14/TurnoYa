@@ -3,7 +3,6 @@ import {
   DialogContent,
   DialogDescription,
   DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 
@@ -35,6 +34,7 @@ import {
 } from "lucide-react";
 
 interface BookingData {
+  id: string;
   name: string;
   email: string;
   phone: string;
