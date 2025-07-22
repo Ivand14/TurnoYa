@@ -26,242 +26,244 @@ import { useScheduleContext } from "@/context/apisContext/scheduleContext";
 import { useServicesContext } from "@/context/apisContext/servicesContext";
 import {
   MapPin,
-    Phone,
-    Mail,
-    Clock,
-    Star,
-    Users,
-    Calendar as CalendarIcon,
-    CheckCircle,
-    ArrowRight,
-    Sparkles,
-  } from "lucide-react";
-  import { motion } from "framer-motion";
+  Phone,
+  Mail,
+  Clock,
+  Star,
+  Users,
+  Calendar as CalendarIcon,
+  CheckCircle,
+  ArrowRight,
+  Sparkles,
+} from "lucide-react";
+import { motion } from "framer-motion";
 
-  interface BookingFormData {
-    name: string;
-    email: string;
-    phone: string;
-    notes?: string;
-    paymentAmount: number;
-    paymentPercentage: number;
-  }
+interface BookingFormData {
+  name: string;
+  email: string;
+  phone: string;
+  notes?: string;
+  paymentAmount: number;
+  paymentPercentage: number;
+}
 
-  const BusinessPage = () => {
-    const { businessId } = useParams();
-    const { fetchGetBooking, fetchCreateBooking, booking } = useBookingContext();
-    const { fetchBusinessById, businessForId } = useBusinessContext();
-    const { fetchGetAllBusinessHours, businessHours } = useScheduleContext();
-    const { fetchGetServices, services } = useServicesContext();
-    const { user } = current_user();
-    const navigate = useNavigate();
+const BusinessPage = () => {
+  const { businessId } = useParams();
+  const { fetchGetBooking, fetchCreateBooking, booking } = useBookingContext();
+  const { fetchBusinessById, businessForId } = useBusinessContext();
+  const { fetchGetAllBusinessHours, businessHours } = useScheduleContext();
+  const { fetchGetServices, services } = useServicesContext();
+  const [bookingId, setBookingId] = useState<string>("");
+  const { user } = current_user();
+  const navigate = useNavigate();
 
-    const [initialLoading, setInitialLoading] = useState(true);
-    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-    const [selectedService, setSelectedService] = useState<Service | null>(null);
-    const [selectedSlot, setSelectedSlot] = useState<{
-      start: Date;
-      end: Date;
-    } | null>(null);
-    const [bookingFormOpen, setBookingFormOpen] = useState(false);
-    const [scheduleSettings, setScheduleSettings] = useState<ScheduleSettings>({
-      businessId: "",
-      workDays: [],
-      workHours: { start: "09:00", end: "17:00" },
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<{
+    start: Date;
+    end: Date;
+  } | null>(null);
+  const [bookingFormOpen, setBookingFormOpen] = useState(false);
+  const [scheduleSettings, setScheduleSettings] = useState<ScheduleSettings>({
+    businessId: "",
+    workDays: [],
+    workHours: { start: "09:00", end: "17:00" },
+    slotDuration: 30,
+    breakBetweenSlots: 5,
+    days_business: [],
+    defaultCapacity: 0,
+    capacityMode: "fixed",
+  });
+
+  const scheduleInfo = useCallback(async () => {
+    const days_business = [];
+    const workDays = [];
+    let startTime = "";
+    let endTime = "";
+
+    const dayMap: Record<string, number> = {
+      dom: 0,
+      lun: 1,
+      mar: 2,
+      mié: 3,
+      jue: 4,
+      vie: 5,
+      sáb: 6,
+    };
+
+    businessHours.forEach((sch) => {
+      const day = sch.day.slice(0, 3).toLowerCase();
+      days_business.push(day);
+      if (
+        sch.day.toLowerCase() === format(selectedDate, "eeee", { locale: es })
+      ) {
+        startTime = sch.startTime;
+        endTime = sch.endTime;
+      }
+    });
+
+    days_business.sort((a, b) => (dayMap[a] || 0) - (dayMap[b] || 0));
+
+    setScheduleSettings({
+      businessId: businessId || "",
+      workDays: workDays,
+      workHours: { start: startTime, end: endTime },
       slotDuration: 30,
-      breakBetweenSlots: 5,
-      days_business: [],
+      breakBetweenSlots: 0,
+      days_business: days_business,
       defaultCapacity: 0,
       capacityMode: "fixed",
     });
+  }, [businessId, businessHours, selectedDate]);
 
-    const scheduleInfo = useCallback(async () => {
-      const days_business = [];
-      const workDays = [];
-      let startTime = "";
-      let endTime = "";
+  useEffect(() => {
+    if (!businessId) return;
+    fetchBusinessById(businessId);
 
-      const dayMap: Record<string, number> = {
-        dom: 0,
-        lun: 1,
-        mar: 2,
-        mié: 3,
-        jue: 4,
-        vie: 5,
-        sáb: 6,
-      };
+    const fetchAdditionalData = async () => {
+      await fetchGetAllBusinessHours(businessId);
+      await fetchGetServices(businessId);
+      await fetchGetBooking(businessId);
 
-      businessHours.forEach((sch) => {
-        const day = sch.day.slice(0, 3).toLowerCase();
-        days_business.push(day);
-        if (
-          sch.day.toLowerCase() === format(selectedDate, "eeee", { locale: es })
-        ) {
-          startTime = sch.startTime;
-          endTime = sch.endTime;
-        }
-      });
+      setInitialLoading(false);
+    };
 
-      days_business.sort((a, b) => (dayMap[a] || 0) - (dayMap[b] || 0));
+    fetchAdditionalData();
+  }, [businessId, selectedDate]);
 
-      setScheduleSettings({
-        businessId: businessId || "",
-        workDays: workDays,
-        workHours: { start: startTime, end: endTime },
-        slotDuration: 30,
-        breakBetweenSlots: 0,
-        days_business: days_business,
-        defaultCapacity: 0,
-        capacityMode: "fixed",
-      });
-    }, [businessId, businessHours, selectedDate]);
+  useEffect(() => {
+    if (!businessId) return;
+    scheduleInfo();
+  }, [businessId, businessHours, booking]);
 
-    useEffect(() => {
-      if (!businessId) return;
-      fetchBusinessById(businessId);
+  useEffect(() => {
+    const paymentCheck = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const payment_id = params.get("payment_id");
+      const paymentStatus = params.get("collection_status");
+      const bookingId = params.get("external_reference");
 
-      const fetchAdditionalData = async () => {
-        await fetchGetAllBusinessHours(businessId);
-        await fetchGetServices(businessId);
-        await fetchGetBooking(businessId);
-
-        setInitialLoading(false);
-      };
-
-      fetchAdditionalData();
-    }, [businessId, selectedDate]);
-
-    useEffect(() => {
-      if (!businessId) return;
-      scheduleInfo();
-    }, [businessId, businessHours, booking]);
-
-    useEffect(() => {
-      const paymentCheck = async () => {
-        const params = new URLSearchParams(window.location.search);
-        const payment_id = params.get("payment_id");
-        const paymentStatus = params.get("collection_status");
-        const bookingId = params.get("external_reference");
-
-        if (payment_id && paymentStatus === "approved" && bookingId) {
-          try {
-            const res = await fetch(
-              "https://turnosya-backend.onrender.com/status_payment",
-              {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  bookingId,
-                  payment_id,
-                  payment_status: paymentStatus,
-                  status: "confirmed",
-                }),
-              }
-            );
-
-            if (!res.ok) {
-              throw new Error("No se pudo confirmar la reserva");
+      if (payment_id && paymentStatus === "approved" && bookingId) {
+        try {
+          const res = await fetch(
+            "https://turnosya-backend.onrender.com/status_payment",
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                bookingId,
+                payment_id,
+                payment_status: paymentStatus,
+                status: "confirmed",
+              }),
             }
+          );
 
-            await fetchGetBooking(businessId);
-
-            setBookingFormOpen(false);
-            setSelectedSlot(null);
-
-            toast.success("¡Reserva confirmada con éxito!");
-          } catch (error) {
-            toast.error("Error al confirmar la reserva");
-            console.error(error);
+          if (!res.ok) {
+            throw new Error("No se pudo confirmar la reserva");
           }
+
+          await fetchGetBooking(businessId);
+
+          setBookingFormOpen(false);
+          setSelectedSlot(null);
+
+          toast.success("¡Reserva confirmada con éxito!");
+        } catch (error) {
+          toast.error("Error al confirmar la reserva");
+          console.error(error);
         }
+      }
 
-        if (paymentStatus === "cancel") {
-          toast.error("No se pudo hacer el pago");
-        }
-      };
+      if (paymentStatus === "cancel") {
+        toast.error("No se pudo hacer el pago");
+      }
+    };
 
-      paymentCheck();
-    }, []);
+    paymentCheck();
+  }, []);
 
-    if (!businessId) {
-      return <Navigate to="/businesses" />;
+  if (!businessId) {
+    return <Navigate to="/businesses" />;
+  }
+
+  // Obtener horarios reservados para la fecha seleccionada
+  const getBookedTimeSlotsForDate = (date: Date): TimeSlot[] => {
+    const dateString = format(date, "yyyy-MM-dd");
+    const serviceId = selectedService?.id || "";
+
+    return booking
+      .filter(
+        (booking) =>
+          booking.businessId === businessId &&
+          booking.serviceId === serviceId &&
+          booking.date === dateString &&
+          booking.status !== "cancelled"
+      )
+      .map((booking) => ({
+        id: booking.id,
+        start: booking.start,
+        end: booking.end,
+        available: false,
+        serviceId: booking.serviceId,
+        businessId: booking.businessId,
+        date: booking.date,
+        status: booking.status,
+        paymentStatus: booking.paymentStatus,
+        userId: booking.userId,
+        userName: booking.userName,
+        userEmail: booking.userEmail,
+        userPhone: booking.userPhone,
+        serviceName: selectedService?.name_service || "",
+      }));
+  };
+
+  // Manejar selección de servicio
+  const handleSelectService = (serviceId: string) => {
+    const service = services.find((s) => s.id === serviceId);
+    if (service) {
+      setSelectedService(service);
+      setSelectedSlot(null);
     }
+  };
 
-    // Obtener horarios reservados para la fecha seleccionada
-    const getBookedTimeSlotsForDate = (date: Date): TimeSlot[] => {
-      const dateString = format(date, "yyyy-MM-dd");
-      const serviceId = selectedService?.id || "";
+  // Manejar selección de horario
+  const handleSelectTimeSlot = async (start: Date, end: Date) => {
+    setSelectedSlot({ start, end });
 
-      return booking
-        .filter(
-          (booking) =>
-            booking.businessId === businessId &&
-            booking.serviceId === serviceId &&
-            booking.date === dateString &&
-            booking.status !== "cancelled"
-        )
-        .map((booking) => ({
-          id: booking.id,
-          start: booking.start,
-          end: booking.end,
-          available: false,
-          serviceId: booking.serviceId,
-          businessId: booking.businessId,
-          date: booking.date,
-          status: booking.status,
-          paymentStatus: booking.paymentStatus,
-          userId: booking.userId,
-          userName: booking.userName,
-          userEmail: booking.userEmail,
-          userPhone: booking.userPhone,
-          serviceName: selectedService?.name_service || "",
-        }));
+    if (selectedService) {
+      setBookingFormOpen(true);
+    } else {
+      toast.error("Por favor, seleccione un servicio primero");
+    }
+  };
+
+  const handleCreateBooking = async (formData: BookingFormData) => {
+    const newBooking: Booking = {
+      id: `booking-${Date.now()}`,
+      businessId: businessId,
+      serviceId: selectedService?.id || "",
+      userId: user.id,
+      userName: user.name,
+      userEmail: user.email,
+      userPhone: formData.phone,
+      date: selectedDate.toISOString().split("T")[0],
+      start: selectedSlot?.start.toISOString() || "",
+      end: selectedSlot?.end.toISOString() || "",
+      status: "pending",
+      paymentStatus: "pending",
+      notes: formData.notes,
+      payment_id: null,
+      price: selectedService.price,
+      paymentPercentage: formData.paymentPercentage,
+      paymentAmount: formData.paymentAmount,
     };
-
-    // Manejar selección de servicio
-    const handleSelectService = (serviceId: string) => {
-      const service = services.find((s) => s.id === serviceId);
-      if (service) {
-        setSelectedService(service);
-        setSelectedSlot(null);
-      }
-    };
-
-    // Manejar selección de horario
-    const handleSelectTimeSlot = async (start: Date, end: Date) => {
-      setSelectedSlot({ start, end });
-
-      if (selectedService) {
-        setBookingFormOpen(true);
-      } else {
-        toast.error("Por favor, seleccione un servicio primero");
-      }
-    };
-
-    const handleCreateBooking = async (formData: BookingFormData) => {
-      const newBooking: Booking = {
-        id: `booking-${Date.now()}`,
-        businessId: businessId,
-        serviceId: selectedService?.id || "",
-        userId: user.id,
-        userName: user.name,
-        userEmail: user.email,
-        userPhone: formData.phone,
-        date: selectedDate.toISOString().split("T")[0],
-        start: selectedSlot?.start.toISOString() || "",
-        end: selectedSlot?.end.toISOString() || "",
-        status: "pending",
-        paymentStatus: "pending",
-        notes: formData.notes,
-        payment_id: null,
-        price: selectedService.price,
-        paymentPercentage: formData.paymentPercentage,
-        paymentAmount: formData.paymentAmount,
-      };
-      await fetchCreateBooking(newBooking);
-    };
+    setBookingId(newBooking.id);
+    await fetchCreateBooking(newBooking);
+  };
 
   const getBusinessTypeInfo = (type: string) => {
     const types = {
@@ -728,6 +730,7 @@ import {
             onClose={() => setBookingFormOpen(false)}
             onSubmit={handleCreateBooking}
             businessId={businessId}
+            bookingId={bookingId}
           />
         )}
       </main>

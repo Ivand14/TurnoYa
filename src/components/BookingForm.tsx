@@ -60,6 +60,7 @@ interface BookingFormProps {
   onClose: () => void;
   onSubmit: (data: BookingData) => void;
   businessId: string;
+  bookingId: string;
 }
 
 interface PaymentData {
@@ -76,6 +77,7 @@ export const BookingForm = ({
   onClose,
   onSubmit,
   businessId,
+  bookingId,
 }: BookingFormProps) => {
   const {
     register,
@@ -159,6 +161,7 @@ export const BookingForm = ({
                 bookingData={formData}
                 onCancel={handlePaymentCancel}
                 businessId={businessId}
+                bookingId={bookingId}
               />
             </div>
           </motion.div>
