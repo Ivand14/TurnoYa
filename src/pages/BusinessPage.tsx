@@ -142,7 +142,7 @@ const BusinessPage = () => {
       const params = new URLSearchParams(window.location.search);
       const payment_id = params.get("payment_id");
       const paymentStatus = params.get("collection_status");
-      const bookingId = params.get("external_reference"); // 👈 clave
+      const bookingId = params.get("external_reference");
 
       if (payment_id && paymentStatus === "approved" && bookingId) {
         try {

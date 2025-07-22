@@ -14,12 +14,14 @@ interface Props {
   businessId: string;
   title: string;
   price: number;
+  bookingId: string;
 }
 
 const MercadoPagoButton: React.FC<Props> = ({
   businessId,
   title,
   price,
+  bookingId,
 }) => {
   const [preferenceId, setPreferenceId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,7 +29,7 @@ const MercadoPagoButton: React.FC<Props> = ({
   const handlePago = async () => {
     setLoading(true);
     try {
-      const res = await create_preferences(businessId, title, price);
+      const res = await create_preferences(businessId, title, price, bookingId);
       setPreferenceId(res.data.preferenceId);
     } catch (err) {
       console.error("Error al crear preferencia:", err);
