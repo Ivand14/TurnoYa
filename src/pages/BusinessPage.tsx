@@ -262,6 +262,7 @@ const BusinessPage = () => {
       paymentAmount: formData.paymentAmount,
     };
     setBookingId(newBooking.id);
+    console.log(newBooking);
     await fetchCreateBooking(newBooking);
   };
 
