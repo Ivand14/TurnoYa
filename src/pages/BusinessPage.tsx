@@ -144,6 +144,8 @@ const BusinessPage = () => {
       const paymentStatus = params.get("collection_status");
       const bookingId = params.get("external_reference");
 
+      console.log(payment_id, paymentStatus, bookingId);
+
       if (payment_id && paymentStatus === "approved" && bookingId) {
         try {
           const res = await fetch(
