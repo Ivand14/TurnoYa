@@ -154,7 +154,7 @@ const BusinessPage = () => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                bookingId,
+                bookingId:bookingId,
                 payment_id,
                 payment_status: paymentStatus,
                 status: "confirmed",
@@ -259,13 +259,15 @@ const BusinessPage = () => {
       payment_id: null,
       price: selectedService.price,
       paymentPercentage: formData.paymentPercentage,
-      paymentAmount: formData.paymentAmount,
-      requiresDeposit: selectedService.requiresDeposit,
+      paymentAmount: formData.paymentAmount || 0,
+      requiresDeposit: selectedService.requiresDeposit || false,
     };
     setBookingId(newBooking.id);
     console.log(newBooking);
     await fetchCreateBooking(newBooking);
   };
+
+  console.log(bookingId);
 
   const getBusinessTypeInfo = (type: string) => {
     const types = {

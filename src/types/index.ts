@@ -66,7 +66,7 @@ export interface Booking {
   price?: number;
   paymentPercentage?: number;
   paymentAmount?: number;
-  requiresDeposit?: boolean;
+  requiresDeposit?: boolean ;
 }
 
 export interface User {

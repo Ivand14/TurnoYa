@@ -90,6 +90,8 @@ export const BookingForm = ({
 
   const [paymentAmount, setPaymentAmount] = useState(0);
 
+  console.log(bookingId);
+
   useEffect(() => {
     const amount = service.requiresDeposit
       ? (service.price * paymentPercentage) / 100
@@ -125,7 +127,6 @@ export const BookingForm = ({
     setShowPayment(false);
     setFormData(null);
   };
-
 
   if (showPayment && formData) {
     return (
