@@ -52,7 +52,6 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     }).format(amount);
   };
 
-
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
@@ -110,6 +109,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
               businessId={businessId}
               title={service.name_service}
               price={bookingData.paymentAmount}
+              bookingId={service.id}
             />
           ) : (
             <div className="flex items-center justify-center bg-red-200 p-4 rounded-2xl m-3">
