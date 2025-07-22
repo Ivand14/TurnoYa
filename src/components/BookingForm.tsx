@@ -126,6 +126,7 @@ export const BookingForm = ({
     setFormData(null);
   };
 
+
   if (showPayment && formData) {
     return (
       <Dialog open={open} onOpenChange={onClose}>
