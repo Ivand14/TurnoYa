@@ -39,7 +39,7 @@ import { cn } from "@/lib/utils";
 import { register_business } from "@/apis/business_apis";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -54,7 +54,7 @@ const businessSchema = z
     phone: z.string().min(8, "Por favor ingresa un número de teléfono válido"),
     address: z.string().min(5, "La dirección es requerida"),
     businessType: z.string().min(2, "El tipo de negocio es requerido"),
-    description: z.string().min(50,"Descripcion obligatoria"),
+    description: z.string().min(50, "Descripcion obligatoria"),
     logo: z.instanceof(File),
     password: z
       .string()
@@ -63,6 +63,7 @@ const businessSchema = z
     subscriptionPlan: z
       .string()
       .min(1, "Debes seleccionar un plan de suscripción"),
+    preapproval_id: z.string(),
   })
   .refine((data) => !data.password || data.password === data.confirmPassword, {
     message: "Las contraseñas no coinciden",
@@ -88,6 +89,11 @@ const RegisterBusiness = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const preapproval_id = params.get("preapproval_id");
+
+  console.log(preapproval_id);
 
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessSchema),
@@ -103,6 +109,7 @@ const RegisterBusiness = () => {
       password: "",
       confirmPassword: "",
       subscriptionPlan: "basic",
+      preapproval_id: preapproval_id,
     },
   });
 
@@ -123,7 +130,6 @@ const RegisterBusiness = () => {
   };
 
   const handlePlanSelect = (planId: string) => {
-    console.log(planId);
     form.setValue("subscriptionPlan", planId, { shouldValidate: true });
   };
 
@@ -141,7 +147,8 @@ const RegisterBusiness = () => {
         values.description,
         values.logo,
         values.password,
-        values.subscriptionPlan
+        values.subscriptionPlan,
+        values.preapproval_id
       );
 
       if (response.status === 200) {
@@ -628,6 +635,8 @@ const RegisterBusiness = () => {
                                 <SubscriptionSelector
                                   selectedPlan={field.value}
                                   onPlanSelect={handlePlanSelect}
+                                  email={form.getValues("email")}
+                                  businessId="s"
                                 />
                               </FormControl>
                               <FormMessage />

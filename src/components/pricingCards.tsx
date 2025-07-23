@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { Check, X, Clock, Shield, HeadphonesIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { subscription } from "@/apis/MercadoPagoApis/subscription";
+import { subscriptionData } from "@/types/mercadopago";
 
 function PricingCards({
   onPlanSelect,
   selectedPlan,
+  email,
 }: {
   onPlanSelect?: (planId: string) => void;
   selectedPlan?: string;
+  email: string;
 }) {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">(
     "monthly"
@@ -17,7 +21,7 @@ function PricingCards({
     {
       name: "Básico",
       description: "Perfecto para pequeños negocios que inician",
-      monthlyPrice: 20,
+      monthlyPrice: 15000,
       popular: false,
       features: [
         { text: "Hasta 40 citas por mes", included: true },
@@ -31,13 +35,14 @@ function PricingCards({
         { text: "Soporte por email", included: false },
         { text: "Reportes avanzados", included: false },
       ],
-      ctaText: "Comenzar Gratis",
+      ctaText: "Probar 7 días gratis",
       ctaVariant: "secondary",
+      free_trial: 7,
     },
     {
       name: "Profesional",
       description: "Ideal para negocios en crecimiento",
-      monthlyPrice: 25,
+      monthlyPrice: 20000,
       popular: true,
       features: [
         { text: "Citas ilimitadas", included: true },
@@ -54,28 +59,23 @@ function PricingCards({
       ],
       ctaText: "Probar 14 días gratis",
       ctaVariant: "primary",
-    },
-    {
-      name: "Enterprise",
-      description: "Para cadenas y grandes empresas",
-      monthlyPrice: 80,
-      popular: false,
-      features: [
-        { text: "Citas ilimitadas", included: true },
-        { text: "Empleados ilimitados", included: true },
-        { text: "CRM completo + automatizaciones con IA", included: true },
-        { text: "Recordatorios multicanal", included: true },
-        { text: "Soporte 24/7 dedicado", included: true },
-        { text: "Reportes personalizados", included: true },
-        { text: "Integración completa pagos", included: true },
-      ],
-      ctaText: "Contactar Ventas",
-      ctaVariant: "secondary",
+      free_trial: 14,
     },
   ];
 
   const getPrice = (plan: (typeof plans)[0]) => {
     return plan.monthlyPrice;
+  };
+
+  const mercadoPagoSubscription = async (planName: string) => {
+    const filterPlan = plans
+      .filter((plan) => plan.name === planName)
+      .map((plan) => ({
+        amount: plan.monthlyPrice,
+        reason: plan.name,
+        free_trial: plan.free_trial,
+      }));
+    await subscription(filterPlan);
   };
 
   const navigate = useNavigate();
@@ -94,7 +94,7 @@ function PricingCards({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {plans.map((plan, index) => (
               <div
                 key={index}
@@ -124,7 +124,7 @@ function PricingCards({
                         ${getPrice(plan)}
                       </span>
                       <span className="text-gray-500 ml-2">
-                        /{billingCycle === "monthly" ? "mes" : "mes"}
+                        ARS/{billingCycle === "monthly" ? "mes" : "mes"}
                       </span>
                     </div>
                   </div>
@@ -157,7 +157,7 @@ function PricingCards({
                   </div>
 
                   <button
-                    onClick={() => navigate("/register-business")}
+                    onClick={() => mercadoPagoSubscription(plan.name)}
                     className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-200 ${
                       plan.ctaVariant === "primary"
                         ? "bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl"
