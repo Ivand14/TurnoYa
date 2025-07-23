@@ -20,12 +20,15 @@ interface SubscriptionSelectorProps {
   selectedPlan: string;
   onPlanSelect: (planId: string) => void;
   className?: string;
+  email: string;
+  businessId: string;
 }
 
 export const SubscriptionSelector: React.FC<SubscriptionSelectorProps> = ({
   selectedPlan,
   onPlanSelect,
   className,
+  email,
 }) => {
   return (
     <div className={cn("space-y-6", className)}>
@@ -41,7 +44,11 @@ export const SubscriptionSelector: React.FC<SubscriptionSelectorProps> = ({
 
       {/* Plans Grid */}
       <div>
-        <PricingCards onPlanSelect={onPlanSelect} selectedPlan={selectedPlan} />
+        <PricingCards
+          onPlanSelect={onPlanSelect}
+          selectedPlan={selectedPlan}
+          email={email}
+        />
       </div>
 
       {/* Additional Info */}

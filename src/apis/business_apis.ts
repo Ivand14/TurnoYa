@@ -12,9 +12,10 @@ export const register_business = async (
   logo: File,
   password: string,
   subscriptionPlan: string,
+  preapproval_id: string
 ) => {
   try {
-    const url = `${API_URL}/register_company`;
+    const url = `${API_URL}/register_company/${preapproval_id}`;
 
     const formData = new FormData();
     formData.append("businessName", businessName);

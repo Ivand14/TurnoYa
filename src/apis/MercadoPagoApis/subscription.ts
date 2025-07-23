@@ -1,17 +1,23 @@
+import { subscriptionData } from "@/types/mercadopago";
 import axios from "axios";
-import { useEffect } from "react";
 import { toast } from "sonner";
+import { API_URL } from "../api_url";
 
-interface subscriptionData {
-  email: string;
-  amount: number;
-  reason: string;
-  businessId: string;
-  freeTrial: number;
-}
-
-export const subscription = async (subscriptionData: subscriptionData) => {
+export const subscription = async (subscriptionData: subscriptionData[]) => {
+  const { free_trial, amount, reason } = subscriptionData[0];
   try {
-    // const responose = await axios();
-  } catch (error) {}
+    const response = await axios.post(`${API_URL}/plan`, {
+      free_trial,
+      amount : 20,
+      reason,
+    });
+    const { init_point, status } = response.data;
+    if (status === 200 && init_point) {
+      window.location.href = init_point;
+    } else {
+      toast("No se pudo iniciar la subscripcion");
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };
