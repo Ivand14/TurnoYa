@@ -56,7 +56,7 @@ const businessSchema = z
     address: z.string().min(5, "La dirección es requerida"),
     businessType: z.string().min(2, "El tipo de negocio es requerido"),
     description: z.string(),
-    logo: z.instanceof(File),
+    logo: z.instanceof(File).optional(),
     logo_url: z.string().url().optional(),
     password: z
       .string()
@@ -95,6 +95,8 @@ const RegisterBusiness = () => {
   const params = new URLSearchParams(location.search);
   const preapproval_id = params.get("preapproval_id");
 
+  console.log(preapproval_id);
+
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessSchema),
     defaultValues: {
@@ -109,7 +111,7 @@ const RegisterBusiness = () => {
       password: "",
       confirmPassword: "",
       subscriptionPlan: "",
-      preapproval_id: preapproval_id,
+      preapproval_id: "",
     },
   });
 
@@ -117,20 +119,33 @@ const RegisterBusiness = () => {
     const companySaved = localStorage.getItem("businessRegisterPending");
     if (companySaved) {
       const companyParsed = JSON.parse(companySaved);
+
+      // Asignar cada campo salvo el logo_url
       Object.entries(companyParsed).forEach(([key, value]: any) => {
         if (key !== "logo_url") {
           form.setValue(key as keyof BusinessFormValues, value);
         }
       });
+
+      // Si hay logo_url guardado
       if (companyParsed.logo_url) {
-        setLogoPreview(companyParsed.logo_url);
         form.setValue("logo_url", companyParsed.logo_url);
+        setLogoPreview(companyParsed.logo_url);
       }
+
+      // Plan también (aunque ya está en el loop, por si acaso)
       if (companyParsed.subscriptionPlan) {
         form.setValue("subscriptionPlan", companyParsed.subscriptionPlan);
       }
+
+      // Siempre aseguramos que esté el preapproval_id actualizado desde la URL
+      if (preapproval_id) {
+        form.setValue("preapproval_id", preapproval_id);
+      }
     }
   }, []);
+
+  console.log(form.getValues());
 
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -174,7 +189,7 @@ const RegisterBusiness = () => {
         values.address,
         values.businessType,
         values.description,
-        values.logo,
+        values.logo_url,
         values.password,
         values.subscriptionPlan,
         values.preapproval_id
@@ -197,6 +212,7 @@ const RegisterBusiness = () => {
       );
     } finally {
       setIsSubmitting(false);
+      localStorage.removeItem("businessRegisterPending");
     }
   };
 

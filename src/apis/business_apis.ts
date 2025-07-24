@@ -9,7 +9,7 @@ export const register_business = async (
   address: string,
   businessType: string,
   description: string,
-  logo: File,
+  logo_url: string,
   password: string,
   subscriptionPlan: string,
   preapproval_id: string
@@ -27,9 +27,7 @@ export const register_business = async (
     formData.append("description", description);
     formData.append("password", password);
     formData.append("subscriptionPlan", subscriptionPlan);
-
-    // Agregar el archivo al FormData
-    formData.append("logo", logo);
+    formData.append("logo", logo_url);
 
     // Enviar la solicitud con `multipart/form-data`
     const response = await axios.post(url, formData, {
