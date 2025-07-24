@@ -118,7 +118,7 @@ const RegisterBusiness = () => {
   useEffect(() => {
     const companySaved = localStorage.getItem("businessRegisterPending");
     if (companySaved) {
-      const companyParsed = JSON.parse(companySaved);
+      const companyParsed = companySaved && JSON.parse(companySaved);
 
       // Asignar cada campo salvo el logo_url
       Object.entries(companyParsed).forEach(([key, value]: any) => {
