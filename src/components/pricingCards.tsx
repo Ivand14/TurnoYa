@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import { Check, X, Clock, Shield, HeadphonesIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { subscription } from "@/apis/MercadoPagoApis/subscription";
-import { subscriptionData } from "@/types/mercadopago";
+import { businessRegister } from "@/types";
 
 function PricingCards({
   onPlanSelect,
   selectedPlan,
-  email,
+  businessRegister,
 }: {
   onPlanSelect?: (planId: string) => void;
   selectedPlan?: string;
-  email: string;
+  businessRegister: businessRegister;
 }) {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">(
     "monthly"
@@ -68,6 +68,10 @@ function PricingCards({
   };
 
   const mercadoPagoSubscription = async (planName: string) => {
+    localStorage.setItem(
+      "businessRegisterPending",
+      JSON.stringify(businessRegister)
+    );
     const filterPlan = plans
       .filter((plan) => plan.name === planName)
       .map((plan) => ({
@@ -79,6 +83,7 @@ function PricingCards({
   };
 
   const navigate = useNavigate();
+
 
   return (
     <div className="min-h-screen ">

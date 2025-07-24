@@ -2,33 +2,22 @@ import React from "react";
 import { Shield, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import PricingCards from "../pricingCards";
+import { businessRegister } from "@/types";
 
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  price: number;
-  period: string;
-  description: string;
-  features: string[];
-  popular?: boolean;
-  icon: React.ComponentType<any>;
-  color: string;
-  bgColor: string;
-}
+
 
 interface SubscriptionSelectorProps {
   selectedPlan: string;
   onPlanSelect: (planId: string) => void;
   className?: string;
-  email: string;
-  businessId: string;
+  businessRegister: businessRegister;
 }
 
 export const SubscriptionSelector: React.FC<SubscriptionSelectorProps> = ({
   selectedPlan,
   onPlanSelect,
   className,
-  email,
+  businessRegister,
 }) => {
   return (
     <div className={cn("space-y-6", className)}>
@@ -47,7 +36,7 @@ export const SubscriptionSelector: React.FC<SubscriptionSelectorProps> = ({
         <PricingCards
           onPlanSelect={onPlanSelect}
           selectedPlan={selectedPlan}
-          email={email}
+          businessRegister={businessRegister}
         />
       </div>
 
