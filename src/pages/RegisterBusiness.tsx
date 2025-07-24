@@ -116,36 +116,34 @@ const RegisterBusiness = () => {
   });
 
   useEffect(() => {
-    const companySaved = localStorage.getItem("businessRegisterPending");
-    if (companySaved) {
-      const companyParsed = companySaved && JSON.parse(companySaved);
+    const raw = localStorage.getItem("businessRegisterPending");
 
-      // Asignar cada campo salvo el logo_url
+    if (!raw) {
+      console.log("⚠️ No hay empresa pendiente en localStorage.");
+      return; // No hacer nada si no hay datos
+    }
+
+    try {
+      const companyParsed = JSON.parse(raw);
       Object.entries(companyParsed).forEach(([key, value]: any) => {
         if (key !== "logo_url") {
           form.setValue(key as keyof BusinessFormValues, value);
         }
       });
 
-      // Si hay logo_url guardado
       if (companyParsed.logo_url) {
         form.setValue("logo_url", companyParsed.logo_url);
         setLogoPreview(companyParsed.logo_url);
       }
 
-      // Plan también (aunque ya está en el loop, por si acaso)
       if (companyParsed.subscriptionPlan) {
         form.setValue("subscriptionPlan", companyParsed.subscriptionPlan);
       }
-
-      // Siempre aseguramos que esté el preapproval_id actualizado desde la URL
-      if (preapproval_id) {
-        form.setValue("preapproval_id", preapproval_id);
-      }
+    } catch (error) {
+      console.error("❌ Error al parsear businessRegisterPending:", error);
     }
   }, []);
 
-  console.log(form.getValues());
 
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
