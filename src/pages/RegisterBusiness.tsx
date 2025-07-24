@@ -26,7 +26,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
@@ -39,9 +39,10 @@ import { cn } from "@/lib/utils";
 import { register_business } from "@/apis/business_apis";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { z } from "zod";
+import { useLocation, useNavigate,  } from "react-router-dom";
+import {  z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { uploadLogoToFirebase } from "@/utils/uploadLogoToFirebase";
 
 // Define the form schema with logo and subscription
 const businessSchema = z
@@ -54,8 +55,9 @@ const businessSchema = z
     phone: z.string().min(8, "Por favor ingresa un número de teléfono válido"),
     address: z.string().min(5, "La dirección es requerida"),
     businessType: z.string().min(2, "El tipo de negocio es requerido"),
-    description: z.string().min(50, "Descripcion obligatoria"),
+    description: z.string(),
     logo: z.instanceof(File),
+    logo_url: z.string().url().optional(),
     password: z
       .string()
       .min(6, "La contraseña debe tener al menos 6 caracteres"),
@@ -93,8 +95,6 @@ const RegisterBusiness = () => {
   const params = new URLSearchParams(location.search);
   const preapproval_id = params.get("preapproval_id");
 
-  console.log(preapproval_id);
-
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessSchema),
     defaultValues: {
@@ -105,23 +105,50 @@ const RegisterBusiness = () => {
       address: "",
       businessType: "",
       description: "",
-      logo: undefined,
+      logo_url: "",
       password: "",
       confirmPassword: "",
-      subscriptionPlan: "basic",
+      subscriptionPlan: "",
       preapproval_id: preapproval_id,
     },
   });
 
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    const companySaved = localStorage.getItem("businessRegisterPending");
+    if (companySaved) {
+      const companyParsed = JSON.parse(companySaved);
+      Object.entries(companyParsed).forEach(([key, value]: any) => {
+        if (key !== "logo_url") {
+          form.setValue(key as keyof BusinessFormValues, value);
+        }
+      });
+      if (companyParsed.logo_url) {
+        setLogoPreview(companyParsed.logo_url);
+      }
+      if (companyParsed.subscriptionPlan) {
+        form.setValue("subscriptionPlan", companyParsed.subscriptionPlan);
+      }
+    }
+  }, []);
+
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      form.setValue("logo", file, { shouldValidate: true });
-      const reader = new FileReader();
-      reader.onload = () => {
-        setLogoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    form.setValue("logo", file, { shouldValidate: true });
+
+    const reader = new FileReader();
+    reader.onload = () => setLogoPreview(reader.result as string);
+    reader.readAsDataURL(file);
+
+    try {
+      const logoURL = await uploadLogoToFirebase(file);
+      form.setValue("logo_url", logoURL);
+
+      const values = { ...form.getValues(), logo: undefined };
+      localStorage.setItem("businessRegisterPending", JSON.stringify(values));
+    } catch (err) {
+      toast.error("Error al subir el logo");
     }
   };
 
@@ -130,6 +157,7 @@ const RegisterBusiness = () => {
   };
 
   const handlePlanSelect = (planId: string) => {
+    console.log(planId);
     form.setValue("subscriptionPlan", planId, { shouldValidate: true });
   };
 
@@ -178,6 +206,8 @@ const RegisterBusiness = () => {
   const prevStep = () => {
     setCurrentStep(1);
   };
+
+  const valuesForLocalStorage = form.getValues();
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -635,8 +665,7 @@ const RegisterBusiness = () => {
                                 <SubscriptionSelector
                                   selectedPlan={field.value}
                                   onPlanSelect={handlePlanSelect}
-                                  email={form.getValues("email")}
-                                  businessId="s"
+                                  businessRegister={valuesForLocalStorage}
                                 />
                               </FormControl>
                               <FormMessage />

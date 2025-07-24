@@ -120,3 +120,18 @@ export interface firebaseSettings {
   appId: string;
   measurementId: string;
 }
+
+export interface businessRegister {
+  email?: string;
+  businessName?: string;
+  ownerName?: string;
+  phone?: string;
+  address?: string;
+  businessType?: string;
+  description?: string;
+  password?: string;
+  subscriptionPlan?: string;
+  logo?: File;
+  confirmPassword?: string;
+  preapproval_id?: string;
+}
