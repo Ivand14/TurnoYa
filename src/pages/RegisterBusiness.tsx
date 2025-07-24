@@ -39,8 +39,8 @@ import { cn } from "@/lib/utils";
 import { register_business } from "@/apis/business_apis";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { useLocation, useNavigate,  } from "react-router-dom";
-import {  z } from "zod";
+import { useLocation, useNavigate } from "react-router-dom";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { uploadLogoToFirebase } from "@/utils/uploadLogoToFirebase";
 
@@ -124,6 +124,7 @@ const RegisterBusiness = () => {
       });
       if (companyParsed.logo_url) {
         setLogoPreview(companyParsed.logo_url);
+        form.setValue("logo_url", companyParsed.logo_url);
       }
       if (companyParsed.subscriptionPlan) {
         form.setValue("subscriptionPlan", companyParsed.subscriptionPlan);
