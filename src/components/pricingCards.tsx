@@ -72,6 +72,7 @@ function PricingCards({
       "businessRegisterPending",
       JSON.stringify(businessRegister)
     );
+    onPlanSelect(planName);
     const filterPlan = plans
       .filter((plan) => plan.name === planName)
       .map((plan) => ({
@@ -83,7 +84,6 @@ function PricingCards({
   };
 
   const navigate = useNavigate();
-
 
   return (
     <div className="min-h-screen ">
