@@ -68,11 +68,11 @@ function PricingCards({
   };
 
   const mercadoPagoSubscription = async (planName: string) => {
+    onPlanSelect(planName);
     localStorage.setItem(
       "businessRegisterPending",
-      JSON.stringify(businessRegister)
+      JSON.stringify({ ...businessRegister, subscriptionPlan: planName })
     );
-    onPlanSelect(planName);
     const filterPlan = plans
       .filter((plan) => plan.name === planName)
       .map((plan) => ({
