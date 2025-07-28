@@ -95,7 +95,6 @@ const RegisterBusiness = () => {
   const params = new URLSearchParams(location.search);
   const preapproval_id = params.get("preapproval_id");
 
-  console.log(preapproval_id);
 
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessSchema),
@@ -224,6 +223,8 @@ const RegisterBusiness = () => {
   };
 
   const valuesForLocalStorage = form.getValues();
+
+  console.log(form.getValues("businessType"));
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">

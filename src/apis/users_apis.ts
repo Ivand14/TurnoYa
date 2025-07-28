@@ -34,9 +34,10 @@ export const login_usuario = async (email: string, password: string) => {
     const token = await user.getIdToken(); // Obtiene el token de Firebase
 
     // Envía el token al backend de Flask
-    const response = await axios.post(`${API_URL}/login`, token, {
+    const response = await axios.post(`${API_URL}/login`, null, {
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
     });
 

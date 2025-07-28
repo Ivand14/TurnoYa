@@ -4,7 +4,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
 import { useEffect, useMemo, useState } from "react";
 
@@ -17,18 +17,18 @@ import { useNavigate } from "react-router-dom";
 import { useBusinessContext } from "@/context/apisContext/businessContext";
 import Loading from "@/components/loading";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Search, 
-  Filter, 
-  MapPin, 
-  Building2, 
-  Sparkles, 
+import {
+  Search,
+  Filter,
+  MapPin,
+  Building2,
+  Sparkles,
   TrendingUp,
   Users,
   Star,
   RefreshCw,
   Grid3X3,
-  List
+  List,
 } from "lucide-react";
 
 const BusinessesPage = () => {
@@ -36,7 +36,8 @@ const BusinessesPage = () => {
   const [selectedType, setSelectedType] = useState<BusinessType | "all">("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const navigate = useNavigate();
-  const { allBusinesses, loading, error, fetchAllBusinesses } = useBusinessContext();
+  const { allBusinesses, loading, error, fetchAllBusinesses } =
+    useBusinessContext();
 
   useEffect(() => {
     fetchAllBusinesses();
@@ -63,32 +64,45 @@ const BusinessesPage = () => {
     const types = {
       barbershop: {
         label: "Barberías",
-        count: allBusinesses?.filter(b => b.company_type === "barbershop").length || 0,
+        count:
+          allBusinesses?.filter((b) => b.company_type === "barbershop")
+            .length || 0,
         color: "from-blue-500 to-cyan-500",
         bgColor: "bg-blue-50",
-        textColor: "text-blue-700"
+        textColor: "text-blue-700",
       },
       beauty: {
         label: "Centros de Belleza",
-        count: allBusinesses?.filter(b => b.company_type === "beauty").length || 0,
+        count:
+          allBusinesses?.filter((b) => b.company_type === "beauty").length || 0,
         color: "from-pink-500 to-rose-500",
         bgColor: "bg-pink-50",
-        textColor: "text-pink-700"
+        textColor: "text-pink-700",
+      },
+      health: {
+        label: "Centros de Salud",
+        count:
+          allBusinesses?.filter((b) => b.company_type === "health").length || 0,
+        color: "from-violet-500 to-violet-500",
+        bgColor: "bg-violet-50",
+        textColor: "text-violet-700",
       },
       sports: {
         label: "Centros Deportivos",
-        count: allBusinesses?.filter(b => b.company_type === "sports").length || 0,
+        count:
+          allBusinesses?.filter((b) => b.company_type === "sports").length || 0,
         color: "from-green-500 to-emerald-500",
         bgColor: "bg-green-50",
-        textColor: "text-green-700"
+        textColor: "text-green-700",
       },
       other: {
         label: "Otros",
-        count: allBusinesses?.filter(b => b.company_type === "other").length || 0,
+        count:
+          allBusinesses?.filter((b) => b.company_type === "other").length || 0,
         color: "from-purple-500 to-indigo-500",
         bgColor: "bg-purple-50",
-        textColor: "text-purple-700"
-      }
+        textColor: "text-purple-700",
+      },
     };
     return types[type] || types.other;
   };
@@ -104,8 +118,6 @@ const BusinessesPage = () => {
 
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 overflow-hidden">
-        
-        
         {/* Floating Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div
@@ -135,7 +147,7 @@ const BusinessesPage = () => {
         </div>
 
         <div className="relative container mx-auto px-6 py-20">
-          <motion.div 
+          <motion.div
             className="text-center max-w-4xl mx-auto"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -155,7 +167,8 @@ const BusinessesPage = () => {
             </h1>
 
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Explora una amplia variedad de negocios y reserva tu cita de manera fácil y rápida
+              Explora una amplia variedad de negocios y reserva tu cita de
+              manera fácil y rápida
             </p>
 
             {/* Stats */}
@@ -164,7 +177,9 @@ const BusinessesPage = () => {
                 <div className="text-3xl font-bold text-white mb-1">
                   {allBusinesses?.length || 0}+
                 </div>
-                <div className="text-blue-200 text-sm">Negocios Registrados</div>
+                <div className="text-blue-200 text-sm">
+                  Negocios Registrados
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-white mb-1">24/7</div>
@@ -181,7 +196,7 @@ const BusinessesPage = () => {
 
       <main className="flex-1 container mx-auto px-6 py-12">
         {/* Filtros Mejorados */}
-        <motion.div 
+        <motion.div
           className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 mb-12"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -192,8 +207,12 @@ const BusinessesPage = () => {
               <Filter className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Filtros de Búsqueda</h2>
-              <p className="text-gray-600">Encuentra exactamente lo que buscas</p>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Filtros de Búsqueda
+              </h2>
+              <p className="text-gray-600">
+                Encuentra exactamente lo que buscas
+              </p>
             </div>
           </div>
 
@@ -235,6 +254,7 @@ const BusinessesPage = () => {
                   <SelectItem value="barbershop">Barberías</SelectItem>
                   <SelectItem value="beauty">Centros de Belleza</SelectItem>
                   <SelectItem value="sports">Centros Deportivos</SelectItem>
+                  <SelectItem value="health">Centros de Salud</SelectItem>
                   <SelectItem value="other">Otros</SelectItem>
                 </SelectContent>
               </Select>
@@ -252,7 +272,7 @@ const BusinessesPage = () => {
                 <RefreshCw className="w-4 h-4" />
                 <span>Limpiar filtros</span>
               </Button>
-              
+
               <div className="text-sm text-gray-500">
                 {filteredBusinesses?.length || 0} resultados encontrados
               </div>
@@ -281,19 +301,22 @@ const BusinessesPage = () => {
         </motion.div>
 
         {/* Categorías rápidas */}
-        <motion.div 
+        <motion.div
           className="mb-12"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <h3 className="text-2xl font-bold text-gray-900 mb-6">Categorías Populares</h3>
+          <h3 className="text-2xl font-bold text-gray-900 mb-6">
+            Categorías Populares
+          </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {Object.entries({
               barbershop: "barbershop",
-              beauty: "beauty", 
+              health: "health",
+              beauty: "beauty",
               sports: "sports",
-              other: "other"
+              other: "other",
             }).map(([key, type]) => {
               const info = getBusinessTypeInfo(type);
               return (
@@ -301,14 +324,16 @@ const BusinessesPage = () => {
                   key={key}
                   onClick={() => setSelectedType(type as BusinessType)}
                   className={`p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
-                    selectedType === type 
-                      ? 'border-indigo-500 bg-indigo-50' 
-                      : 'border-gray-200 bg-white hover:border-gray-300'
+                    selectedType === type
+                      ? "border-indigo-500 bg-indigo-50"
+                      : "border-gray-200 bg-white hover:border-gray-300"
                   }`}
                   whileHover={{ y: -2 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <div className={`w-12 h-12 bg-gradient-to-r ${info.color} rounded-xl flex items-center justify-center mx-auto mb-3`}>
+                  <div
+                    className={`w-12 h-12 bg-gradient-to-r ${info.color} rounded-xl flex items-center justify-center mx-auto mb-3`}
+                  >
                     <Building2 className="w-6 h-6 text-white" />
                   </div>
                   <div className="text-sm font-semibold text-gray-900 mb-1">
@@ -326,7 +351,7 @@ const BusinessesPage = () => {
         {/* Listado de negocios */}
         <AnimatePresence mode="wait">
           {loading ? (
-            <motion.div 
+            <motion.div
               className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-lg"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -338,7 +363,7 @@ const BusinessesPage = () => {
               </p>
             </motion.div>
           ) : error ? (
-            <motion.div 
+            <motion.div
               className="text-center py-20 bg-white rounded-2xl shadow-lg border border-red-200"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -347,9 +372,14 @@ const BusinessesPage = () => {
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-red-600 text-2xl">⚠️</span>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Error al cargar</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Error al cargar
+              </h3>
               <p className="text-red-600 mb-6">Error: {error}</p>
-              <Button onClick={() => fetchAllBusinesses()} className="bg-red-600 hover:bg-red-700">
+              <Button
+                onClick={() => fetchAllBusinesses()}
+                className="bg-red-600 hover:bg-red-700"
+              >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Reintentar
               </Button>
@@ -371,11 +401,13 @@ const BusinessesPage = () => {
                 </div>
               </div>
 
-              <div className={`grid gap-8 ${
-                viewMode === "grid" 
-                  ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" 
-                  : "grid-cols-1"
-              }`}>
+              <div
+                className={`grid gap-8 ${
+                  viewMode === "grid"
+                    ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                    : "grid-cols-1"
+                }`}
+              >
                 {filteredBusinesses.map((business, index) => (
                   <motion.div
                     key={business.id}
@@ -394,7 +426,7 @@ const BusinessesPage = () => {
               </div>
             </motion.div>
           ) : (
-            <motion.div 
+            <motion.div
               className="text-center py-20 bg-white rounded-2xl shadow-lg"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -407,7 +439,7 @@ const BusinessesPage = () => {
                 No se encontraron negocios
               </h3>
               <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                No hay negocios que coincidan con los filtros seleccionados. 
+                No hay negocios que coincidan con los filtros seleccionados.
                 Intenta ajustar tu búsqueda.
               </p>
               <Button
@@ -424,7 +456,6 @@ const BusinessesPage = () => {
 
       <Footer />
     </div>
-
   );
 };
 
