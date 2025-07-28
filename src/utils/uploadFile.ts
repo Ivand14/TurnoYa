@@ -4,7 +4,7 @@ export const uploadLogoFile = async (file: File) => {
   try {
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from("uturns")
-      .upload(`companylogo/${file.name}`, file);
+      .upload(`companylogo/${file.name}`, file, { upsert: true });
 
     if (uploadError) {
       console.error("Error al subir imagen:", uploadError.message);
