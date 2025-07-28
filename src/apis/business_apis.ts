@@ -30,7 +30,7 @@ export const register_business = async (
     });
     return response;
   } catch (error) {
-    console.log(error.response.data);
+    console.log(error);
     return error.response.data;
   }
 };

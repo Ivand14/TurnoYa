@@ -130,6 +130,11 @@ const RegisterBusiness = () => {
         }
       });
 
+      if (companyParsed.logo_url) {
+        form.setValue("logo_url", companyParsed.logo_url);
+        setLogoPreview(companyParsed.logo_url);
+      }
+
       if (companyParsed.subscriptionPlan) {
         form.setValue("subscriptionPlan", companyParsed.subscriptionPlan);
       }
@@ -142,13 +147,10 @@ const RegisterBusiness = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => setLogoPreview(reader.result as string);
-    reader.readAsDataURL(file);
-
     try {
       const logoURL = await uploadLogoFile(file);
       form.setValue("logo_url", logoURL);
+      setLogoPreview(logoURL);
 
       const currentValues = form.getValues();
       localStorage.setItem(
@@ -173,6 +175,7 @@ const RegisterBusiness = () => {
   };
 
   console.log(form.getValues());
+  console.log(logoPreview);
 
   const onSubmit = async (values: BusinessFormValues) => {
     setIsSubmitting(true);
