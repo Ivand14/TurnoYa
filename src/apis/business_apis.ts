@@ -16,24 +16,17 @@ export const register_business = async (
 ) => {
   try {
     const url = `${API_URL}/register_company/${preapproval_id}`;
-
-    const formData = new FormData();
-    formData.append("businessName", businessName);
-    formData.append("ownerName", ownerName);
-    formData.append("email", email);
-    formData.append("phone", phone);
-    formData.append("address", address);
-    formData.append("businessType", businessType);
-    formData.append("description", description);
-    formData.append("password", password);
-    formData.append("subscriptionPlan", subscriptionPlan);
-    formData.append("logo", logo_url);
-
-    // Enviar la solicitud con `multipart/form-data`
-    const response = await axios.post(url, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+    const response = await axios.post(url, {
+      logo: logo_url,
+      ownerName,
+      businessName,
+      email,
+      phone,
+      address,
+      businessType,
+      description,
+      password,
+      subscriptionPlan,
     });
     return response;
   } catch (error) {

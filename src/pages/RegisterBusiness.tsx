@@ -42,7 +42,7 @@ import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { uploadLogoToFirebase } from "@/utils/uploadLogoToFirebase";
+import { uploadLogoFile } from "@/utils/uploadFile";
 
 // Define the form schema with logo and subscription
 const businessSchema = z
@@ -144,7 +144,6 @@ const RegisterBusiness = () => {
     }
   }, []);
 
-
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -156,11 +155,9 @@ const RegisterBusiness = () => {
     reader.readAsDataURL(file);
 
     try {
-      const logoURL = await uploadLogoToFirebase(file);
+      const logoURL = await uploadLogoFile(file);
+      console.log(logoURL);
       form.setValue("logo_url", logoURL);
-
-      const values = { ...form.getValues(), logo: undefined };
-      localStorage.setItem("businessRegisterPending", JSON.stringify(values));
     } catch (err) {
       toast.error("Error al subir el logo");
     }
