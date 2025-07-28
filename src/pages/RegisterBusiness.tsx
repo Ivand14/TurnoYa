@@ -196,6 +196,7 @@ const RegisterBusiness = () => {
 
       if (response.status === 200) {
         toast.success("¡Negocio registrado correctamente!");
+        localStorage.removeItem("businessRegisterPending")
         setTimeout(() => {
           navigate("/dashboard");
         }, 1500);
