@@ -17,7 +17,7 @@ export const register_business = async (
   try {
     const url = `${API_URL}/register_company/${preapproval_id}`;
     const response = await axios.post(url, {
-      logo: logo_url,
+      logo_url,
       ownerName,
       businessName,
       email,

@@ -81,7 +81,7 @@ const Login = () => {
 
   const handleLoginGoogle = async () => {
     const loginGoogle = await singInWhithGoogle();
-    if (loginGoogle.success === true) {
+    if (loginGoogle) {
       setIsLogged(true);
       const userData = await getUser(loginGoogle.sessionId);
       if (userData.user_data) {

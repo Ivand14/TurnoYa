@@ -174,8 +174,7 @@ const RegisterBusiness = () => {
     form.setValue("subscriptionPlan", planId, { shouldValidate: true });
   };
 
-  console.log(form.getValues());
-  console.log(logoPreview);
+  
 
   const onSubmit = async (values: BusinessFormValues) => {
     setIsSubmitting(true);
