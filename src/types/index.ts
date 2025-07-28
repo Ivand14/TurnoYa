@@ -1,4 +1,9 @@
-export type BusinessType = "barbershop" | "beauty" | "sports" | "other";
+export type BusinessType =
+  | "barbershop"
+  | "beauty"
+  | "sports"
+  | "health"
+  | "other";
 
 export interface Business {
   address: string;
@@ -66,7 +71,7 @@ export interface Booking {
   price?: number;
   paymentPercentage?: number;
   paymentAmount?: number;
-  requiresDeposit?: boolean ;
+  requiresDeposit?: boolean;
 }
 
 export interface User {

@@ -154,7 +154,7 @@ const BusinessPage = () => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                bookingId:bookingId,
+                bookingId: bookingId,
                 payment_id,
                 payment_status: paymentStatus,
                 status: "confirmed",
@@ -266,7 +266,6 @@ const BusinessPage = () => {
     await fetchCreateBooking(newBooking);
   };
 
-
   const getBusinessTypeInfo = (type: string) => {
     const types = {
       barbershop: {
@@ -284,8 +283,19 @@ const BusinessPage = () => {
         color: "bg-green-100 text-green-800 border-green-200",
         gradient: "from-green-500 to-emerald-500",
       },
+      health: {
+        label: "Centros de Salud",
+        color: "bg-violet-100 text-violet-800 border-violet-200",
+        gradient: "from-violet-500 to-violet-700",
+      },
+      other: {
+        label: "Otros",
+        color: "bg-purple-100 text-purple-800 border-purple-200",
+        gradient: "from-purple-500 to-indigo-500",
+      },
     };
-    return types[type] || types.barbershop;
+
+    return types[type] || types.other;
   };
 
   if (initialLoading) {
