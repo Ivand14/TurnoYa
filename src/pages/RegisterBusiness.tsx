@@ -138,6 +138,8 @@ const RegisterBusiness = () => {
       if (companyParsed.subscriptionPlan) {
         form.setValue("subscriptionPlan", companyParsed.subscriptionPlan);
       }
+
+      preapproval_id && form.setValue("preapproval_id", preapproval_id);
     } catch (error) {
       console.error("❌ Error al parsear businessRegisterPending:", error);
     }
@@ -173,8 +175,6 @@ const RegisterBusiness = () => {
     console.log(planId);
     form.setValue("subscriptionPlan", planId, { shouldValidate: true });
   };
-
-  
 
   const onSubmit = async (values: BusinessFormValues) => {
     setIsSubmitting(true);
