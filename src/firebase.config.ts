@@ -1,21 +1,19 @@
-import { getFirestore } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getStorage } from "firebase/storage";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB1c1Jb7PhupQpYg9RVyRCANXhQIG9-uVs",
-  authDomain: "turnosya-c5672.firebaseapp.com",
-  projectId: "turnosya-c5672",
-  storageBucket: "turnosya-c5672.firebasestorage.app",
-  messagingSenderId: "290368851401",
-  appId: "1:290368851401:web:39cb8fe7875285b2d5ec18",
-  measurementId: "G-SR1K77SL4B",
+  apiKey: "AIzaSyCpyUMoZfLwPP15uY5di9Vur5jVPhANPeg",
+  authDomain: "uturns-1746e.firebaseapp.com",
+  projectId: "uturns-1746e",
+  storageBucket: "uturns-1746e.firebasestorage.app",
+  messagingSenderId: "438214592364",
+  appId: "1:438214592364:web:87293b6d9118c14dab9549",
+  measurementId: "G-B80JR922RF",
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
-export const storage = getStorage(app);
 export default app;
+
