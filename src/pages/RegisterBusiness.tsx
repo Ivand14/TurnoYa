@@ -120,7 +120,7 @@ const RegisterBusiness = () => {
 
     if (!raw) {
       console.log("⚠️ No hay empresa pendiente en localStorage.");
-      return; // No hacer nada si no hay datos
+      return;
     }
 
     try {
@@ -130,11 +130,6 @@ const RegisterBusiness = () => {
           form.setValue(key as keyof BusinessFormValues, value);
         }
       });
-
-      if (companyParsed.logo_url) {
-        form.setValue("logo_url", companyParsed.logo_url);
-        setLogoPreview(companyParsed.logo_url);
-      }
 
       if (companyParsed.subscriptionPlan) {
         form.setValue("subscriptionPlan", companyParsed.subscriptionPlan);
@@ -148,16 +143,22 @@ const RegisterBusiness = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    form.setValue("logo", file, { shouldValidate: true });
-
     const reader = new FileReader();
     reader.onload = () => setLogoPreview(reader.result as string);
     reader.readAsDataURL(file);
 
     try {
       const logoURL = await uploadLogoFile(file);
-      console.log(logoURL);
       form.setValue("logo_url", logoURL);
+
+      const currentValues = form.getValues();
+      localStorage.setItem(
+        "businessRegisterPending",
+        JSON.stringify({
+          ...currentValues,
+          logo_url: logoURL,
+        })
+      );
     } catch (err) {
       toast.error("Error al subir el logo");
     }
@@ -171,6 +172,8 @@ const RegisterBusiness = () => {
     console.log(planId);
     form.setValue("subscriptionPlan", planId, { shouldValidate: true });
   };
+
+  console.log(form.getValues());
 
   const onSubmit = async (values: BusinessFormValues) => {
     setIsSubmitting(true);
