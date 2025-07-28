@@ -56,7 +56,7 @@ const businessSchema = z
     address: z.string().min(5, "La dirección es requerida"),
     businessType: z.string().min(2, "El tipo de negocio es requerido"),
     description: z.string(),
-    logo: z.instanceof(File).optional(),
+    // logo: z.instanceof(File).optional(),
     logo_url: z.string().url().optional(),
     password: z
       .string()
@@ -119,7 +119,6 @@ const RegisterBusiness = () => {
     const raw = localStorage.getItem("businessRegisterPending");
 
     if (!raw) {
-      console.log("⚠️ No hay empresa pendiente en localStorage.");
       return;
     }
 
@@ -130,6 +129,11 @@ const RegisterBusiness = () => {
           form.setValue(key as keyof BusinessFormValues, value);
         }
       });
+
+      if (companyParsed.logo_url) {
+        form.setValue("logo_url", companyParsed.logo_url);
+        setLogoPreview(companyParsed.logo_url);
+      }
 
       if (companyParsed.subscriptionPlan) {
         form.setValue("subscriptionPlan", companyParsed.subscriptionPlan);
@@ -143,13 +147,10 @@ const RegisterBusiness = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => setLogoPreview(reader.result as string);
-    reader.readAsDataURL(file);
-
     try {
       const logoURL = await uploadLogoFile(file);
       form.setValue("logo_url", logoURL);
+      setLogoPreview(logoURL);
 
       const currentValues = form.getValues();
       localStorage.setItem(
@@ -174,6 +175,7 @@ const RegisterBusiness = () => {
   };
 
   console.log(form.getValues());
+  console.log(logoPreview);
 
   const onSubmit = async (values: BusinessFormValues) => {
     setIsSubmitting(true);
@@ -322,7 +324,7 @@ const RegisterBusiness = () => {
                         <div className="bg-gray-50 rounded-xl p-6">
                           <FormField
                             control={form.control}
-                            name="logo"
+                            name="logo_url"
                             render={({ field }) => (
                               <FormItem className="flex flex-col items-center">
                                 <FormLabel className="text-lg font-semibold text-gray-900 mb-4">
