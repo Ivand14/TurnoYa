@@ -212,7 +212,6 @@ const RegisterBusiness = () => {
       );
     } finally {
       setIsSubmitting(false);
-      localStorage.removeItem("businessRegisterPending");
     }
   };
 
