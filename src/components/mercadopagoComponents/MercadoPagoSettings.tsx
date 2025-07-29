@@ -11,7 +11,6 @@ import {
   salesmanContext,
   salesmanData,
 } from "@/context/MercadoPagoContext/salesmanContext";
-import { reauthenticateWithCredential } from "firebase/auth";
 
 interface MercadoPagoSettingsProps {
   businessId: string;
@@ -32,14 +31,15 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
   const { company } = compnay_logged();
   const { fetchDeleteMpAccount, clearSalesman } = salesmanContext();
   const mpAccount = localStorage.getItem("salesman-store");
+  const raw = localStorage.getItem("company");
+  const companyData = raw ? JSON.parse(raw) : null;
 
   const connected = () => {
-    const raw = localStorage.getItem("company");
-    const companyData = raw ? JSON.parse(raw) : null;
+    if (!mpAccount) return;
 
-    if (!companyData) return;
-
-    if (mpAccount) {
+    if (Object.keys(companyData).length === 0) return;
+    console.log("Company Data:", Object.keys(companyData).length);
+    if (Object.keys(companyData).length > 0) {
       const updated = {
         ...companyData,
         mercado_pago_connect: true,
@@ -51,11 +51,10 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
 
   useEffect(() => {
     connected();
-  }, [mpAccount]);
+  }, [mpAccount, companyData]);
 
   const handleOAuthAuthorization = () => {
-    const baseUrl =
-      (window.location.href = `https://turnosya-backend.onrender.com/mercado_pago?businessId=${businessId}`);
+    window.location.href = `https://turnosya-backend.onrender.com/mercado_pago?businessId=${businessId}`;
   };
 
   const handleTestConnection = async () => {

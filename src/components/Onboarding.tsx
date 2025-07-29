@@ -51,13 +51,7 @@ const Onboarding: React.FC<OnboardingProps> = ({
       description: "Analiza el rendimiento con gráficos y reportes detallados.",
       target: "statistics",
     },
-    {
-      id: "schedules",
-      title: "Horarios",
-      description:
-        "Define los horarios de trabajo y disponibilidad de servicios.",
-      target: "schedules",
-    },
+
     {
       id: "service",
       title: "Servicios",

@@ -22,7 +22,6 @@ import { useBookingContext } from "@/context/apisContext/bookingContext";
 import { useBusinessContext } from "@/context/apisContext/businessContext";
 import Loading from "@/components/loading";
 import { current_user } from "@/context/currentUser";
-import { useScheduleContext } from "@/context/apisContext/scheduleContext";
 import { useServicesContext } from "@/context/apisContext/servicesContext";
 import {
   MapPin,
@@ -79,8 +78,9 @@ const BusinessPage = () => {
   const scheduleInfo = useCallback(async () => {
     const days_business = [];
     const workDays = [];
-    let startTime = "";
-    let endTime = "";
+    const blackoutDates = [];
+    let startTime: string = "";
+    let endTime: string = "";
 
     const dayMap: Record<string, number> = {
       dom: 0,
@@ -92,14 +92,17 @@ const BusinessPage = () => {
       sáb: 6,
     };
 
-    businessHours.forEach((sch) => {
-      const day = sch.day.slice(0, 3).toLowerCase();
-      days_business.push(day);
-      if (
-        sch.day.toLowerCase() === format(selectedDate, "eeee", { locale: es })
-      ) {
-        startTime = sch.startTime;
-        endTime = sch.endTime;
+    services.forEach((sch) => {
+      if (selectedService?.id === sch.id) {
+        sch.schedule.forEach((day) => {
+          days_business.push(day.dayOfWeek);
+          startTime = day.startTime;
+          endTime = day.endTime;
+          workDays.push(day.dayOfWeek);
+        });
+        sch.blackoutDates.forEach((date) => {
+          blackoutDates.push(date);
+        });
       }
     });
 
@@ -114,8 +117,9 @@ const BusinessPage = () => {
       days_business: days_business,
       defaultCapacity: 0,
       capacityMode: "fixed",
+      blackoutDates: blackoutDates,
     });
-  }, [businessId, businessHours, selectedDate]);
+  }, [businessId, services, selectedDate, selectedService]);
 
   useEffect(() => {
     if (!businessId) return;
@@ -135,7 +139,7 @@ const BusinessPage = () => {
   useEffect(() => {
     if (!businessId) return;
     scheduleInfo();
-  }, [businessId, businessHours, booking]);
+  }, [businessId, services, booking, selectedService]);
 
   useEffect(() => {
     const paymentCheck = async () => {
@@ -489,7 +493,7 @@ const BusinessPage = () => {
                             setSelectedDate(date);
                             setSelectedSlot(null);
                           }}
-                          daysOfWeek={scheduleSettings.days_business}
+                          scheduleSettings={scheduleSettings}
                         />
                       </div>
                     </motion.div>
@@ -538,6 +542,7 @@ const BusinessPage = () => {
                                 selectedDate
                               )}
                               onSelectSlot={handleSelectTimeSlot}
+                              scheduleSettings={scheduleSettings}
                             />
                           </div>
                         ) : (

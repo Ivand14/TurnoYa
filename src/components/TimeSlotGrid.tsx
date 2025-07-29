@@ -2,7 +2,7 @@ import { Booking, ScheduleSettings, Service, TimeSlot } from "@/types";
 import { Calendar, Clock, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Employee, Schedule } from "@/types/dashboard";
-import { addDays, addMinutes, format, parse } from "date-fns";
+import { addDays, addMinutes, format, getDay, parse } from "date-fns";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,93 +38,124 @@ export const TimeSlotGrid = ({
   scheduleSettings,
   employees = [],
   employeeSchedules = [],
-  onSelectSlot
+  onSelectSlot,
 }: TimeSlotGridProps) => {
+  const weekDay = getDay(date);
+
+  const worksHours = selectedService.schedule
+    .filter((s) => s.dayOfWeek === weekDay)
+    .map((s) => {
+      return {
+        end: s.endTime,
+        start: s.startTime,
+      };
+    });
+
   const dateString = format(date, "yyyy-MM-dd");
-  const startTime = parse(
-    `${dateString} ${workHours.start}`,
-    "yyyy-MM-dd HH:mm",
-    new Date()
-  );
-  let endTime = parse(
-    `${dateString} ${workHours.end}`,
-    "yyyy-MM-dd HH:mm",
-    new Date()
-  );
-
-  if (endTime < startTime) {
-    endTime = addDays(endTime, 1);
-  }
-
 
   const generateTimeSlots = () => {
     const slots = [];
-    let currentTime = startTime;
 
-    while (currentTime < endTime) {
-      const slotEndTime = addMinutes(currentTime, slotDuration);
-      const timeStart = format(currentTime, "HH:mm");
-      const timeEnd = format(slotEndTime, "HH:mm");
+    worksHours.forEach((wh) => {
+      let start = parse(
+        `${dateString} ${wh.start}`,
+        "yyyy-MM-dd HH:mm",
+        new Date()
+      );
+      let end = parse(
+        `${dateString} ${wh.end}`,
+        "yyyy-MM-dd HH:mm",
+        new Date()
+      );
 
-      let slotCapacity: number;
-
-      // Usar el nuevo sistema de cálculo de capacidad si está disponible
-      if (scheduleSettings && employees.length > 0) {
-        slotCapacity = calculateSlotCapacity({
-          date,
-          timeStart,
-          timeEnd,
-          service: selectedService,
-          scheduleSettings,
-          employees,
-          employeeSchedules,
-          bookedSlots
-        });
-      } else {
-        // Fallback al sistema anterior
-        slotCapacity =
-          selectedService?.capacity ||
-          selectedService.allowedEmployeeIds?.length ||
-          defaultCapacity;
+      if (end < start) {
+        end = addDays(end, 1);
       }
 
-      // Contar reservas actuales para este horario
-      const currentBookings = bookedSlots.filter((booking) => {
-        if (booking.date !== dateString || booking.status === "cancelled") {
-          return false;
+      let currentTime = start;
+
+      while (currentTime < end) {
+        const slotEndTime = addMinutes(currentTime, slotDuration);
+        const timeStart = format(currentTime, "HH:mm");
+        const timeEnd = format(slotEndTime, "HH:mm");
+
+        let slotCapacity: number;
+
+        if (scheduleSettings && employees.length > 0) {
+          slotCapacity = calculateSlotCapacity({
+            date,
+            timeStart,
+            timeEnd,
+            service: selectedService,
+            scheduleSettings,
+            employees,
+            employeeSchedules,
+            bookedSlots,
+          });
+        } else {
+          slotCapacity =
+            selectedService?.capacity ||
+            selectedService.allowedEmployeeIds?.length ||
+            defaultCapacity;
         }
 
-        const bookingStart = new Date(booking.start);
-        const bookingEnd = new Date(booking.end);
+        const currentBookings = bookedSlots.filter((booking) => {
+          if (booking.date !== dateString || booking.status === "cancelled") {
+            return false;
+          }
 
-        return (
-          (currentTime >= bookingStart && currentTime < bookingEnd) ||
-          (slotEndTime > bookingStart && slotEndTime <= bookingEnd) ||
-          (currentTime <= bookingStart && slotEndTime >= bookingEnd)
-        );
-      }).length;
+          const bookingStart = new Date(booking.start);
+          const bookingEnd = new Date(booking.end);
 
-      const availableSlots = Math.max(0, slotCapacity - currentBookings);
-      const isFullyBooked = availableSlots <= 0;
+          return (
+            (currentTime >= bookingStart && currentTime < bookingEnd) ||
+            (slotEndTime > bookingStart && slotEndTime <= bookingEnd) ||
+            (currentTime <= bookingStart && slotEndTime >= bookingEnd)
+          );
+        }).length;
 
-      slots.push({
-        start: new Date(currentTime),
-        end: new Date(slotEndTime),
-        isFullyBooked,
-        availableSlots,
-        totalCapacity: slotCapacity,
-        currentBookings
-      });
+        const availableSlots = Math.max(0, slotCapacity - currentBookings);
+        const isFullyBooked = availableSlots <= 0;
 
-      currentTime = addMinutes(slotEndTime, breakBetweenSlots);
-    }
+        slots.push({
+          start: new Date(currentTime),
+          end: new Date(slotEndTime),
+          isFullyBooked,
+          availableSlots,
+          totalCapacity: slotCapacity,
+          currentBookings,
+        });
+
+        currentTime = addMinutes(slotEndTime, breakBetweenSlots);
+      }
+    });
 
     return slots;
   };
 
   const slots = generateTimeSlots();
 
+  const isBlackoutDate = scheduleSettings?.blackoutDates?.some(
+    (b) => b.date === format(date, "yyyy-MM-dd")
+  );
 
+  if (isBlackoutDate) {
+    return (
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <div className="text-center py-12">
+            <Clock className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500 font-medium">
+              No hay horarios disponibles
+            </p>
+            <p className="text-gray-400 text-sm">
+              El negocio no atiende este día.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full">
@@ -139,15 +170,13 @@ export const TimeSlotGrid = ({
           </div>
         </div>
 
-
         {/* Time slots grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {slots.map((slot, index) => {
             const isAvailable = !slot.isFullyBooked;
             const capacityPercentage =
-              slot["totalCapacity"] > 0
-                && (slot["availableSlots"] / slot["totalCapacity"]) * 100
-                ;
+              slot["totalCapacity"] > 0 &&
+              (slot["availableSlots"] / slot["totalCapacity"]) * 100;
             return (
               <div key={index} className="relative group">
                 <Button
@@ -191,12 +220,12 @@ export const TimeSlotGrid = ({
                       className="text-xs px-2 py-0.5 min-w-0"
                     >
                       <Users className="h-2.5 w-2.5 mr-1" />
-                      {slot["availableSlots"]}/{slot["totalCapacity"] }
+                      {slot["availableSlots"]}/{slot["totalCapacity"]}
                     </Badge>
                   )}
 
                   {/* No employees badge */}
-                  {slot["totalCapacity"]  === 0 && (
+                  {slot["totalCapacity"] === 0 && (
                     <Badge
                       variant="destructive"
                       className="text-xs px-2 py-0.5"
@@ -226,7 +255,8 @@ export const TimeSlotGrid = ({
                   {format(slot.start, "HH:mm")} - {format(slot.end, "HH:mm")}
                   {slot["totalCapacity"] > 1 && (
                     <div className="mt-1">
-                      Capacidad: {slot["availableSlots"]}/{slot["totalCapacity"]}
+                      Capacidad: {slot["availableSlots"]}/
+                      {slot["totalCapacity"]}
                     </div>
                   )}
                   <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>

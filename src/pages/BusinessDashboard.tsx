@@ -3,7 +3,6 @@ import { useParams, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useBookingContext } from "@/context/apisContext/bookingContext";
 import { useEmployeeContext } from "@/context/apisContext/employeeContext";
-import { useScheduleContext } from "@/context/apisContext/scheduleContext";
 import { useServicesContext } from "@/context/apisContext/servicesContext";
 import { compnay_logged } from "@/context/current_company";
 import { Logged } from "@/context/logged";
@@ -15,8 +14,6 @@ import DailyBookings from "@/components/dashboarBusiness/DailyBookings";
 import UpcomingBookings from "@/components/analytics/UpcomingBookings";
 import EmployeeForm from "@/components/dashboarBusiness/EmployeeForm";
 import EmployeeList from "@/components/dashboarBusiness/EmployeeList";
-import ScheduleForm from "@/components/dashboarBusiness/ScheduleForm";
-import ScheduleList from "@/components/dashboarBusiness/ScheduleList";
 import ServiceForm from "@/components/dashboarBusiness/ServiceForm";
 import ServiceList from "@/components/dashboarBusiness/ServiceList";
 import MercadoPagoSettings from "@/components/mercadopagoComponents/MercadoPagoSettings";
@@ -61,16 +58,7 @@ const BusinessDashboard = () => {
     fetchDeleteEmployee,
   } = useEmployeeContext();
 
-  const {
-    schedules,
-    businessHours,
-    fetchGetAllSchedules,
-    fetchGetAllBusinessHours,
-    handleScheduleFormChange,
-    handleAddSchedule,
-    fetchDeleteSchedule,
-    fetchPatchBusinessHours,
-  } = useScheduleContext();
+
 
   const {
     services,
@@ -100,8 +88,7 @@ const BusinessDashboard = () => {
 
   const fetchData = useCallback(async () => {
     await fetchGetBooking(businessId);
-    await fetchGetAllSchedules(businessId);
-    await fetchGetAllBusinessHours(businessId);
+
     await fetchGetAllEmployees(businessId);
     await fetchGetServices(businessId);
     await fetchAccessTokenData(businessId);
@@ -234,26 +221,6 @@ const BusinessDashboard = () => {
               <EmployeeList
                 employees={allEmployees}
                 onDeleteEmployee={fetchDeleteEmployee}
-              />
-            </div>
-          )}
-
-          {/* activeTab: Horarios */}
-          {activeTab === "schedules" && (
-            <div>
-              <ScheduleForm
-                activeEmployees={allEmployees}
-                onChange={handleScheduleFormChange}
-                onSubmit={handleAddSchedule}
-                businessId={businessId}
-                onEdit={fetchPatchBusinessHours}
-              />
-              <ScheduleList
-                schedules={schedules}
-                schedulesHrs={businessHours}
-                onDelete={fetchDeleteSchedule}
-                onEdit={fetchPatchBusinessHours}
-                businessId={businessId}
               />
             </div>
           )}
