@@ -33,6 +33,8 @@ export interface Service {
   capacityMode?: "fixed" | "employee-based" | "hybrid";
   requiresDeposit?: boolean;
   paymentPercentage?: number;
+  schedule?: ServiceSchedule[];
+  blackoutDates?: ServiceBlackoutDate[];
 }
 
 export interface TimeSlot
@@ -114,6 +116,7 @@ export interface ScheduleSettings {
   days_business?: string[];
   defaultCapacity: number; // cupos por defecto por horario (fallback)
   capacityMode: "fixed" | "employee-based" | "hybrid"; // modo de cálculo de capacidad
+  blackoutDates?: ServiceBlackoutDate[]; // fechas bloqueadas
 }
 
 export interface firebaseSettings {
@@ -139,4 +142,16 @@ export interface businessRegister {
   logo?: File;
   confirmPassword?: string;
   preapproval_id?: string;
+}
+
+export interface ServiceSchedule {
+  dayOfWeek: number; // 0-6 (Sunday to Saturday)
+  startTime: string; // HH:MM format
+  endTime: string; // HH:MM format
+  isActive: boolean;
+}
+
+export interface ServiceBlackoutDate {
+  date: string; // YYYY-MM-DD format
+  reason?: string;
 }

@@ -7,33 +7,39 @@ import {
   isSameMonth,
   startOfMonth,
   startOfWeek,
-  subMonths
+  subMonths,
 } from "date-fns";
 
 import { Button } from "@/components/ui/button";
-import { Day } from "@/types";
+import { Day, ScheduleSettings } from "@/types";
 import { es } from "date-fns/locale";
 import { useState } from "react";
+import { Card, CardContent } from "./ui/card";
+import { Clock } from "lucide-react";
 
 interface CalendarProps {
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
+  scheduleSettings?: ScheduleSettings;
   daysOfWeek?: string[];
 }
 
 export const Calendar = ({
   selectedDate,
   onSelectDate,
-  daysOfWeek
+  scheduleSettings,
 }: CalendarProps) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const today = new Date();
+  const daysOfWeekDefault = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
 
-  const daysOfWeekDefault = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"];
-  const dayNotWork = daysOfWeekDefault.filter(
-    (day) => !daysOfWeek?.includes(day.toLowerCase())
+  const worksDates = scheduleSettings?.workDays.map((day) => {
+    return daysOfWeekDefault[day].toLowerCase();
+  });
+
+  const dayNotWork = daysOfWeekDefault.filter((day) =>
+    worksDates ? !worksDates?.includes(day.toLowerCase()) : false
   );
-
 
   const renderHeader = () => {
     return (
@@ -107,7 +113,7 @@ export const Calendar = ({
   const generateDays = (): Day[] => {
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(monthStart);
-    const startDate = startOfWeek(monthStart, { weekStartsOn: 1 });
+    const startDate = startOfWeek(monthStart, { weekStartsOn: 0 });
 
     const days: Day[] = [];
     let day = startDate;
@@ -118,7 +124,9 @@ export const Calendar = ({
         isToday: isSameDay(day, today),
         isCurrentMonth: isSameMonth(day, monthStart),
         isSelected: isSameDay(day, selectedDate),
-        isDisabled: dayNotWork.includes(day.toLocaleDateString("es-ES", { weekday: "short" })),
+        isDisabled: dayNotWork.includes(
+          day.toLocaleDateString("es-ES", { weekday: "short" }).toLowerCase()
+        ),
       });
       day = addDays(day, 1);
     }

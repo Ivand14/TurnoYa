@@ -64,7 +64,6 @@ const ResponsiveSidebar: React.FC<SidebarProps> = ({
     { id: "booking", label: "Reservas", icon: Calendar },
     { id: "employees", label: "Empleados", icon: Users },
     { id: "statistics", label: "Estadísticas", icon: BarChart3 },
-    { id: "schedules", label: "Horarios", icon: Clock },
     { id: "service", label: "Servicios", icon: MapPin },
     { id: "wallet", label: "Pagos", icon: CreditCard },
     { id: "configuracion", label: "Configuración", icon: Settings },

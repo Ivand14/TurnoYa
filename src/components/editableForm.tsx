@@ -1,23 +1,41 @@
-import * as Dialog from "@radix-ui/react-dialog";
-
-import React, { useEffect, useState } from "react";
-
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Employee } from "@/types/dashboard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Service } from "@/types";
+import { Service, ServiceSchedule, ServiceBlackoutDate } from "@/types";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { get_employee_id } from "@/apis/employee_schedule.apis";
+import { toast } from "sonner";
+import {
+  Info,
+  Percent,
+  Plus,
+  Clock,
+  Calendar,
+  X,
+  CheckCircle2,
+  Settings,
+  Save,
+} from "lucide-react";
 
 interface EditableFormProps {
   service: Service;
   employeesAvailable: Employee[];
-  onUpdateService: (form: Service) => void;
+  onUpdateService: (service: Service) => void;
   loading: boolean;
 }
+
+const DAYS_OF_WEEK = [
+  { id: 0, name: "Domingo", short: "Dom", color: "bg-red-500" },
+  { id: 1, name: "Lunes", short: "Lun", color: "bg-blue-500" },
+  { id: 2, name: "Martes", short: "Mar", color: "bg-green-500" },
+  { id: 3, name: "Miércoles", short: "Mié", color: "bg-yellow-500" },
+  { id: 4, name: "Jueves", short: "Jue", color: "bg-purple-500" },
+  { id: 5, name: "Viernes", short: "Vie", color: "bg-pink-500" },
+  { id: 6, name: "Sábado", short: "Sáb", color: "bg-indigo-500" },
+];
 
 const EditableForm: React.FC<EditableFormProps> = ({
   service,
@@ -25,242 +43,536 @@ const EditableForm: React.FC<EditableFormProps> = ({
   onUpdateService,
   loading,
 }) => {
-  const [updateService, setUpdateService] = useState(() => ({
-    name_service: service.name_service,
-    description: service.description,
-    duration: service.duration || 30,
-    price: service.price || 0,
-    capacity: service.capacity || 0,
-    requiresSpecificEmployee: service.requiresSpecificEmployee || false,
-    allowedEmployeeIds: service.allowedEmployeeIds || [],
-    businessId: service.businessId,
-    active: service.active,
-  }));
-  const [employeeInService, setEmployeeInService] = useState<Employee[]>([]);
-  const [othersEmployeeInService, setOthersEmployeeInService] = useState<
-    Employee[]
-  >([]);
+  const [editedService, setEditedService] = useState<Service>(service);
+  const [schedule, setSchedule] = useState<ServiceSchedule[]>(
+    service.schedule || []
+  );
+  const [blackoutDates, setBlackoutDates] = useState<ServiceBlackoutDate[]>(
+    service.blackoutDates || []
+  );
+  const [newBlackoutDate, setNewBlackoutDate] = useState({
+    date: "",
+    reason: "",
+  });
 
-  const handleEmployeeToggle = (id: string, checked: boolean) => {
-    setUpdateService((prev) => ({
+  useEffect(() => {
+    setEditedService(service);
+    setSchedule(service.schedule || []);
+    setBlackoutDates(service.blackoutDates || []);
+  }, [service]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+
+    setEditedService((prev) => ({
       ...prev,
-      allowedEmployeeIds: checked
-        ? [...prev.allowedEmployeeIds, id]
-        : prev.allowedEmployeeIds.filter((empId) => empId !== id),
+      [name]:
+        name === "duration" ||
+        name === "price" ||
+        name === "capacity" ||
+        name === "paymentPercentage"
+          ? parseFloat(value) || 0
+          : value,
     }));
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    onUpdateService(updateService);
+  const handleEmployeeToggle = (employeeId: string, checked: boolean) => {
+    setEditedService((prev) => ({
+      ...prev,
+      allowedEmployeeIds: checked
+        ? [...prev.allowedEmployeeIds, employeeId]
+        : prev.allowedEmployeeIds.filter((id) => id !== employeeId),
+    }));
   };
 
-  const employData = async () => {
-    const employeePromises = updateService.allowedEmployeeIds.map((empId) =>
-      get_employee_id(empId)
-    );
-    const responses = await Promise.all(employeePromises);
-    const employeesFetched = responses.map((res) => res.data.details);
-
-    setEmployeeInService(employeesFetched);
-
-    // Filtrar empleados disponibles fuera del loop
-    const isAv = employeesAvailable.filter(
-      (empAv) => !employeesFetched.some((emp) => emp.id === empAv.id)
-    );
-
-    setOthersEmployeeInService(isAv);
+  const handleScheduleChange = (
+    dayOfWeek: number,
+    field: "startTime" | "endTime",
+    value: string
+  ) => {
+    setSchedule((prev) => {
+      const existingSchedule = prev.find((s) => s.dayOfWeek === dayOfWeek);
+      if (existingSchedule) {
+        return prev.map((s) =>
+          s.dayOfWeek === dayOfWeek ? { ...s, [field]: value } : s
+        );
+      } else {
+        return [
+          ...prev,
+          {
+            dayOfWeek,
+            startTime: field === "startTime" ? value : "09:00",
+            endTime: field === "endTime" ? value : "18:00",
+            isActive: true,
+          },
+        ];
+      }
+    });
   };
 
-  useEffect(() => {
-    employData();
-  }, []);
+  const toggleDayActive = (dayOfWeek: number, isActive: boolean) => {
+    setSchedule((prev) => {
+      if (!isActive) {
+        return prev.filter((s) => s.dayOfWeek !== dayOfWeek);
+      } else {
+        const existingSchedule = prev.find((s) => s.dayOfWeek === dayOfWeek);
+        if (existingSchedule) {
+          return prev.map((s) =>
+            s.dayOfWeek === dayOfWeek ? { ...s, isActive: true } : s
+          );
+        } else {
+          return [
+            ...prev,
+            {
+              dayOfWeek,
+              startTime: "09:00",
+              endTime: "18:00",
+              isActive: true,
+            },
+          ];
+        }
+      }
+    });
+  };
+
+  const addBlackoutDate = () => {
+    if (!newBlackoutDate.date) {
+      toast.error("Selecciona una fecha");
+      return;
+    }
+
+    const dateExists = blackoutDates.some(
+      (d) => d.date === newBlackoutDate.date
+    );
+    if (dateExists) {
+      toast.error("Esta fecha ya está en la lista");
+      return;
+    }
+
+    setBlackoutDates((prev) => [...prev, { ...newBlackoutDate }]);
+    setNewBlackoutDate({ date: "", reason: "" });
+    toast.success("Fecha bloqueada agregada");
+  };
+
+  const removeBlackoutDate = (date: string) => {
+    setBlackoutDates((prev) => prev.filter((d) => d.date !== date));
+    toast.success("Fecha desbloqueada");
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!editedService.name_service) {
+      toast.error("El nombre del servicio es requerido");
+      return;
+    }
+
+    if (editedService.duration <= 0) {
+      toast.error("La duración debe ser mayor a 0");
+      return;
+    }
+
+    if (editedService.price < 0) {
+      toast.error("El precio no puede ser negativo");
+      return;
+    }
+
+    if (
+      editedService.requiresSpecificEmployee &&
+      editedService.allowedEmployeeIds.length === 0
+    ) {
+      toast.error(
+        "Debe seleccionar al menos un empleado si requiere empleado específico"
+      );
+      return;
+    }
+
+    if (schedule.length === 0) {
+      toast.error(
+        "Debe configurar al menos un día de atención para este servicio"
+      );
+      return;
+    }
+
+    const updatedService: Service = {
+      ...editedService,
+      schedule: schedule,
+      blackoutDates: blackoutDates,
+    };
+
+    onUpdateService(updatedService);
+  };
+
+  const activeEmployees =
+    employeesAvailable?.filter((emp) => emp.status === "active") || [];
+  const activeDaysCount = schedule.length;
 
   return (
-    <div className="space-y-4">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <Label
-            className="block text-sm font-medium text-gray-700"
-            htmlFor="name"
-          >
-            Nombre
-          </Label>
-          <Input
-            id="name"
-            className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-            placeholder={updateService.name_service}
-            value={updateService.name_service}
-            onChange={(e) =>
-              setUpdateService((prev) => ({
-                ...prev,
-                name_service: e.target.value,
-              }))
-            }
-          />
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Basic Info */}
+      <div className="bg-gray-50 rounded-2xl p-6">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700">
+              Nombre del servicio
+            </Label>
+            <Input
+              name="name_service"
+              placeholder="Ej: Corte de cabello premium"
+              value={editedService.name_service}
+              onChange={handleChange}
+              className="border-0 bg-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500/20"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700">
+              Descripción
+            </Label>
+            <Textarea
+              name="description"
+              placeholder="Describe qué incluye este servicio..."
+              value={editedService.description || ""}
+              onChange={handleChange}
+              rows={3}
+              className="border-0 bg-white rounded-xl px-4 py-3 resize-none focus:ring-2 focus:ring-blue-500/20"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Schedule Configuration */}
+      <div className="bg-gray-50 rounded-2xl p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <Settings className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-gray-900">
+              Horarios de atención
+            </h3>
+            <p className="text-sm text-gray-500">
+              Configura los días y horarios para este servicio
+            </p>
+          </div>
         </div>
 
-        <div>
-          <Label
-            className="block text-sm font-medium text-gray-700"
-            htmlFor="description"
-          >
-            Descripción
-          </Label>
-          <Textarea
-            id="description"
-            className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-            rows={3}
-            placeholder={updateService.description}
-            value={updateService.description}
-            onChange={(e) =>
-              setUpdateService((prev) => ({
-                ...prev,
-                description: e.target.value,
-              }))
-            }
-          />
-        </div>
+        <div className="space-y-3">
+          {DAYS_OF_WEEK.map((day) => {
+            const daySchedule = schedule.find((s) => s.dayOfWeek === day.id);
+            const isActive = !!daySchedule;
 
-        <div>
-          <Label
-            className="block text-sm font-medium text-gray-700"
-            htmlFor="price"
-          >
-            Precio
-          </Label>
-          <Input
-            id="price"
-            className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-            placeholder={updateService.price.toString()}
-            value={updateService.price}
-            onChange={(e) =>
-              setUpdateService((prev) => ({
-                ...prev,
-                price: Number(e.target.value),
-              }))
-            }
-          />
-        </div>
+            return (
+              <div
+                key={day.id}
+                className={`rounded-xl border-2 transition-all duration-300 ${
+                  isActive
+                    ? "border-blue-200 bg-blue-50"
+                    : "border-gray-200 bg-white"
+                }`}
+              >
+                <div className="p-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 min-w-[120px]">
+                      <Checkbox
+                        checked={isActive}
+                        onCheckedChange={(checked) =>
+                          toggleDayActive(day.id, checked as boolean)
+                        }
+                        className="border-2"
+                      />
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 ${day.color} rounded-full`} />
+                        <span className="font-medium text-sm">{day.name}</span>
+                      </div>
+                    </div>
 
-        <div className="flex items-center space-x-2">
+                    {isActive && (
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="flex items-center gap-1">
+                          <Label className="text-xs text-blue-700">
+                            Desde:
+                          </Label>
+                          <Input
+                            type="time"
+                            value={daySchedule?.startTime || "09:00"}
+                            onChange={(e) =>
+                              handleScheduleChange(
+                                day.id,
+                                "startTime",
+                                e.target.value
+                              )
+                            }
+                            className="w-24 border-0 bg-white rounded-lg px-2 py-1 text-xs"
+                          />
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Label className="text-xs text-blue-700">
+                            Hasta:
+                          </Label>
+                          <Input
+                            type="time"
+                            value={daySchedule?.endTime || "18:00"}
+                            onChange={(e) =>
+                              handleScheduleChange(
+                                day.id,
+                                "endTime",
+                                e.target.value
+                              )
+                            }
+                            className="w-24 border-0 bg-white rounded-lg px-2 py-1 text-xs"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Pricing & Duration */}
+      <div className="bg-gray-50 rounded-2xl p-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700">
+              Duración (min)
+            </Label>
+            <Input
+              name="duration"
+              type="number"
+              min="1"
+              value={editedService.duration}
+              onChange={handleChange}
+              className="border-0 bg-white rounded-xl px-4 py-3"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700">
+              Precio ($)
+            </Label>
+            <Input
+              name="price"
+              type="number"
+              min="0"
+              step="0.01"
+              value={editedService.price}
+              onChange={handleChange}
+              className="border-0 bg-white rounded-xl px-4 py-3"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700">
+              % Adelanto
+            </Label>
+            <Input
+              name="paymentPercentage"
+              type="number"
+              min="0"
+              max="100"
+              value={editedService.paymentPercentage}
+              onChange={handleChange}
+              className="border-0 bg-white rounded-xl px-4 py-3"
+              disabled={!editedService.requiresDeposit}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700">
+              Capacidad
+            </Label>
+            <Input
+              name="capacity"
+              type="number"
+              min="0"
+              value={editedService.capacity}
+              onChange={handleChange}
+              className="border-0 bg-white rounded-xl px-4 py-3"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Switches */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">
+          <div>
+            <h3 className="font-medium text-gray-900">Cobrar seña</h3>
+            <p className="text-sm text-gray-600">
+              Requiere pago adelantado al reservar
+            </p>
+          </div>
           <Switch
-            id="requiresSpecificEmployee"
-            checked={updateService.requiresSpecificEmployee}
+            checked={editedService.requiresDeposit}
             onCheckedChange={(checked) =>
-              setUpdateService((prev) => ({
+              setEditedService((prev) => ({
+                ...prev,
+                requiresDeposit: checked,
+              }))
+            }
+          />
+        </div>
+
+        <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
+          <div>
+            <h3 className="font-medium text-gray-900">Empleado específico</h3>
+            <p className="text-sm text-gray-600">
+              Solo ciertos empleados pueden realizar este servicio
+            </p>
+          </div>
+          <Switch
+            checked={editedService.requiresSpecificEmployee}
+            onCheckedChange={(checked) =>
+              setEditedService((prev) => ({
                 ...prev,
                 requiresSpecificEmployee: checked,
                 allowedEmployeeIds: checked ? prev.allowedEmployeeIds : [],
               }))
             }
           />
-
-          <Label
-            htmlFor="requiresSpecificEmployee"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Requiere empleados específicos
-          </Label>
         </div>
+      </div>
 
-        {updateService.requiresSpecificEmployee && (
-          <>
-            <div className="grid gap-2">
-              <Label className="block text-sm font-medium text-gray-700">
-                Empleados autorizados:
-              </Label>
-              <div className="grid gap-2">
-                {employeeInService.map((employee) => (
-                  <div
-                    key={employee.id}
-                    className="flex items-center space-x-2"
-                  >
-                    <Checkbox
-                      id={employee.id}
-                      checked={updateService.allowedEmployeeIds.includes(
-                        employee.id
-                      )}
-                      onCheckedChange={(checked) =>
-                        handleEmployeeToggle(employee.id, checked as boolean)
-                      }
-                    />
-                    <Label htmlFor={employee.id} className="text-sm">
-                      {employee.name} - {employee.position}
-                    </Label>
+      {/* Employee Assignment */}
+      {editedService.requiresSpecificEmployee && (
+        <div className="bg-gray-50 rounded-2xl p-6">
+          <h3 className="font-medium text-gray-900 mb-4">
+            Seleccionar empleados
+          </h3>
+          <div className="space-y-2">
+            {activeEmployees.map((employee) => (
+              <label
+                key={employee.id}
+                className="flex items-center gap-3 p-3 rounded-xl bg-white hover:bg-blue-50 transition-colors cursor-pointer"
+              >
+                <Checkbox
+                  checked={editedService.allowedEmployeeIds.includes(
+                    employee.id
+                  )}
+                  onCheckedChange={(checked) =>
+                    handleEmployeeToggle(employee.id, checked as boolean)
+                  }
+                />
+                <div>
+                  <div className="font-medium text-gray-900">
+                    {employee.name}
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid gap-2">
-              <Label className="block text-sm font-medium text-gray-700">
-                {othersEmployeeInService.length > 0
-                  ? "Empleados disponibles:"
-                  : "No hay empleados disponibles"}
-              </Label>
-              {othersEmployeeInService.length > 0 && (
-                <div className="grid gap-2">
-                  {othersEmployeeInService.map((employee) => (
-                    <div
-                      key={employee.id}
-                      className="flex items-center space-x-2"
-                    >
-                      <Checkbox
-                        id={`employee-${employee.id}`}
-                        checked={updateService.allowedEmployeeIds.includes(
-                          employee.id
-                        )}
-                        onCheckedChange={(checked) =>
-                          handleEmployeeToggle(employee.id, checked as boolean)
-                        }
-                      />
-                      <Label
-                        htmlFor={`employee-${employee.id}`}
-                        className="text-sm"
-                      >
-                        {employee.name} - {employee.position}
-                      </Label>
-                    </div>
-                  ))}
+                  <div className="text-sm text-gray-500">
+                    {employee.position}
+                  </div>
                 </div>
-              )}
-            </div>
-          </>
-        )}
-
-        {!updateService.requiresSpecificEmployee && (
-          <Input
-            id="capacity"
-            className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-            placeholder={updateService.capacity.toString()}
-            type="number"
-            value={
-              updateService.requiresSpecificEmployee
-                ? 0
-                : updateService.capacity
-            } 
-            onChange={(e) =>
-              setUpdateService((prev) => ({
-                ...prev,
-                capacity: prev.requiresSpecificEmployee
-                  ? 0
-                  : Number(e.target.value),
-              }))
-            }
-          />
-        )}
-
-        <div className="mt-4 flex justify-end gap-2">
-          <Dialog.Close asChild>
-            <Button className="rounded-md border bg-white border-gray-300 px-4 py-2 text-sm text-gray-600 transition hover:bg-slate-100 focus:outline-none">
-              Cancelar
-            </Button>
-          </Dialog.Close>
-          <Button type="submit">Guardar cambios</Button>
+              </label>
+            ))}
+          </div>
         </div>
-      </form>
-    </div>
+      )}
+
+      {/* Blackout Dates */}
+      <div className="bg-gray-50 rounded-2xl p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
+            <Calendar className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <h3 className="font-medium text-gray-900">Fechas no disponibles</h3>
+            <p className="text-sm text-gray-500">
+              Días específicos donde este servicio no estará disponible
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex gap-3">
+            <Input
+              type="date"
+              value={newBlackoutDate.date}
+              onChange={(e) =>
+                setNewBlackoutDate((prev) => ({
+                  ...prev,
+                  date: e.target.value,
+                }))
+              }
+              className="border-0 bg-white rounded-xl px-4 py-3"
+              min={new Date().toISOString().split("T")[0]}
+            />
+            <Input
+              placeholder="Motivo (opcional)"
+              value={newBlackoutDate.reason}
+              onChange={(e) =>
+                setNewBlackoutDate((prev) => ({
+                  ...prev,
+                  reason: e.target.value,
+                }))
+              }
+              className="border-0 bg-white rounded-xl px-4 py-3 flex-1"
+            />
+            <Button
+              type="button"
+              onClick={addBlackoutDate}
+              className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-4 rounded-xl"
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {blackoutDates.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs text-gray-600 mb-3">
+                Fechas bloqueadas para este servicio:
+              </p>
+              {blackoutDates.map((blackout, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-red-50 rounded-xl border border-red-100"
+                >
+                  <div>
+                    <span className="font-medium text-red-900">
+                      {new Date(blackout.date).toLocaleDateString("es-ES", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </span>
+                    {blackout.reason && (
+                      <p className="text-sm text-red-600">{blackout.reason}</p>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeBlackoutDate(blackout.date)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-100"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Submit Button */}
+      <Button
+        type="submit"
+        disabled={activeDaysCount === 0 || loading}
+        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-semibold"
+      >
+        <Save className="w-4 h-4 mr-2" />
+        {loading ? "Guardando..." : "Guardar Cambios"}
+      </Button>
+    </form>
   );
 };
 
