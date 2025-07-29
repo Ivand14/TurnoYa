@@ -50,7 +50,6 @@ const BusinessPage = () => {
   const { businessId } = useParams();
   const { fetchGetBooking, fetchCreateBooking, booking } = useBookingContext();
   const { fetchBusinessById, businessForId } = useBusinessContext();
-  const { fetchGetAllBusinessHours, businessHours } = useScheduleContext();
   const { fetchGetServices, services } = useServicesContext();
   const [bookingId, setBookingId] = useState<string>("");
   const { user } = current_user();
@@ -126,7 +125,6 @@ const BusinessPage = () => {
     fetchBusinessById(businessId);
 
     const fetchAdditionalData = async () => {
-      await fetchGetAllBusinessHours(businessId);
       await fetchGetServices(businessId);
       await fetchGetBooking(businessId);
 
@@ -650,36 +648,6 @@ const BusinessPage = () => {
                   <Separator className="my-8" />
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Schedule */}
-                    <div>
-                      <div className="flex items-center mb-6">
-                        <Clock className="w-6 h-6 text-indigo-600 mr-3" />
-                        <h3 className="text-xl font-bold text-gray-900">
-                          Horarios de Atención
-                        </h3>
-                      </div>
-                      <div className="space-y-3">
-                        {businessHours.map((sch, index) => (
-                          <motion.div
-                            key={index}
-                            className="bg-gray-50 p-4 rounded-xl border border-gray-200"
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.3, delay: index * 0.1 }}
-                          >
-                            <div className="flex justify-between items-center">
-                              <span className="font-medium text-gray-900">
-                                {sch.day}
-                              </span>
-                              <span className="text-indigo-600 font-semibold">
-                                {sch.startTime} - {sch.endTime}
-                              </span>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-
                     {/* Contact */}
                     <div>
                       <div className="flex items-center mb-6">
