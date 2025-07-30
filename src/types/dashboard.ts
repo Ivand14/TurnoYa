@@ -29,7 +29,8 @@ export interface DashboardStats {
   totalBookings: number;
   confirmedBookings: number;
   pendingBookings: number;
-  activeEmployees: number;
+  activeEmployees?: number;
+  completedBookings: number;
 }
 
 export interface ScheduleSettings {

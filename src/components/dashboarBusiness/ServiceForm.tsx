@@ -656,7 +656,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                 <div className="group relative">
                   <Info className="w-4 h-4 text-gray-400 cursor-help" />
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-                    0 = Basado en empleados
+                    Cantidad de turnos que se pueden reservar al mismo tiempo
                   </div>
                 </div>
               </div>
@@ -670,72 +670,6 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
               />
             </div>
           </div>
-        </div>
-
-        {/* Employee Assignment */}
-        <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Asignación de empleados
-              </h3>
-              <p className="text-sm text-gray-500">
-                Configura qué empleados pueden realizar este servicio
-              </p>
-            </div>
-            <Switch
-              checked={newService.requiresSpecificEmployee}
-              onCheckedChange={(checked) =>
-                setNewService((prev) => ({
-                  ...prev,
-                  requiresSpecificEmployee: checked,
-                  allowedEmployeeIds: checked ? prev.allowedEmployeeIds : [],
-                }))
-              }
-              className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-purple-600"
-            />
-          </div>
-
-          {newService.requiresSpecificEmployee && (
-            <div className="space-y-3">
-              {activeEmployees.length > 0 ? (
-                <div className="grid gap-3">
-                  {activeEmployees.map((employee) => (
-                    <label
-                      key={employee.id}
-                      className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:bg-blue-50 transition-colors duration-200 cursor-pointer group"
-                    >
-                      <Checkbox
-                        checked={newService.allowedEmployeeIds.includes(
-                          employee.id
-                        )}
-                        onCheckedChange={(checked) =>
-                          handleEmployeeToggle(employee.id, checked as boolean)
-                        }
-                        className="border-2 border-gray-300 data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-purple-600 data-[state=checked]:border-transparent"
-                      />
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900 group-hover:text-blue-700 transition-colors">
-                          {employee.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {employee.position}
-                        </div>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Plus className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <p>No hay empleados activos</p>
-                  <p className="text-sm">Agrega empleados primero</p>
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Submit Button */}

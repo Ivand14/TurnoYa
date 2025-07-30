@@ -137,8 +137,8 @@ const DailyBookings: React.FC<DailyBookingsProps> = ({
                 }`}
               />
             </div>
-            <div>
-              <h2 className="text-2xl font-light text-gray-900 capitalize">
+            <div className="flex flex-col">
+              <h2 className="text-xl font-light text-gray-900 capitalize">
                 {format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })}
               </h2>
               <p className="text-sm text-gray-500 mt-1">

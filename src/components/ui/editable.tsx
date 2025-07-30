@@ -70,7 +70,7 @@ const EditService: React.FC<editProps> = ({
                 <Edit3 className="w-6 h-6 text-white" />
               </div>
               <div>
-                <Dialog.Title className="text-2xl font-semibold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                <Dialog.Title className="text-xl font-semibold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                   Editar Servicio
                 </Dialog.Title>
                 <Dialog.Description className="text-gray-500 mt-1">

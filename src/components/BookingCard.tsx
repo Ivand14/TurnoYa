@@ -320,7 +320,7 @@ export const BookingCard = ({
 
         {/* Actions */}
         {booking.status !== "cancelled" && booking.status !== "completed" && (
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+          <div className="flex items-center justify-between pt-2 border-t border-gray-100  md:items-start md:gap-4">
             <div className="flex gap-3">
               {canMarkAsCompleted && company && (
                 <Button
