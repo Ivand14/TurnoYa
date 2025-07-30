@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useBookingContext } from "@/context/apisContext/bookingContext";
 import { useServicesContext } from "@/context/apisContext/servicesContext";
 import DashboardBody from "@/components/dashboardBody";
+import { getDashboardStats } from "@/utils/dashboardUtils";
 
 const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -90,34 +91,14 @@ const Dashboard = () => {
   };
 
   // Resumen de estadísticas
-  const getDashboardStats = () => {
-    const totalBookings = userBooking.length;
-    const confirmedBookings = userBooking.filter(
-      (b) => b.status === "confirmed"
-    ).length;
-    const pendingBookings = userBooking.filter(
-      (b) => b.status === "pending"
-    ).length;
-    const cancelledBookings = userBooking.filter(
-      (b) => b.status === "cancelled"
-    ).length;
-
-    return {
-      totalBookings,
-      confirmedBookings,
-      pendingBookings,
-      cancelledBookings,
-    };
-  };
-
-  const stats = getDashboardStats();
+  const stats = getDashboardStats(userBooking, []);
 
   return (
     <div className="flex flex-col min-h-screen">
       <DashboardBody
         upcomingBookings={upcomingBookings}
         pastBookings={pastBookings}
-        stats={() => stats}
+        stats={stats}
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
         servicesUser={servicesUser}

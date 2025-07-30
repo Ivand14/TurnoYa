@@ -2,7 +2,7 @@ import { Booking, Service } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { es } from "date-fns/locale";
-import { format } from "date-fns";
+import { format, formatDate } from "date-fns";
 import { useServicesContext } from "@/context/apisContext/servicesContext";
 import { useEffect } from "react";
 import { PaymentDetails } from "./dashboarBusiness/paymentDetail";
@@ -19,9 +19,12 @@ import {
   XCircle,
   Wallet,
   TrendingUp,
+  FileText,
+  ChevronDown,
 } from "lucide-react";
 import { useBookingContext } from "@/context/apisContext/bookingContext";
 import { compnay_logged } from "@/context/current_company";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface BookingCardProps {
   booking: Booking & {
@@ -163,20 +166,20 @@ export const BookingCard = ({
     <div className="group relative bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-lg transition-all duration-500 overflow-hidden">
       {/* Gradient header */}
       <div
-        className={`${statusConfig.color} px-6 py-4 ${statusConfig.borderColor} border-b`}
+        className={`${statusConfig.color} px-4 md:px-6 py-3 md:py-4 ${statusConfig.borderColor} border-b`}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0">
           <div className="flex items-center gap-3">
             <div
               className={`p-2 ${statusConfig.color} rounded-xl border ${statusConfig.borderColor}`}
             >
               <StatusIcon className={`w-4 h-4 ${statusConfig.textColor}`} />
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 tracking-tight">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-base md:text-lg font-semibold text-gray-900 tracking-tight truncate">
                 {nameOfService?.name_service}
               </h3>
-              <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-gray-500 mt-1">
                 <div className="flex items-center gap-1.5">
                   <Calendar className="w-3 h-3" />
                   <span className="font-medium">
@@ -194,9 +197,9 @@ export const BookingCard = ({
             </div>
           </div>
 
-          <div className="text-right">
+          <div className="flex justify-end">
             <Badge
-              className={`${statusConfig.textColor} ${statusConfig.color} border-0 font-medium px-3 py-1`}
+              className={`${statusConfig.textColor} ${statusConfig.color} border-0 font-medium px-3 py-1 text-xs`}
             >
               {statusConfig.label}
             </Badge>
@@ -205,27 +208,27 @@ export const BookingCard = ({
       </div>
 
       {/* Main content */}
-      <div className="p-6 space-y-6">
+      <div className="p-4 md:p-6 space-y-4 md:space-y-6">
         {/* Client information */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
               <User className="w-4 h-4 text-blue-600" />
             </div>
-            <div>
-              <div className="font-medium text-gray-900">
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-gray-900 truncate">
                 {booking.userName}
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
                 <Mail className="w-3 h-3" />
-                <span>{booking.userEmail}</span>
+                <span className="truncate">{booking.userEmail}</span>
               </div>
             </div>
           </div>
 
-          <div className="text-right">
+          <div className="flex sm:justify-end">
             <Badge
-              className={`${paymentConfig.color} border-0 font-medium px-3 py-1`}
+              className={`${paymentConfig.color} border-0 font-medium px-3 py-1 text-xs`}
             >
               <PaymentIcon className="w-3 h-3 mr-1" />
               {paymentConfig.label}
@@ -233,101 +236,218 @@ export const BookingCard = ({
           </div>
         </div>
 
-        {/* Payment information */}
+        {/* Payment information - Collapsible en mobile */}
         {totalAmount > 0 && (
-          <div className="bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl p-4 border border-gray-100">
-            <div className="flex items-center gap-2 mb-3">
-              <Wallet className="w-4 h-4 text-gray-600" />
-              <span className="font-medium text-gray-900 text-sm">
-                Información de Pago
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-1">
-                <div className="text-xs text-gray-500 uppercase tracking-wide">
-                  Total
-                </div>
-                <div className="text-lg font-semibold text-gray-900">
-                  ${totalAmount.toLocaleString()}
-                </div>
+          <>
+            {/* Vista Desktop */}
+            <div className="hidden md:block bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl p-4 border border-gray-100">
+              <div className="flex items-center gap-2 mb-3">
+                <Wallet className="w-4 h-4 text-gray-600" />
+                <span className="font-medium text-gray-900 text-sm">
+                  Información de Pago
+                </span>
               </div>
 
-              {hasDeposit && (
-                <>
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-500 uppercase tracking-wide">
-                      Seña Pagada
-                    </div>
-                    <div className="text-lg font-semibold text-emerald-600">
-                      ${paidAmount.toLocaleString()}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-500 uppercase tracking-wide">
-                      Resta Pagar
-                    </div>
-                    <div className="text-lg font-semibold text-amber-600">
-                      ${remainingAmount.toLocaleString()}
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {isFullyPaid && !hasDeposit && (
-                <div className="col-span-2 space-y-1">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="space-y-1">
                   <div className="text-xs text-gray-500 uppercase tracking-wide">
-                    Estado
+                    Total
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span className="text-sm font-medium text-emerald-600">
-                      Completamente Pagado
-                    </span>
+                  <div className="text-lg font-semibold text-gray-900">
+                    ${totalAmount.toLocaleString()}
+                  </div>
+                </div>
+
+                {hasDeposit && (
+                  <>
+                    <div className="space-y-1">
+                      <div className="text-xs text-gray-500 uppercase tracking-wide">
+                        Seña Pagada
+                      </div>
+                      <div className="text-lg font-semibold text-emerald-600">
+                        ${paidAmount.toLocaleString()}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="text-xs text-gray-500 uppercase tracking-wide">
+                        Resta Pagar
+                      </div>
+                      <div className="text-lg font-semibold text-amber-600">
+                        ${remainingAmount.toLocaleString()}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {isFullyPaid && !hasDeposit && (
+                  <div className="col-span-2 space-y-1">
+                    <div className="text-xs text-gray-500 uppercase tracking-wide">
+                      Estado
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      <span className="text-sm font-medium text-emerald-600">
+                        Completamente Pagado
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Progress bar for partial payments */}
+              {hasDeposit && (
+                <div className="mt-4">
+                  <div className="flex justify-between text-xs text-gray-500 mb-2">
+                    <span>Progreso de Pago</span>
+                    <span>{Math.round((paidAmount / totalAmount) * 100)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-gradient-to-r from-emerald-500 to-green-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(paidAmount / totalAmount) * 100}%` }}
+                    />
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Progress bar for partial payments */}
-            {hasDeposit && (
-              <div className="mt-4">
-                <div className="flex justify-between text-xs text-gray-500 mb-2">
-                  <span>Progreso de Pago</span>
-                  <span>{Math.round((paidAmount / totalAmount) * 100)}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-gradient-to-r from-emerald-500 to-green-500 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${(paidAmount / totalAmount) * 100}%` }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+            {/* Vista Mobile - Collapsible */}
+            <div className="md:hidden">
+              <Collapsible>
+                <CollapsibleTrigger className="w-full">
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl border border-gray-100 hover:bg-slate-100 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <Wallet className="w-4 h-4 text-gray-600" />
+                      <span className="font-medium text-gray-900 text-sm">
+                        Info. Pago
+                      </span>
+                      <span className="text-lg font-semibold text-gray-900">
+                        ${totalAmount.toLocaleString()}
+                      </span>
+                    </div>
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                  </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="mt-2 bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl p-4 border border-gray-100">
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <div className="text-xs text-gray-500 uppercase tracking-wide">
+                            Total
+                          </div>
+                          <div className="text-lg font-semibold text-gray-900">
+                            ${totalAmount.toLocaleString()}
+                          </div>
+                        </div>
+
+                        {hasDeposit ? (
+                          <div className="space-y-1">
+                            <div className="text-xs text-gray-500 uppercase tracking-wide">
+                              Resta Pagar
+                            </div>
+                            <div className="text-lg font-semibold text-amber-600">
+                              ${remainingAmount.toLocaleString()}
+                            </div>
+                          </div>
+                        ) : isFullyPaid ? (
+                          <div className="space-y-1">
+                            <div className="text-xs text-gray-500 uppercase tracking-wide">
+                              Estado
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                              <span className="text-xs font-medium text-emerald-600">
+                                Pagado
+                              </span>
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+
+                      {hasDeposit && (
+                        <>
+                          <div className="space-y-1">
+                            <div className="text-xs text-gray-500 uppercase tracking-wide">
+                              Seña Pagada
+                            </div>
+                            <div className="text-lg font-semibold text-emerald-600">
+                              ${paidAmount.toLocaleString()}
+                            </div>
+                          </div>
+
+                          <div className="mt-3">
+                            <div className="flex justify-between text-xs text-gray-500 mb-2">
+                              <span>Progreso</span>
+                              <span>
+                                {Math.round((paidAmount / totalAmount) * 100)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-gradient-to-r from-emerald-500 to-green-500 h-2 rounded-full transition-all duration-300"
+                                style={{
+                                  width: `${(paidAmount / totalAmount) * 100}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+          </>
         )}
 
-        {/* Notes */}
+        {/* Notes - Collapsible en mobile */}
         {booking.notes && (
-          <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
-            <div className="text-xs text-blue-600 uppercase tracking-wide mb-1">
-              Notas
+          <>
+            {/* Vista Desktop */}
+            <div className="hidden md:block bg-blue-50 rounded-xl p-4 border border-blue-100">
+              <div className="text-xs text-blue-600 uppercase tracking-wide mb-1">
+                Notas
+              </div>
+              <div className="text-sm text-gray-700">{booking.notes}</div>
             </div>
-            <div className="text-sm text-gray-700">{booking.notes}</div>
-          </div>
+
+            {/* Vista Mobile - Collapsible */}
+            <div className="md:hidden">
+              <Collapsible>
+                <CollapsibleTrigger className="w-full">
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-xl border border-blue-100 hover:bg-blue-100 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-blue-600" />
+                      <span className="text-sm font-medium text-blue-700">
+                        Ver Notas
+                      </span>
+                    </div>
+                    <ChevronDown className="w-4 h-4 text-blue-500" />
+                  </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="mt-2 bg-blue-50 rounded-xl p-4 border border-blue-100">
+                    <div className="text-sm text-gray-700">{booking.notes}</div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+          </>
         )}
 
         {/* Actions */}
         {booking.status !== "cancelled" && booking.status !== "completed" && (
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100  md:items-start md:gap-4">
-            <div className="flex gap-3">
-              {canMarkAsCompleted && company && (
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 pt-2 border-t border-gray-100">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              {canMarkAsCompleted && (
                 <Button
                   onClick={() => onMarkAsCompleted(booking.id)}
                   variant="ghost"
                   size="sm"
-                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium px-4 py-2 rounded-lg transition-all duration-200 group/btn"
+                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium px-4 py-2 rounded-lg transition-all duration-200 group/btn w-full sm:w-auto"
                 >
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   Marcar Completado
@@ -339,14 +459,13 @@ export const BookingCard = ({
                 onClick={() => onCancel?.(booking.id)}
                 variant="ghost"
                 size="sm"
-                className="text-red-500 hover:text-red-600 hover:bg-red-50 font-medium px-4 py-2 rounded-lg transition-all duration-200 group/btn"
+                className="text-red-500 hover:text-red-600 hover:bg-red-50 font-medium px-4 py-2 rounded-lg transition-all duration-200 group/btn w-full sm:w-auto"
               >
                 <XCircle className="w-4 h-4 mr-2" />
                 Cancelar
                 <ArrowRight className="w-3 h-3 ml-2 opacity-0 group-hover/btn:opacity-100 transform translate-x-0 group-hover/btn:translate-x-1 transition-all duration-200" />
               </Button>
             </div>
-
             <div className="opacity-60 hover:opacity-100 transition-opacity duration-200">
               <PaymentDetails
                 paymentId={booking.payment_id}
