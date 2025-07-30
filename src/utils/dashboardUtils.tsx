@@ -19,12 +19,9 @@ export const getDashboardStats = (
   const confirmedBookings = bookings.filter(
     (b) => b.status === "confirmed"
   ).length;
+  const completedBookings = bookings.filter((b) => b.status === "completed").length;
+
   const pendingBookings = bookings.filter((b) => b.status === "pending").length;
 
-  // Validación segura para evitar errores
-  const activeEmployees = Array.isArray(employees)
-    ? employees.filter((e) => e.status === "active").length
-    : 0;
-
-  return { totalBookings, confirmedBookings, pendingBookings, activeEmployees };
+  return { totalBookings, confirmedBookings, completedBookings, pendingBookings };
 };
