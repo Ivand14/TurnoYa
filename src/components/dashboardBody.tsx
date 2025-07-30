@@ -6,16 +6,13 @@ import { Calendar } from "@/components/Calendar";
 import { Booking } from "@/types";
 import { es } from "date-fns/locale";
 import { Navbar } from "./Navbar";
+import StatsOverview from "./dashboarBusiness/StatsOverview";
+import { DashboardStats } from "@/types/dashboard";
 
 interface dashProps {
   upcomingBookings: Booking[];
   pastBookings: Booking[];
-  stats: () => {
-    totalBookings: number;
-    confirmedBookings: number;
-    pendingBookings: number;
-    cancelledBookings: number;
-  };
+  stats: DashboardStats;
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
   servicesUser: Record<string, any>;
@@ -33,13 +30,6 @@ function DashboardBody({
   bookingsForSelectedDate,
   handleCancelBooking,
 }: dashProps) {
-  const {
-    totalBookings,
-    confirmedBookings,
-    pendingBookings,
-    cancelledBookings,
-  } = stats();
-
   return (
     <main className="flex-1 container mx-auto px-4 py-8">
       {/* <h1 className="text-3xl font-bold mb-6">Dashboard de {user.user_data.name}</h1> */}
@@ -47,38 +37,9 @@ function DashboardBody({
         <Navbar />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="w-full mb-8">
         {/* Estadísticas */}
-        <Card className="bg-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Reservas Totales</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{totalBookings}</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Reservas Confirmadas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-booking-accent">
-              {confirmedBookings}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Reservas Pendientes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-booking-warning">
-              {pendingBookings}
-            </p>
-          </CardContent>
-        </Card>
+        <StatsOverview stats={stats} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
