@@ -118,7 +118,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           ) : (
             <div className="flex items-center justify-center bg-red-200 p-4 rounded-2xl m-3">
               <AlertCircleIcon />
-              <p className="ml-2">Para poder para inicia sesion</p>
+              <p className="ml-2">Para poder reservar inicia sesión</p>
             </div>
           )}
 
