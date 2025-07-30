@@ -8,17 +8,8 @@ import { Service, ServiceSchedule, ServiceBlackoutDate } from "@/types";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import {
-  Info,
-  Percent,
-  Plus,
-  Clock,
-  Calendar,
-  X,
-  CheckCircle2,
-  Settings,
-  Save,
-} from "lucide-react";
+import { Plus, Calendar, X, Settings, Save } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface EditableFormProps {
   service: Service;
@@ -210,7 +201,10 @@ const EditableForm: React.FC<EditableFormProps> = ({
   const activeDaysCount = schedule.length;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 md:flex-wrap md:flex-col md:space-y-0 md:gap-6"
+    >
       {/* Basic Info */}
       <div className="bg-gray-50 rounded-2xl p-6">
         <div className="space-y-4">
@@ -260,7 +254,7 @@ const EditableForm: React.FC<EditableFormProps> = ({
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 ">
           {DAYS_OF_WEEK.map((day) => {
             const daySchedule = schedule.find((s) => s.dayOfWeek === day.id);
             const isActive = !!daySchedule;
@@ -275,7 +269,7 @@ const EditableForm: React.FC<EditableFormProps> = ({
                 }`}
               >
                 <div className="p-3">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 ">
                     <div className="flex items-center gap-2 min-w-[120px]">
                       <Checkbox
                         checked={isActive}
@@ -291,7 +285,7 @@ const EditableForm: React.FC<EditableFormProps> = ({
                     </div>
 
                     {isActive && (
-                      <div className="flex items-center gap-3 flex-1">
+                      <div className="flex items-center gap-3 flex-1 sm:flex-row flex-col">
                         <div className="flex items-center gap-1">
                           <Label className="text-xs text-blue-700">
                             Desde:
@@ -421,60 +415,7 @@ const EditableForm: React.FC<EditableFormProps> = ({
             }
           />
         </div>
-
-        <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
-          <div>
-            <h3 className="font-medium text-gray-900">Empleado específico</h3>
-            <p className="text-sm text-gray-600">
-              Solo ciertos empleados pueden realizar este servicio
-            </p>
-          </div>
-          <Switch
-            checked={editedService.requiresSpecificEmployee}
-            onCheckedChange={(checked) =>
-              setEditedService((prev) => ({
-                ...prev,
-                requiresSpecificEmployee: checked,
-                allowedEmployeeIds: checked ? prev.allowedEmployeeIds : [],
-              }))
-            }
-          />
-        </div>
       </div>
-
-      {/* Employee Assignment */}
-      {editedService.requiresSpecificEmployee && (
-        <div className="bg-gray-50 rounded-2xl p-6">
-          <h3 className="font-medium text-gray-900 mb-4">
-            Seleccionar empleados
-          </h3>
-          <div className="space-y-2">
-            {activeEmployees.map((employee) => (
-              <label
-                key={employee.id}
-                className="flex items-center gap-3 p-3 rounded-xl bg-white hover:bg-blue-50 transition-colors cursor-pointer"
-              >
-                <Checkbox
-                  checked={editedService.allowedEmployeeIds.includes(
-                    employee.id
-                  )}
-                  onCheckedChange={(checked) =>
-                    handleEmployeeToggle(employee.id, checked as boolean)
-                  }
-                />
-                <div>
-                  <div className="font-medium text-gray-900">
-                    {employee.name}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {employee.position}
-                  </div>
-                </div>
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Blackout Dates */}
       <div className="bg-gray-50 rounded-2xl p-6">

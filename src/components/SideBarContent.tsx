@@ -62,7 +62,7 @@ const ResponsiveSidebar: React.FC<SidebarProps> = ({
   const menuItems = [
     { id: "resume", label: "Dashboard", icon: Home },
     { id: "booking", label: "Reservas", icon: Calendar },
-    { id: "employees", label: "Empleados", icon: Users },
+    // { id: "employees", label: "Empleados", icon: Users },
     { id: "statistics", label: "Estadísticas", icon: BarChart3 },
     { id: "service", label: "Servicios", icon: MapPin },
     { id: "wallet", label: "Pagos", icon: CreditCard },

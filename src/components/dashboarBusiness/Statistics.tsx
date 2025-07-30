@@ -39,30 +39,45 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
     }
   }, [services, booking]);
 
-  const monthlyData: monthlyDataInt[] = [];
-
-  const maxReservas = Math.max(...monthlyData.map((d) => d.booking));
-  const maxIngresos = Math.max(...monthlyData.map((d) => d.income));
-
   const topServices: topServiceInt[] = [];
 
-  const monthlyMetrics = () => {
-    const now = new Date();
-    const monthNumber = now.toLocaleString("es-ES", { month: "2-digit" });
-    const month = now.toLocaleDateString("es-ES", { month: "long" });
+  const monthlyData: monthlyDataInt[] = React.useMemo(() => {
+    const monthsMap: Record<string, { booking: number; income: number }> = {};
 
-    const bookingMonth = booking.filter(
-      (bk) => bk.date.split("-")[1] === monthNumber
-    );
+    booking.forEach((bk) => {
+      const date = new Date(bk.date);
+      const monthKey = `${date.getFullYear()}-${String(
+        date.getMonth() + 1
+      ).padStart(2, "0")}`;
 
-    const income = bookingMonth.reduce((acc, bk) => acc + bk.price, 0);
+      if (!monthsMap[monthKey]) {
+        monthsMap[monthKey] = { booking: 0, income: 0 };
+      }
 
-    return {
-      month,
-      booking: bookingMonth.length,
-      income,
-    };
-  };
+      monthsMap[monthKey].booking += 1;
+      monthsMap[monthKey].income += bk.price;
+    });
+
+    const sorted = Object.entries(monthsMap)
+      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
+      .map(([key, val]) => {
+        const [year, month] = key.split("-");
+        const monthName = new Date(
+          Number(year),
+          Number(month) - 1
+        ).toLocaleDateString("es-ES", {
+          month: "long",
+        });
+
+        return {
+          month: `${monthName[0].toUpperCase()}${monthName.slice(1)}`,
+          booking: val.booking,
+          income: val.income,
+        };
+      });
+
+    return sorted;
+  }, [booking]);
 
   const topServiceMetrics = () => {
     const serviceData = booking.reduce(
@@ -134,10 +149,11 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
 
     if (quantityConfirmed === 0) return 0;
 
-    return Math.min(
-      100,
-      Math.round(quantityCompleted / quantityConfirmed) * 100
+    const asistencia = Math.round(
+      (quantityCompleted / quantityConfirmed) * 100
     );
+
+    return Math.min(100, asistencia);
   };
 
   const performanceMetrics: performanceMetricsInt[] = [
@@ -160,9 +176,11 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
       color: "text-green-500",
     },
   ];
-  monthlyData.push(monthlyMetrics());
   topServiceMetrics();
   topServices.push(...topServiceMetrics());
+
+  const maxBooking = 10000;
+  const maxIncome = 1000000;
 
   return (
     <div className="p-8 min-h-screen">
@@ -225,7 +243,7 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
                     <div
                       className="bg-gradient-to-r from-blue-500 to-purple-600 h-6 rounded-full flex items-center justify-end pr-2"
                       style={{
-                        width: `${(data.booking / maxReservas) * 100}%`,
+                        width: `${(data.booking / maxBooking) * 100}%`,
                       }}
                     >
                       <span className="text-white text-xs font-medium">
@@ -256,7 +274,7 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
                     <div
                       className="bg-gradient-to-r from-green-500 to-emerald-600 h-6 rounded-full flex items-center justify-end pr-2"
                       style={{
-                        width: `${(data.income / maxIngresos) * 100}%`,
+                        width: `${(data.income / maxIncome) * 100}%`,
                       }}
                     >
                       <span className="text-white text-xs font-medium">

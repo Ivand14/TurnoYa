@@ -8,7 +8,7 @@ export const subscription = async (subscriptionData: subscriptionData[]) => {
   try {
     const response = await axios.post(`${API_URL}/plan`, {
       free_trial,
-      amount : 20,
+      amount,
       reason,
     });
     const { init_point, status } = response.data;
