@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Check, X, Clock, Shield, HeadphonesIcon } from "lucide-react";
+import React from "react";
+import { Check, X, Clock, Shield, HeadphonesIcon, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { subscription } from "@/apis/MercadoPagoApis/subscription";
 import { businessRegister } from "@/types";
@@ -13,168 +13,139 @@ function PricingCards({
   selectedPlan?: string;
   businessRegister: businessRegister;
 }) {
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">(
-    "monthly"
-  );
+  const navigate = useNavigate();
 
   const plans = [
     {
       name: "Básico",
       description: "Perfecto para pequeños negocios que inician",
       monthlyPrice: 15000,
-      popular: false,
       features: [
-        { text: "Hasta 40 citas por mes", included: true },
-        { text: "Gestión de hasta 2 empleados", included: true },
-        { text: "Base de datos de clientes", included: true },
-        {
-          text: "Integración con mercado pago reduciendo perdidas de dinero",
-          included: true,
-        },
-        { text: "Calendario básico", included: true },
-        { text: "Soporte por email", included: false },
-        { text: "Reportes avanzados", included: false },
+        "Citas ilimitadas",
+        "Elegi el porcentaje de adelanto que quieras",
+        "Calendario avanzado",
+        "Soporte básico",
+        "Integración en un solo click con mercado pago reduciendo perdidas de dinero",
+        "Reportes básicos",
+        "Bloquea los dias que no quieras recibir reservas",
+        "Filtros de reservas",
+        "Personaliza tu perfil de negocio",
+        "Bloqueo de turnos por alta demanda",
       ],
       ctaText: "Probar 7 días gratis",
       ctaVariant: "secondary",
       free_trial: 7,
+      isAvailable: true,
     },
     {
       name: "Profesional",
       description: "Ideal para negocios en crecimiento",
       monthlyPrice: 20000,
-      popular: true,
       features: [
-        { text: "Citas ilimitadas", included: true },
-        { text: "Hasta 10 empleados", included: true },
-        { text: "CRM completo de clientes", included: true },
-        { text: "Recordatorios SMS y Email", included: true },
-        { text: "Calendario avanzado", included: true },
-        { text: "Soporte prioritario", included: true },
-        { text: "Reportes y analytics", included: true },
-        {
-          text: "Integración con mercado pago reduciendo perdidas de dinero",
-          included: true,
-        },
+        "Incluye todo lo anterior",
+        "🔁 Automatizaciones con IA",
+        "🤖 Integración con bots o WhatsApp",
+        "📈 Recomendaciones inteligentes de agenda",
+        "📨 Respuestas automáticas por WhatsApp",
+        "⏱ Confirmación y recordatorios automáticos",
+        "📊 Reportes automáticos semanales",
+        "⚠️ Bloqueo de turnos por alta demanda",
+        "📝 Encuestas post-turno con análisis",
       ],
-      ctaText: "Probar 14 días gratis",
-      ctaVariant: "primary",
-      free_trial: 14,
+
+      ctaText: "Próximamente",
+      ctaVariant: "disabled",
+      free_trial: 0,
+      isAvailable: false,
     },
   ];
 
-  const getPrice = (plan: (typeof plans)[0]) => {
-    return plan.monthlyPrice;
-  };
-
-  const mercadoPagoSubscription = async (planName: string) => {
-    onPlanSelect(planName);
+  const handleSubscription = async (plan: (typeof plans)[0]) => {
+    if (!plan.isAvailable) return;
+    onPlanSelect?.(plan.name);
     localStorage.setItem(
       "businessRegisterPending",
-      JSON.stringify({ ...businessRegister, subscriptionPlan: planName })
+      JSON.stringify({ ...businessRegister, subscriptionPlan: plan.name })
     );
-    const filterPlan = plans
-      .filter((plan) => plan.name === planName)
-      .map((plan) => ({
+    await subscription([
+      {
         amount: plan.monthlyPrice,
         reason: plan.name,
         free_trial: plan.free_trial,
-      }));
-    await subscription(filterPlan);
+      },
+    ]);
   };
 
-  const navigate = useNavigate();
-
   return (
-    <div className="min-h-screen ">
-      {/* Pricing Section */}
+    <div className="min-h-screen">
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Planes para cada etapa de tu negocio
-            </h2>
-            <p className="text-xl text-gray-600 mb-8">
-              Comienza gratis y escala según creces
-            </p>
-          </div>
+        <div className="max-w-7xl mx-auto text-center mb-16">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            Planes para cada etapa de tu negocio
+          </h2>
+          <p className="text-xl text-gray-600">
+            Comienza gratis y escala según creces
+          </p>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {plans.map((plan, index) => (
-              <div
-                key={index}
-                className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer ${
-                  selectedPlan === plan.name
-                    ? "ring-2 ring-blue-500 transform scale-105"
-                    : "hover:transform hover:scale-105"
-                }`}
-                onClick={() => onPlanSelect(plan.name)}
-              >
-                {plan.popular && (
-                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium">
-                      Más Popular
-                    </span>
-                  </div>
-                )}
-
-                <div className="p-8">
-                  <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                      {plan.name}
-                    </h3>
-                    <p className="text-gray-600 mb-6">{plan.description}</p>
-                    <div className="mb-2">
-                      <span className="text-5xl font-bold text-gray-900">
-                        ${getPrice(plan)}
-                      </span>
-                      <span className="text-gray-500 ml-2">
-                        ARS/{billingCycle === "monthly" ? "mes" : "mes"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 mb-8">
-                    {plan.features.map((feature, featureIndex) => (
-                      <div key={featureIndex} className="flex items-center">
-                        <div
-                          className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
-                            feature.included
-                              ? "bg-green-100 text-green-600"
-                              : "bg-gray-100 text-gray-400"
-                          }`}
-                        >
-                          {feature.included ? (
-                            <Check className="w-3 h-3" />
-                          ) : (
-                            <X className="w-3 h-3" />
-                          )}
-                        </div>
-                        <span
-                          className={`ml-3 text-sm ${
-                            feature.included ? "text-gray-900" : "text-gray-500"
-                          }`}
-                        >
-                          {feature.text}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <button
-                    onClick={() => mercadoPagoSubscription(plan.name)}
-                    className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-200 ${
-                      plan.ctaVariant === "primary"
-                        ? "bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl"
-                        : "bg-gray-100 text-gray-900 hover:bg-gray-200 border-2 border-gray-200 hover:border-gray-300"
-                    }`}
-                  >
-                    {plan.ctaText}
-                  </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          {plans.map((plan, index) => (
+            <div
+              key={index}
+              className={`relative bg-white rounded-2xl shadow-lg p-8 transition-all duration-300 ${
+                plan.isAvailable
+                  ? "cursor-pointer hover:scale-105"
+                  : "opacity-70 cursor-not-allowed"
+              } ${
+                selectedPlan === plan.name && plan.isAvailable
+                  ? "ring-2 ring-blue-500 scale-105"
+                  : ""
+              }`}
+              onClick={() => handleSubscription(plan)}
+            >
+              {!plan.isAvailable && (
+                <div className="absolute top-4 right-4">
+                  <span className="bg-yellow-200 text-yellow-800 text-xs font-bold px-3 py-1 rounded-full">
+                    Próximamente
+                  </span>
                 </div>
+              )}
+
+              <h3 className="text-2xl font-bold text-gray-900 mb-2 text-center">
+                {plan.name}
+              </h3>
+              <p className="text-gray-600 mb-6 text-center">
+                {plan.description}
+              </p>
+
+              <div className="text-center mb-6">
+                <span className="text-4xl font-bold text-gray-900">
+                  ${plan.monthlyPrice}
+                </span>
+                <span className="text-gray-500 text-sm ml-2">ARS/mes</span>
               </div>
-            ))}
-          </div>
+
+              <ul className="space-y-3 mb-8">
+                {plan.features.map((text, i) => (
+                  <li key={i} className="flex items-center text-sm">
+                    <Check className="w-4 h-4 text-green-500 mr-2" />
+                    {text}
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                disabled={!plan.isAvailable}
+                className={`w-full py-3 rounded-xl font-semibold transition ${
+                  plan.isAvailable
+                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                {plan.ctaText}
+              </button>
+            </div>
+          ))}
         </div>
       </section>
 
