@@ -19,7 +19,7 @@ function PricingCards({
     {
       name: "Básico",
       description: "Perfecto para pequeños negocios que inician",
-      monthlyPrice: 15000,
+      monthlyPrice: 15,
       features: [
         "Citas ilimitadas",
         "Elegi el porcentaje de adelanto que quieras",
@@ -79,14 +79,14 @@ function PricingCards({
   return (
     <div className="min-h-screen">
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50">
-        <div className="max-w-7xl mx-auto text-center mb-16">
+        {/* <div className="max-w-7xl mx-auto text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
             Planes para cada etapa de tu negocio
           </h2>
           <p className="text-xl text-gray-600">
             Comienza gratis y escala según creces
           </p>
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {plans.map((plan, index) => (
