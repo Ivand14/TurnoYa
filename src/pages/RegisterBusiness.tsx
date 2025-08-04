@@ -95,7 +95,6 @@ const RegisterBusiness = () => {
   const params = new URLSearchParams(location.search);
   const preapproval_id = params.get("preapproval_id");
 
-
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessSchema),
     defaultValues: {
@@ -117,32 +116,44 @@ const RegisterBusiness = () => {
   useEffect(() => {
     const raw = localStorage.getItem("businessRegisterPending");
 
-    if (!raw) {
+    if (!raw) return;
+
+    let companyParsed: Partial<BusinessFormValues> | null = null;
+
+    try {
+      companyParsed = JSON.parse(raw);
+    } catch (error) {
+      console.error("❌ Error al parsear businessRegisterPending:", error);
       return;
     }
 
-    try {
-      const companyParsed = JSON.parse(raw);
-      Object.entries(companyParsed).forEach(([key, value]: any) => {
-        if (key !== "logo_url") {
-          form.setValue(key as keyof BusinessFormValues, value);
-        }
-      });
+    if (!companyParsed || typeof companyParsed !== "object") return;
 
-      if (companyParsed.logo_url) {
-        form.setValue("logo_url", companyParsed.logo_url);
-        setLogoPreview(companyParsed.logo_url);
+    // Setear campos en el formulario
+    Object.entries(companyParsed).forEach(([key, value]) => {
+      if (key === "logo_url" && typeof value === "string") {
+        setLogoPreview(value);
       }
-
-      if (companyParsed.subscriptionPlan) {
-        form.setValue("subscriptionPlan", companyParsed.subscriptionPlan);
+      if (key in form.getValues()) {
+        form.setValue(key as keyof BusinessFormValues, value);
       }
+    });
 
-      preapproval_id && form.setValue("preapproval_id", preapproval_id);
-    } catch (error) {
-      console.error("❌ Error al parsear businessRegisterPending:", error);
+    // Si tenemos el preapproval_id y los datos están completos, enviar el formulario
+    if (preapproval_id) {
+      form.setValue("preapproval_id", preapproval_id);
+
+      // Asegurarse que tiene los campos requeridos
+      const requiredFields = ["name", "email", "subscriptionPlan"];
+      const isReady = requiredFields.every((field) =>
+        form.getValues(field as keyof BusinessFormValues)
+      );
+
+      if (isReady) {
+        form.handleSubmit(onSubmit)();
+      }
     }
-  }, []);
+  }, [preapproval_id, form]);
 
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -195,7 +206,7 @@ const RegisterBusiness = () => {
 
       if (response.status === 200) {
         toast.success("¡Negocio registrado correctamente!");
-        localStorage.removeItem("businessRegisterPending")
+        localStorage.removeItem("businessRegisterPending");
         setTimeout(() => {
           navigate("/dashboard");
         }, 1500);
