@@ -63,7 +63,12 @@ export const resetPassword = async (
 };
 
 export const resetEmail = async (email: string) => {
+
+  console.log(email)
+
   const user = getAuth().currentUser;
+
+  console.log(user)
 
   if (!user) return toast.error("No hay sesión activa");
 

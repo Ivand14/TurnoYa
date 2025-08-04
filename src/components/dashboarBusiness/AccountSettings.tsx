@@ -18,9 +18,11 @@ import {
   cancelSubscription,
   subscripcionData,
 } from "@/apis/MercadoPagoApis/subscription";
-import { set } from "date-fns";
-import PricingCards from "../pricingCards";
 import ReactivateSubscription from "../subscriptions/reActivateSubscription";
+import { uploadLogoFile } from "@/utils/uploadFile";
+import { string } from "zod";
+import { resetEmail, resetPassword } from "@/lib/utils";
+import { profileSettings } from "@/apis/config/businessConfig";
 
 const AccountSettings = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -39,7 +41,7 @@ const AccountSettings = () => {
     phone: "",
     address: "",
     description: "",
-    logo: null as File | null,
+    logo: "",
 
     // Seguridad
     currentPassword: "",
@@ -54,17 +56,20 @@ const AccountSettings = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async(e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setForm((prev) => ({ ...prev, logo: file }));
+    const imageUrl = await uploadLogoFile(file);
+    setImagePreview(imageUrl);
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    setForm((prev) => ({ ...prev, logo: imageUrl }));
+
+    // const reader = new FileReader();
+    // reader.onload = () => {
+    //   setImagePreview(reader.result as string);
+    // };
+    // reader.readAsDataURL(file);
   };
 
   const resetForm = () => {
@@ -74,7 +79,7 @@ const AccountSettings = () => {
       phone: "",
       address: "",
       description: "",
-      logo: null,
+      logo: "",
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
@@ -87,6 +92,9 @@ const AccountSettings = () => {
 
     try {
       // Aquí iría la lógica para guardar los cambios
+      form.email && resetEmail(form.email);
+      await profileSettings(form, company.id)
+      form.currentPassword && resetPassword(form.currentPassword,form.newPassword);
       console.log("Guardando cambios:", form);
       toast.success("Configuración guardada exitosamente");
     } catch (error) {
@@ -128,6 +136,8 @@ const AccountSettings = () => {
       handleSubscription();
     }
   }, [activeTab]);
+
+  console.log(subscriptionData)
 
   const renderProfileTab = () => (
     <div className="space-y-6">
@@ -365,12 +375,12 @@ const AccountSettings = () => {
           <h3 className="font-medium text-gray-900">Plan Actual</h3>
           <span
             className={`px-3 py-1  text-sm font-medium rounded-full ${
-              subscriptionData?.status === "active"
+              subscriptionData?.status === "authorized"
                 ? "text-green-800 bg-green-100"
                 : "text-red-800 bg-red-100"
             }`}
           >
-            {subscriptionData?.status === "active" ? " Activo" : "Inactivo"}
+            {subscriptionData?.status === "authorized" ? " Activo" : "Inactivo"}
           </span>
         </div>
 
@@ -378,14 +388,14 @@ const AccountSettings = () => {
           <div className="flex items-center space-x-2">
             <Crown className="w-5 h-5 text-blue-600" />
             <span className="text-lg font-semibold text-gray-900">
-              {subscriptionData?.status === "active"
+              {subscriptionData?.status === "authorized"
                 ? subscriptionData?.reason
                 : "Sin suscripción activa"}
             </span>
           </div>
           <div className="text-gray-500">•</div>
           <span className="text-gray-600">
-            {subscriptionData?.status === "active"
+            {subscriptionData?.status === "authorized"
               ? `${subscriptionData?.auto_recurring?.transaction_amount}/${subscriptionData?.auto_recurring?.currency_id}`
               : "0$"}
           </span>
@@ -394,7 +404,7 @@ const AccountSettings = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="text-center p-4 bg-gray-50 rounded-lg">
             <div className="text-xl font-bold text-gray-900">
-              {subscriptionData?.status === "active" &&
+              {subscriptionData?.status === "authorized" &&
                 (() => {
                   const nextPaymentDate = new Date(
                     subscriptionData?.next_payment_date
@@ -411,7 +421,7 @@ const AccountSettings = () => {
           </div>
           <div className="text-center p-4 bg-gray-50 rounded-lg">
             <div className="text-xl font-bold text-gray-900">
-              {subscriptionData?.status === "active" &&
+              {subscriptionData?.status === "authorized" &&
                 new Date(
                   subscriptionData?.next_payment_date
                 ).toLocaleDateString("es-ES", {
@@ -424,7 +434,7 @@ const AccountSettings = () => {
           </div>
           <div className="text-center p-4 bg-gray-50 rounded-lg">
             <div className="text-xl font-bold text-gray-900">
-              {subscriptionData?.status === "active" &&
+              {subscriptionData?.status === "authorized" &&
                 subscriptionData?.payment_method_id === "account_money" &&
                 "Saldo de cuenta"}
             </div>
@@ -498,12 +508,12 @@ const AccountSettings = () => {
                   <td className="py-3">
                     <span
                       className={`px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full ${
-                        subscriptionData?.status === "active"
+                        subscriptionData?.status === "authorized"
                           ? "bg-green-100 text-green-800"
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {subscriptionData?.status === "active"
+                      {subscriptionData?.status === "authorized"
                         ? "Pagado"
                         : "Cancelado"}
                     </span>

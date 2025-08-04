@@ -22,6 +22,7 @@ const ReactivateSubscription: React.FC<reactivateSubscriptionProps> = ({
       description: "Perfecto para pequeños negocios que inician",
       monthlyPrice: 15000,
       ctaText: "Reactivar ahora",
+      authText: "Plan Actual",
       free_trial: 7,
       isAvailable: true,
     },
@@ -30,6 +31,7 @@ const ReactivateSubscription: React.FC<reactivateSubscriptionProps> = ({
       description: "Ideal para negocios en crecimiento",
       monthlyPrice: 20000,
       ctaText: "Próximamente",
+      authText: "Próximamente",
       free_trial: 0,
       isAvailable: false,
     },
@@ -37,7 +39,7 @@ const ReactivateSubscription: React.FC<reactivateSubscriptionProps> = ({
 
   return (
     <div className=" p-4 flex items-center justify-center">
-      {status === "cancelled" ? (
+      {status === "authorized" ? (
         <div className="max-w-2xl mx-auto">
           <div className="grid gap-4">
             {plans.map((plan) => (
@@ -68,7 +70,7 @@ const ReactivateSubscription: React.FC<reactivateSubscriptionProps> = ({
                     disabled={!plan.isAvailable}
                     variant={plan.isAvailable ? "default" : "outline"}
                   >
-                    {plan.ctaText}
+                    {plan.authText}
                   </Button>
                 </CardFooter>
               </Card>
@@ -105,7 +107,7 @@ const ReactivateSubscription: React.FC<reactivateSubscriptionProps> = ({
                     disabled={!plan.isAvailable}
                     variant={plan.isAvailable ? "default" : "outline"}
                   >
-                    Plan Actual
+                    {plan.ctaText}
                   </Button>
                 </CardFooter>
               </Card>

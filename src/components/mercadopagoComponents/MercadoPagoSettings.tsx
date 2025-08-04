@@ -39,17 +39,18 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
     if (!mpAccount) return;
 
     const parsedAccount = JSON.parse(mpAccount);
-    const isComplete = Object.keys(parsedAccount["state"]).every((key) => {
-      console.log(parsedAccount["state"], "parsedAccount");
-      if (
-        parsedAccount["state"] === "" ||
-        parsedAccount["state"] === null
-        // parsedAccount["state"][key] === 0
-      ) {
-        return false;
-      } else {
-        return true;
-      }
+    const state = parsedAccount["state"];
+
+    const isComplete = Object.keys(state).every((key) => {
+      const value = state[key];
+
+      return (
+        value !== undefined &&
+        value !== null &&
+        value !== "" &&
+        value !== "empty string" &&
+        value !== 0
+      );
     });
 
     if (isComplete) {
@@ -115,8 +116,6 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
     }
     toast.success("Desconectado de MercadoPago");
   };
-
-  console.log(isConnected, "isConnected");
 
   return (
     <div className="space-y-6">
