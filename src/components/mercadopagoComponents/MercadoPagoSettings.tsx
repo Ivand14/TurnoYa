@@ -11,6 +11,7 @@ import {
   salesmanContext,
   salesmanData,
 } from "@/context/MercadoPagoContext/salesmanContext";
+import { parse } from "path";
 
 interface MercadoPagoSettingsProps {
   businessId: string;
@@ -37,9 +38,20 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
   const connected = () => {
     if (!mpAccount) return;
 
-    if (Object.keys(companyData).length === 0) return;
-    console.log("Company Data:", Object.keys(companyData).length);
-    if (Object.keys(companyData).length > 0) {
+    const parsedAccount = JSON.parse(mpAccount);
+    const isComplete = Object.keys(parsedAccount["state"]).every((key) => {
+      if (
+        parsedAccount["state"][key] === "" ||
+        parsedAccount["state"][key] === null ||
+        parsedAccount["state"][key] === 0
+      ) {
+        return false;
+      } else {
+        return true;
+      }
+    });
+
+    if (isComplete) {
       const updated = {
         ...companyData,
         mercado_pago_connect: true,
@@ -102,6 +114,8 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
     }
     toast.success("Desconectado de MercadoPago");
   };
+
+  console.log(isConnected, "isConnected");
 
   return (
     <div className="space-y-6">
