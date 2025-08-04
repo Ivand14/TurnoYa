@@ -69,4 +69,5 @@ export interface subscriptionData {
   amount: number;
   reason: string;
   free_trial: number;
+  payer_email?: string;
 }

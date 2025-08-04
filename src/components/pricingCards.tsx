@@ -72,6 +72,7 @@ function PricingCards({
         amount: plan.monthlyPrice,
         reason: plan.name,
         free_trial: plan.free_trial,
+        payer_email: businessRegister.email,
       },
     ]);
   };
