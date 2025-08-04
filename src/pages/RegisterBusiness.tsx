@@ -138,11 +138,14 @@ const RegisterBusiness = () => {
         form.setValue("subscriptionPlan", companyParsed.subscriptionPlan);
       }
 
-      preapproval_id && form.setValue("preapproval_id", preapproval_id);
+      if(preapproval_id) {
+        form.setValue("preapproval_id", preapproval_id);
+        form.handleSubmit(onSubmit)();
+      }
     } catch (error) {
       console.error("❌ Error al parsear businessRegisterPending:", error);
     }
-  }, []);
+  }, [preapproval_id, form]);
 
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

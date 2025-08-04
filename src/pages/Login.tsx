@@ -27,9 +27,7 @@ import {
   Shield,
   Zap,
   Users,
-  CheckCircle,
   ArrowRight,
-  Sparkles,
 } from "lucide-react";
 
 const Login = () => {
