@@ -179,7 +179,7 @@ const ServiceList: React.FC<ServiceListProps> = ({
                   </div>
 
                   {/* Mobile Actions */}
-                  <div className="flex items-center gap-1 ml-2">
+                  <div className="flex flex-col items-center gap-1 ml-2 flex-shrink-0">
                     <EditService
                       service={service}
                       employeesAvailable={employees}

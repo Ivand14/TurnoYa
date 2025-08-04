@@ -40,10 +40,11 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
 
     const parsedAccount = JSON.parse(mpAccount);
     const isComplete = Object.keys(parsedAccount["state"]).every((key) => {
+      console.log(parsedAccount["state"], "parsedAccount");
       if (
-        parsedAccount["state"][key] === "" ||
-        parsedAccount["state"][key] === null ||
-        parsedAccount["state"][key] === 0
+        parsedAccount["state"] === "" ||
+        parsedAccount["state"] === null
+        // parsedAccount["state"][key] === 0
       ) {
         return false;
       } else {
