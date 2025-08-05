@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { es } from "date-fns/locale";
 import { format, formatDate } from "date-fns";
 import { useServicesContext } from "@/context/apisContext/servicesContext";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PaymentDetails } from "./dashboarBusiness/paymentDetail";
 import {
   Calendar,
@@ -29,6 +29,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { current_user } from "@/context/currentUser";
 import { BookingCardSkeleton } from "./BookingCardSkeleton";
 
 interface BookingCardProps {
@@ -41,32 +42,32 @@ interface BookingCardProps {
   onCancel?: (bookingId: string) => void;
 }
 
-export const BookingCard = ({
+export const BookingUserCard = ({
   booking,
   service,
   onCancel,
 }: BookingCardProps) => {
   const bookingDate = new Date(booking.start);
   const { services, fetchGetServices } = useServicesContext();
-  const { fetchPatchStatusBooking } = useBookingContext();
-  const { company } = compnay_logged();
-  const [loading, setIsLoading] = useState<boolean>(false);
+  const { user } = current_user();
+  const { userBooking, fetchGetUserBooking } = useBookingContext();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
     const loadService = async () => {
+      setIsLoading(true);
       await fetchGetServices(booking.businessId);
+      await fetchGetUserBooking(user.id);
+      setIsLoading(false);
     };
     loadService();
-    setIsLoading(false);
   }, []);
 
-  const nameOfService = services.find((serv) => serv.id === booking.serviceId);
+  const nameOfService = services.find((serv) =>
+    userBooking.map((bk) => bk.serviceId === serv.id)
+  );
 
-  if (loading || !nameOfService) {
-    return <BookingCardSkeleton />;
-  }
-
+  
   // Cálculos de pagos
   const totalAmount = booking.price || 0;
   const paidAmount = booking.paymentAmount || 0;
@@ -148,31 +149,22 @@ export const BookingCard = ({
     }
   };
 
-  const onMarkAsCompleted = async (booking_id: string) => {
-    await fetchPatchStatusBooking(
-      booking_id,
-      "completed",
-      booking.paymentAmount,
-      booking.price
-    );
-  };
-
   const date = new Date();
   const options: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   };
-  const currentDate = date.toLocaleDateString("en-CA", options);
-  const bookingToDate = bookingDate.toLocaleDateString("en-CA", options);
-
-  const isPastOrToday = bookingToDate <= currentDate;
-  const canMarkAsCompleted = booking.status === "confirmed" && isPastOrToday;
 
   const statusConfig = getStatusConfig(booking.status);
   const paymentConfig = getPaymentStatusConfig(booking.paymentStatus);
   const StatusIcon = statusConfig.icon;
   const PaymentIcon = paymentConfig.icon;
+
+  // Mostrar skeleton mientras carga
+  if (isLoading || !nameOfService) {
+    return <BookingCardSkeleton />;
+  }
 
   return (
     <div className="group relative bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-lg transition-all duration-500 overflow-hidden">
@@ -454,19 +446,6 @@ export const BookingCard = ({
         {booking.status !== "cancelled" && booking.status !== "completed" && (
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 pt-2 border-t border-gray-100">
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              {canMarkAsCompleted && (
-                <Button
-                  onClick={() => onMarkAsCompleted(booking.id)}
-                  variant="ghost"
-                  size="sm"
-                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium px-4 py-2 rounded-lg transition-all duration-200 group/btn w-full sm:w-auto"
-                >
-                  <CheckCircle2 className="w-4 h-4 mr-2" />
-                  Marcar Completado
-                  <ArrowRight className="w-3 h-3 ml-2 opacity-0 group-hover/btn:opacity-100 transform translate-x-0 group-hover/btn:translate-x-1 transition-all duration-200" />
-                </Button>
-              )}
-
               <Button
                 onClick={() => onCancel?.(booking.id)}
                 variant="ghost"

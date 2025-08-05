@@ -13,6 +13,7 @@ import { useBookingContext } from "@/context/apisContext/bookingContext";
 import { useServicesContext } from "@/context/apisContext/servicesContext";
 import DashboardBody from "@/components/dashboardBody";
 import { getDashboardStats } from "@/utils/dashboardUtils";
+import { BookingCardSkeleton } from "@/components/BookingCardSkeleton";
 
 const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -92,6 +93,10 @@ const Dashboard = () => {
 
   // Resumen de estadísticas
   const stats = getDashboardStats(userBooking, []);
+
+  if (!upcomingBookings || !pastBookings) {
+    return <BookingCardSkeleton />;
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
