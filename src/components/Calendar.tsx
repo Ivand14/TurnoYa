@@ -13,25 +13,27 @@ import {
 import { Button } from "@/components/ui/button";
 import { Day, ScheduleSettings } from "@/types";
 import { es } from "date-fns/locale";
-import { useState } from "react";
-import { Card, CardContent } from "./ui/card";
-import { Clock } from "lucide-react";
+import React, { useRef, useState } from "react";
+
 
 interface CalendarProps {
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
   scheduleSettings?: ScheduleSettings;
   daysOfWeek?: string[];
+  goToCalendar: (ref: React.RefObject<HTMLDivElement>) => void;
 }
 
 export const Calendar = ({
   selectedDate,
   onSelectDate,
   scheduleSettings,
+  goToCalendar,
 }: CalendarProps) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const today = new Date();
   const daysOfWeekDefault = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+  const slotRef = useRef<HTMLDivElement>(null);
 
   const worksDates = scheduleSettings?.workDays.map((day) => {
     return daysOfWeekDefault[day].toLowerCase();
@@ -142,7 +144,12 @@ export const Calendar = ({
         {days.map((day, idx) => (
           <Button
             key={idx}
-            onClick={() => onSelectDate(day.date)}
+            onClick={() => {
+              onSelectDate(day.date);
+              if (window.innerWidth <= 768) {
+                goToCalendar(slotRef); // solo se ejecuta en mobile o tablets
+              }
+            }}
             variant="ghost"
             size="sm"
             className={`h-10 ${

@@ -3,7 +3,7 @@ import {} from "@/context/login.state";
 import { Booking, ScheduleSettings, Service, TimeSlot } from "@/types";
 import { Navigate, useHref, useNavigate, useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { BookingForm } from "@/components/BookingForm";
@@ -53,7 +53,8 @@ const BusinessPage = () => {
   const { fetchGetServices, services } = useServicesContext();
   const [bookingId, setBookingId] = useState<string>("");
   const { user } = current_user();
-  const navigate = useNavigate();
+  const calendarRef = useRef<HTMLDivElement | null>(null);
+  const slotRef = useRef<HTMLDivElement | null>(null);
 
   const [initialLoading, setInitialLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -310,6 +311,10 @@ const BusinessPage = () => {
 
   const businessType = getBusinessTypeInfo(businessForId?.company_type);
 
+  const goToCalendar = (ref: React.RefObject<HTMLDivElement>) => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <div
       className="flex flex-col min-h-screen bg-gray-50"
@@ -460,6 +465,7 @@ const BusinessPage = () => {
                           transition={{ duration: 0.3, delay: index * 0.1 }}
                         >
                           <ServiceCard
+                            goToCalendar={() => goToCalendar(calendarRef)}
                             service={service}
                             onReserve={handleSelectService}
                           />
@@ -478,7 +484,10 @@ const BusinessPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.6, delay: 0.2 }}
                     >
-                      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+                      <div
+                        ref={calendarRef}
+                        className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6"
+                      >
                         <div className="flex items-center mb-6">
                           <CalendarIcon className="w-6 h-6 text-indigo-600 mr-3" />
                           <h2 className="text-xl font-bold text-gray-900">
@@ -486,6 +495,7 @@ const BusinessPage = () => {
                           </h2>
                         </div>
                         <Calendar
+                          goToCalendar={() => goToCalendar(slotRef)}
                           selectedDate={selectedDate}
                           onSelectDate={(date) => {
                             setSelectedDate(date);
@@ -502,7 +512,7 @@ const BusinessPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.6, delay: 0.4 }}
                     >
-                      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+                      <div ref={slotRef} className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
                         <div className="flex items-center mb-6">
                           <Clock className="w-6 h-6 text-indigo-600 mr-3" />
                           <h2 className="text-xl font-bold text-gray-900">
