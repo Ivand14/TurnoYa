@@ -1,13 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
-import { BookingCard } from "@/components/BookingCard";
+import { BookingUserCard } from "@/components/BookingUserCard";
 import { Calendar } from "@/components/Calendar";
 import { Booking } from "@/types";
 import { es } from "date-fns/locale";
 import { Navbar } from "./Navbar";
 import StatsOverview from "./dashboarBusiness/StatsOverview";
 import { DashboardStats } from "@/types/dashboard";
+
 
 interface dashProps {
   upcomingBookings: Booking[];
@@ -71,7 +72,7 @@ function DashboardBody({
               {bookingsForSelectedDate.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {bookingsForSelectedDate.map((booking) => (
-                    <BookingCard
+                    <BookingUserCard
                       key={booking.id}
                       booking={booking}
                       service={servicesUser[booking.id]}
@@ -106,7 +107,7 @@ function DashboardBody({
             {upcomingBookings.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {upcomingBookings.map((booking) => (
-                  <BookingCard
+                  <BookingUserCard
                     key={booking.id}
                     booking={booking}
                     service={servicesUser[booking.serviceId]}
@@ -125,7 +126,7 @@ function DashboardBody({
             {pastBookings.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {pastBookings.map((booking) => (
-                  <BookingCard
+                  <BookingUserCard
                     key={booking.id}
                     booking={booking}
                     service={servicesUser[booking.serviceId]}
