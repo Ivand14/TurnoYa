@@ -460,11 +460,11 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
 
         {/* Blackout Dates - Individual Service */}
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 mb-6 md:flex-row flex-col text-center md:text-left">
             <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
               <Calendar className="w-5 h-5 text-white" />
             </div>
-            <div>
+            <div className="w-full">
               <h3 className="text-lg font-semibold text-gray-900">
                 Fechas no disponibles
               </h3>
@@ -476,7 +476,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
           </div>
 
           <div className="space-y-4">
-            <div className="flex gap-3">
+            <div className="flex gap-3 sm:flex-row flex-col">
               <Input
                 type="date"
                 value={newBlackoutDate.date}
@@ -489,7 +489,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                 className="border-0 bg-gray-50 rounded-xl px-4 py-3"
                 min={new Date().toISOString().split("T")[0]}
               />
-              <Input
+              {/* <Input
                 placeholder="Motivo (opcional)"
                 value={newBlackoutDate.reason}
                 onChange={(e) =>
@@ -499,7 +499,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                   }))
                 }
                 className="border-0 bg-gray-50 rounded-xl px-4 py-3 flex-1"
-              />
+              /> */}
               <Button
                 type="button"
                 onClick={addBlackoutDate}
