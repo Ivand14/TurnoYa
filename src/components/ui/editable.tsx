@@ -61,8 +61,8 @@ const EditService: React.FC<editProps> = ({
         </Button>
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/20 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 w-[95vw] max-w-4xl -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl border border-gray-100 focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
+        <Dialog.Overlay className="fixed inset-0 z-50  bg-black/20 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Content className="max-h-screen z-50 overflow-y-auto w-full fixed left-1/2 top-1/2  max-w-4xl -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl border border-gray-100 focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
           {/* Header */}
           <div className="relative p-8 pb-6 border-b border-gray-100">
             <div className="flex items-center gap-4">
@@ -91,7 +91,7 @@ const EditService: React.FC<editProps> = ({
           </div>
 
           {/* Content */}
-          <div className="p-8 max-h-[80vh] overflow-y-auto">
+          <div className="p-8 max-h-[80vh] w-full overflow-y-auto">
             <div className="max-w-2xl mx-auto">
               <EditableForm
                 service={service}

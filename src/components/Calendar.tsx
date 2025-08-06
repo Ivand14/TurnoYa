@@ -21,7 +21,7 @@ interface CalendarProps {
   onSelectDate: (date: Date) => void;
   scheduleSettings?: ScheduleSettings;
   daysOfWeek?: string[];
-  goToCalendar: (ref: React.RefObject<HTMLDivElement>) => void;
+  goToCalendar?: (ref: React.RefObject<HTMLDivElement>) => void;
 }
 
 export const Calendar = ({

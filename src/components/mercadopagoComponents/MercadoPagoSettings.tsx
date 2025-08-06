@@ -41,15 +41,22 @@ const MercadoPagoSettings: React.FC<MercadoPagoSettingsProps> = ({
     const parsedAccount = JSON.parse(mpAccount);
     const state = parsedAccount["state"];
 
-    const isComplete = Object.keys(state).every((key) => {
-      const value = state[key];
+    // Lista de campos obligatorios
+    const requiredFields = [
+      "brand_name",
+      "email",
+      "identification",
+      "accountType",
+      "phone",
+    ];
 
+    const isComplete = requiredFields.every((key) => {
+      const value = state[key];
       return (
         value !== undefined &&
         value !== null &&
         value !== "" &&
-        value !== "empty string" &&
-        value !== 0
+        value !== "empty string"
       );
     });
 

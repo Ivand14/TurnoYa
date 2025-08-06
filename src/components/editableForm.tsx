@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Plus, Calendar, X, Settings, Save } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { parse } from "date-fns";
 
 interface EditableFormProps {
   service: Service;
@@ -240,11 +240,11 @@ const EditableForm: React.FC<EditableFormProps> = ({
 
       {/* Schedule Configuration */}
       <div className="bg-gray-50 rounded-2xl p-6">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-4 md:flex-row flex-col text-center">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
             <Settings className="w-4 h-4 text-white" />
           </div>
-          <div>
+          <div className="w-full">
             <h3 className="font-semibold text-gray-900">
               Horarios de atención
             </h3>
@@ -286,7 +286,7 @@ const EditableForm: React.FC<EditableFormProps> = ({
 
                     {isActive && (
                       <div className="flex items-center gap-3 flex-1 sm:flex-row flex-col">
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 md:flex-row flex-col">
                           <Label className="text-xs text-blue-700">
                             Desde:
                           </Label>
@@ -303,7 +303,7 @@ const EditableForm: React.FC<EditableFormProps> = ({
                             className="w-24 border-0 bg-white rounded-lg px-2 py-1 text-xs"
                           />
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 md:flex-row flex-col">
                           <Label className="text-xs text-blue-700">
                             Hasta:
                           </Label>
@@ -419,20 +419,23 @@ const EditableForm: React.FC<EditableFormProps> = ({
 
       {/* Blackout Dates */}
       <div className="bg-gray-50 rounded-2xl p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
-            <Calendar className="w-4 h-4 text-white" />
+        <div className="flex items-center gap-3 mb-6 md:flex-row flex-col text-center md:text-left">
+          <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
+            <Calendar className="w-5 h-5 text-white" />
           </div>
-          <div>
-            <h3 className="font-medium text-gray-900">Fechas no disponibles</h3>
+          <div className="w-full">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Fechas no disponibles
+            </h3>
             <p className="text-sm text-gray-500">
-              Días específicos donde este servicio no estará disponible
+              Días específicos donde <strong>solo este servicio</strong> no
+              estará disponible
             </p>
           </div>
         </div>
 
         <div className="space-y-4">
-          <div className="flex gap-3">
+          <div className="flex gap-3 md:flex-row flex-col">
             <Input
               type="date"
               value={newBlackoutDate.date}
@@ -445,7 +448,7 @@ const EditableForm: React.FC<EditableFormProps> = ({
               className="border-0 bg-white rounded-xl px-4 py-3"
               min={new Date().toISOString().split("T")[0]}
             />
-            <Input
+            {/* <Input
               placeholder="Motivo (opcional)"
               value={newBlackoutDate.reason}
               onChange={(e) =>
@@ -455,7 +458,7 @@ const EditableForm: React.FC<EditableFormProps> = ({
                 }))
               }
               className="border-0 bg-white rounded-xl px-4 py-3 flex-1"
-            />
+            /> */}
             <Button
               type="button"
               onClick={addBlackoutDate}
@@ -477,11 +480,14 @@ const EditableForm: React.FC<EditableFormProps> = ({
                 >
                   <div>
                     <span className="font-medium text-red-900">
-                      {new Date(blackout.date).toLocaleDateString("es-ES", {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
+                      {parse(
+                        blackout.date,
+                        "yyyy-MM-dd",
+                        new Date()
+                      ).toLocaleDateString("es-ES", {
+                        month: "numeric",
                         day: "numeric",
+                        year: "numeric",
                       })}
                     </span>
                     {blackout.reason && (
