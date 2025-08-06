@@ -291,8 +291,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
         </div>
 
         {/* Individual Service Schedule Configuration */}
-        <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
-          <div className="flex items-center gap-3 mb-6 md:flex-row flex-col md:items-center">
+        <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300  ">
+          <div className="flex items-center gap-3 mb-6 md:flex-row flex-col md:items-center ">
             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
               <Settings className="w-5 h-5 text-white" />
             </div>
@@ -305,7 +305,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
               </p>
             </div>
             {activeDaysCount > 0 && (
-              <div className="text-right">
+              <div className="text-right sm:text-left md:text-center md:w-full sm:w-full">
                 <div className="inline-flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
                   <CheckCircle2 className="w-4 h-4 text-green-600" />
                   <span className="text-sm font-medium text-green-700">
@@ -370,9 +370,9 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                       </div>
 
                       {isActive && (
-                        <div className="flex items-center gap-4 flex-1 md:flex-row flex-col">
-                          <div className="flex items-center gap-2">
-                            <Label className="text-sm text-blue-700 font-medium">
+                        <div className="flex flex-col md:flex-row gap-4 w-full">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
+                            <Label className="text-sm text-blue-700 font-medium min-w-[60px]">
                               Desde:
                             </Label>
                             <Input
@@ -385,11 +385,12 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                                   e.target.value
                                 )
                               }
-                              className="w-28 border-0 bg-white rounded-lg px-3 py-2 text-sm font-medium text-blue-900 shadow-sm"
+                              className="w-full max-w-[140px] border border-blue-200 bg-white rounded-lg px-3 py-2 text-sm font-medium text-blue-900 shadow-sm"
                             />
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Label className="text-sm text-blue-700 font-medium">
+
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
+                            <Label className="text-sm text-blue-700 font-medium min-w-[60px]">
                               Hasta:
                             </Label>
                             <Input
@@ -402,7 +403,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                                   e.target.value
                                 )
                               }
-                              className="w-28 border-0 bg-white rounded-lg px-3 py-2 text-sm font-medium text-blue-900 shadow-sm"
+                              className="w-full max-w-[140px] border border-blue-200 bg-white rounded-lg px-3 py-2 text-sm font-medium text-blue-900 shadow-sm"
                             />
                           </div>
                         </div>
