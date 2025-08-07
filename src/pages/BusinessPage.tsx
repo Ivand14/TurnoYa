@@ -36,6 +36,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import ServiceCardCategory from "@/components/ServiceCardCategory";
 
 interface BookingFormData {
   name: string;
@@ -248,6 +249,7 @@ const BusinessPage = () => {
     const newBooking: Booking = {
       id: `booking-${Date.now()}`,
       businessId: businessId,
+      serviceName: selectedService?.name_service || "",
       serviceId: selectedService?.id || "",
       userId: user.id,
       userName: user.name,
@@ -464,11 +466,15 @@ const BusinessPage = () => {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3, delay: index * 0.1 }}
                         >
-                          <ServiceCard
-                            goToCalendar={() => goToCalendar(calendarRef)}
-                            service={service}
-                            onReserve={handleSelectService}
-                          />
+                          {service.category ? (
+                            <ServiceCardCategory service={services} />
+                          ) : (
+                            <ServiceCard
+                              goToCalendar={() => goToCalendar(calendarRef)}
+                              service={service}
+                              onReserve={handleSelectService}
+                            />
+                          )}
                         </motion.div>
                       ))}
                     </div>
@@ -512,7 +518,10 @@ const BusinessPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.6, delay: 0.4 }}
                     >
-                      <div ref={slotRef} className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+                      <div
+                        ref={slotRef}
+                        className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6"
+                      >
                         <div className="flex items-center mb-6">
                           <Clock className="w-6 h-6 text-indigo-600 mr-3" />
                           <h2 className="text-xl font-bold text-gray-900">

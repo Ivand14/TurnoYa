@@ -19,6 +19,7 @@ import { TrashButton } from "@/components/ui/trash";
 import EditService from "@/components/ui/editable";
 import { parse } from "date-fns";
 import { useState } from "react";
+import { IconCategory } from "@tabler/icons-react";
 
 interface ServiceListProps {
   services: Service[];
@@ -110,20 +111,6 @@ const ServiceList: React.FC<ServiceListProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto mb-20 px-4">
-      {/* Header */}
-      <div className="mb-8 text-center">
-        <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-4 sm:mb-6 shadow-lg shadow-blue-500/25">
-          <Tag className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-          Servicios Registrados
-        </h1>
-        <p className="text-gray-500 mt-2 text-sm sm:text-base">
-          {services.length} servicio{services.length !== 1 ? "s" : ""}{" "}
-          disponible{services.length !== 1 ? "s" : ""}
-        </p>
-      </div>
-
       {/* Services Grid */}
       <div className="space-y-4 sm:space-y-6">
         {services.map((service) => {
@@ -457,7 +444,7 @@ const ServiceList: React.FC<ServiceListProps> = ({
                 </div>
 
                 {/* Basic Info Grid - Desktop */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+                <div className="grid grid-cols-3  md:grid-cols-4 gap-6 mb-6">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
                       <Clock className="w-5 h-5 text-blue-600" />
@@ -469,6 +456,20 @@ const ServiceList: React.FC<ServiceListProps> = ({
                       </div>
                     </div>
                   </div>
+
+                  {service.category && (
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                        <IconCategory className="w-5 h-5 text-orange-300" />
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-500">Categoria</div>
+                        <div className="font-semibold text-gray-900">
+                          {service.category}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">

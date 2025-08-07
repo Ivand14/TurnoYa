@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import mercadopagosvg from "../../../public/mercado-pago.svg"
+import mercadopagosvg from "@/assets/mercado-pago.svg"
 
 const MercadoPagoPaymentsMethods = () => {
   return (

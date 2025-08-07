@@ -485,7 +485,7 @@ const EditableForm: React.FC<EditableFormProps> = ({
                         "yyyy-MM-dd",
                         new Date()
                       ).toLocaleDateString("es-ES", {
-                        month: "numeric",
+                        month: "long",
                         day: "numeric",
                         year: "numeric",
                       })}
