@@ -14,8 +14,6 @@ import DailyBookings from "@/components/dashboarBusiness/DailyBookings";
 import UpcomingBookings from "@/components/analytics/UpcomingBookings";
 import EmployeeForm from "@/components/dashboarBusiness/EmployeeForm";
 import EmployeeList from "@/components/dashboarBusiness/EmployeeList";
-import ServiceForm from "@/components/dashboarBusiness/ServiceForm";
-import ServiceList from "@/components/dashboarBusiness/ServiceList";
 import MercadoPagoSettings from "@/components/mercadopagoComponents/MercadoPagoSettings";
 import {
   salesmanContext,
@@ -26,6 +24,7 @@ import AccountSettings from "@/components/dashboarBusiness/AccountSettings";
 
 import ResponsiveSidebar from "@/components/SideBarContent";
 import Onboarding from "@/components/Onboarding";
+import ServiceManagement from "@/components/dashboarBusiness/services/ServiceManagment";
 
 const BusinessDashboard = () => {
   const { company } = compnay_logged();
@@ -57,8 +56,6 @@ const BusinessDashboard = () => {
     handleAddEmployee,
     fetchDeleteEmployee,
   } = useEmployeeContext();
-
-
 
   const {
     services,
@@ -195,7 +192,7 @@ const BusinessDashboard = () => {
           {/* activeTab: Servicios */}
           {activeTab === "service" && (
             <div>
-              <ServiceForm
+              {/* <ServiceForm
                 onSubmit={fetchCreateService}
                 employees={allEmployees}
                 businessId={businessId}
@@ -205,6 +202,14 @@ const BusinessDashboard = () => {
                 onDelete={fetchDeleteService}
                 employees={allEmployees}
                 onEdit={fetchPatchService}
+              /> */}
+              <ServiceManagement
+                services={services}
+                onDelete={fetchDeleteService}
+                employees={allEmployees}
+                onEdit={fetchPatchService}
+                onSubmit={fetchCreateService}
+                businessId={businessId}
               />
             </div>
           )}

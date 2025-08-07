@@ -35,6 +35,7 @@ export interface Service {
   paymentPercentage?: number;
   schedule?: ServiceSchedule[];
   blackoutDates?: ServiceBlackoutDate[];
+  category?: string;
 }
 
 export interface TimeSlot
@@ -57,6 +58,7 @@ export interface TimeSlot
 export interface Booking {
   id: string;
   businessId: string;
+  serviceName: string;
   serviceId: string;
   userId: string;
   userName: string;

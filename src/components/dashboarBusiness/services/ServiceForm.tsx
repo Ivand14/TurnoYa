@@ -17,6 +17,13 @@ import {
   X,
   CheckCircle2,
   Settings,
+  Tag,
+  Sparkles,
+  Scissors,
+  Palette,
+  Heart,
+  Zap,
+  Star,
 } from "lucide-react";
 import { parse } from "date-fns";
 
@@ -36,6 +43,51 @@ const DAYS_OF_WEEK = [
   { id: 6, name: "Sábado", short: "Sáb", color: "bg-indigo-500" },
 ];
 
+const PREDEFINED_CATEGORIES = [
+  {
+    id: "cabello",
+    name: "Cabello",
+    icon: Scissors,
+    color: "bg-gradient-to-br from-purple-500 to-pink-600",
+    description: "Cortes, peinados, tratamientos capilares",
+  },
+  {
+    id: "unas",
+    name: "Uñas",
+    icon: Sparkles,
+    color: "bg-gradient-to-br from-pink-500 to-rose-600",
+    description: "Manicura, pedicura, nail art",
+  },
+  {
+    id: "estetica",
+    name: "Estética",
+    icon: Star,
+    color: "bg-gradient-to-br from-blue-500 to-cyan-600",
+    description: "Tratamientos faciales, limpieza",
+  },
+  {
+    id: "maquillaje",
+    name: "Maquillaje",
+    icon: Palette,
+    color: "bg-gradient-to-br from-orange-500 to-red-600",
+    description: "Maquillaje profesional, eventos",
+  },
+  {
+    id: "masajes",
+    name: "Masajes",
+    icon: Heart,
+    color: "bg-gradient-to-br from-green-500 to-teal-600",
+    description: "Relajantes, terapéuticos, deportivos",
+  },
+  {
+    id: "depilacion",
+    name: "Depilación",
+    icon: Zap,
+    color: "bg-gradient-to-br from-yellow-500 to-orange-600",
+    description: "Láser, cera, definitiva",
+  },
+];
+
 const ServiceForm: React.FC<ServiceFormProps> = ({
   businessId,
   employees,
@@ -51,6 +103,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
     allowedEmployeeIds: [] as string[],
     requiresDeposit: false,
     paymentPercentage: 0,
+    category: "",
   });
 
   const [schedule, setSchedule] = useState<ServiceSchedule[]>([]);
@@ -59,6 +112,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
     date: "",
     reason: "",
   });
+  const [customCategory, setCustomCategory] = useState<string>("");
+  const [showCustomCategory, setShowCustomCategory] = useState<boolean>(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -72,6 +127,31 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
           ? parseFloat(value) || 0
           : value,
     }));
+  };
+
+  const handleCategorySelect = (categoryId: string) => {
+    const category = PREDEFINED_CATEGORIES.find((cat) => cat.id === categoryId);
+    setNewService((prev) => ({
+      ...prev,
+      category: category?.name || categoryId,
+    }));
+    setShowCustomCategory(false);
+    setCustomCategory("");
+  };
+
+  const handleCustomCategorySubmit = () => {
+    if (!customCategory.trim()) {
+      toast.error("Ingresa un nombre para la categoría");
+      return;
+    }
+
+    setNewService((prev) => ({
+      ...prev,
+      category: customCategory.trim(),
+    }));
+    setShowCustomCategory(false);
+    setCustomCategory("");
+    toast.success("Categoría personalizada creada");
   };
 
   const handleEmployeeToggle = (employeeId: string, checked: boolean) => {
@@ -165,6 +245,11 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
       return;
     }
 
+    if (!newService.category) {
+      toast.error("Selecciona una categoría para el servicio");
+      return;
+    }
+
     if (newService.duration <= 0) {
       toast.error("La duración debe ser mayor a 0");
       return;
@@ -209,6 +294,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
       paymentPercentage: newService.paymentPercentage,
       schedule: schedule,
       blackoutDates: blackoutDates,
+      category: newService?.category || "",
     });
 
     // Reset form
@@ -222,9 +308,12 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
       allowedEmployeeIds: [],
       requiresDeposit: false,
       paymentPercentage: 0,
+      category: "",
     });
     setSchedule([]);
     setBlackoutDates([]);
+    setCustomCategory("");
+    setShowCustomCategory(false);
 
     toast.success("Servicio agregado correctamente");
   };
@@ -241,22 +330,156 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
       .join(", ");
   };
 
+  const selectedCategory = PREDEFINED_CATEGORIES.find(
+    (cat) => cat.name === newService.category
+  );
+
   return (
     <div className="max-w-2xl mx-auto mb-20">
-      {/* Header */}
-      <div className="mb-12 text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-6 shadow-lg shadow-blue-500/25">
-          <Plus className="w-8 h-8 text-white" />
-        </div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-          Nuevo Servicio
-        </h1>
-        <p className="text-gray-500 mt-2">
-          Configura los detalles específicos de tu servicio
-        </p>
-      </div>
-
       <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Category Selection */}
+        <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <Tag className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Categoría del servicio
+              </h3>
+              <p className="text-sm text-gray-500">
+                Organiza tus servicios por categorías
+              </p>
+            </div>
+          </div>
+
+          {newService.category && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+              <div className="flex items-center gap-3">
+                {selectedCategory ? (
+                  <>
+                    <div
+                      className={`w-8 h-8 ${selectedCategory.color} rounded-lg flex items-center justify-center`}
+                    >
+                      <selectedCategory.icon className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <span className="font-medium text-green-800">
+                        Categoría: {newService.category}
+                      </span>
+                      <p className="text-xs text-green-600 mt-1">
+                        {selectedCategory.description}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-600 rounded-lg flex items-center justify-center">
+                      <Tag className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <span className="font-medium text-green-800">
+                        Categoría personalizada: {newService.category}
+                      </span>
+                      <p className="text-xs text-green-600 mt-1">
+                        Categoría creada por ti
+                      </p>
+                    </div>
+                  </>
+                )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    setNewService((prev) => ({ ...prev, category: "" }))
+                  }
+                  className="ml-auto text-green-600 hover:text-green-700 hover:bg-green-100"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {!newService.category && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {PREDEFINED_CATEGORIES.map((category) => {
+                  const IconComponent = category.icon;
+                  return (
+                    <button
+                      key={category.id}
+                      type="button"
+                      onClick={() => handleCategorySelect(category.id)}
+                      className="group p-4 border border-gray-200 rounded-xl hover:border-purple-300 hover:shadow-md transition-all duration-200 text-left"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={`w-10 h-10 ${category.color} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}
+                        >
+                          <IconComponent className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-gray-900 group-hover:text-purple-700 transition-colors">
+                            {category.name}
+                          </h4>
+                          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                            {category.description}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="border-t border-gray-200 pt-4">
+                {!showCustomCategory ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowCustomCategory(true)}
+                    className="w-full border-dashed border-gray-300 hover:border-purple-400 hover:bg-purple-50 text-gray-600 hover:text-purple-700"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Crear categoría personalizada
+                  </Button>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex gap-3">
+                      <Input
+                        placeholder="Nombre de la categoría personalizada"
+                        value={customCategory}
+                        onChange={(e) => setCustomCategory(e.target.value)}
+                        className="border-0 bg-gray-50 rounded-xl px-4 py-3 flex-1"
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleCustomCategorySubmit}
+                        className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-6 rounded-xl"
+                      >
+                        Crear
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setShowCustomCategory(false);
+                          setCustomCategory("");
+                        }}
+                        className="px-6 rounded-xl"
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Basic Info */}
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
           <div className="space-y-6">
@@ -489,17 +712,6 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                 className="border-0 bg-gray-50 rounded-xl px-4 py-3"
                 min={new Date().toISOString().split("T")[0]}
               />
-              {/* <Input
-                placeholder="Motivo (opcional)"
-                value={newBlackoutDate.reason}
-                onChange={(e) =>
-                  setNewBlackoutDate((prev) => ({
-                    ...prev,
-                    reason: e.target.value,
-                  }))
-                }
-                className="border-0 bg-gray-50 rounded-xl px-4 py-3 flex-1"
-              /> */}
               <Button
                 type="button"
                 onClick={addBlackoutDate}
@@ -676,10 +888,12 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
         {/* Submit Button */}
         <Button
           type="submit"
-          disabled={activeDaysCount === 0}
+          disabled={activeDaysCount === 0 || !newService.category}
           className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 rounded-2xl text-lg font-semibold shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
         >
-          {activeDaysCount === 0
+          {!newService.category
+            ? "Selecciona una categoría primero"
+            : activeDaysCount === 0
             ? "Configura al menos un día de atención"
             : "Crear Servicio Personalizado"}
         </Button>
