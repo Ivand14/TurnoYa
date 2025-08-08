@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import ServiceCardCategory from "@/components/ServiceCardCategory";
+// import ServiceCardCategory from "@/components/ServiceCardCategory";
 
 interface BookingFormData {
   name: string;
@@ -317,6 +318,10 @@ const BusinessPage = () => {
     ref.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const servicesWithCat = services.filter((ser) => ser.category);
+
+  console.log(servicesWithCat);
+
   return (
     <div
       className="flex flex-col min-h-screen bg-gray-50"
@@ -440,7 +445,7 @@ const BusinessPage = () => {
             </div>
 
             <TabsContent value="booking">
-              <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 w-full">
                 {/* Services Section */}
                 <motion.div
                   className="xl:col-span-1"
@@ -459,6 +464,11 @@ const BusinessPage = () => {
                     </div>
 
                     <div className="space-y-3">
+                      <ServiceCardCategory
+                        goToCalendar={() => goToCalendar(calendarRef)}
+                        service={servicesWithCat}
+                        onReserve={handleSelectService}
+                      />
                       {services.map((service, index) => (
                         <motion.div
                           key={service.id}
@@ -466,9 +476,7 @@ const BusinessPage = () => {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3, delay: index * 0.1 }}
                         >
-                          {service.category ? (
-                            <ServiceCardCategory service={services} />
-                          ) : (
+                          {!service.category && (
                             <ServiceCard
                               goToCalendar={() => goToCalendar(calendarRef)}
                               service={service}
