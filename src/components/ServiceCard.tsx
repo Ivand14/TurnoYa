@@ -25,7 +25,6 @@
       }
     };
 
-    console.log(service);
 
     // Renderizar servicio individual
     return (

@@ -156,6 +156,7 @@ const Statistics: React.FC<statisticsProps> = ({ booking, businessId }) => {
     return Math.min(100, asistencia);
   };
 
+
   const performanceMetrics: performanceMetricsInt[] = [
     {
       title: "Tiempo Promedio",
