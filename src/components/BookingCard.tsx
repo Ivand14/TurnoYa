@@ -47,23 +47,27 @@ export const BookingCard = ({
   onCancel,
 }: BookingCardProps) => {
   const bookingDate = new Date(booking.start);
-  const { services, fetchGetServices } = useServicesContext();
-  const { fetchPatchStatusBooking } = useBookingContext();
+  const {
+    fetchPatchStatusBooking,
+    fetchGetBooking,
+    booking: bookings,
+  } = useBookingContext();
   const { company } = compnay_logged();
   const [loading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     setIsLoading(true);
-    const loadService = async () => {
-      await fetchGetServices(booking.businessId);
+    const loadBooks = async () => {
+      await fetchGetBooking(booking.id);
+      setIsLoading(false);
     };
-    loadService();
-    setIsLoading(false);
-  }, []);
+    loadBooks();
+  }, [company?.id]);
 
-  const nameOfService = services.find((serv) => serv.id === booking.serviceId);
+  // const nameService = bookings.map((bk) => bk.serviceName);
+  // console.log(booking);
 
-  if (loading || !nameOfService) {
+  if (loading) {
     return <BookingCardSkeleton />;
   }
 
@@ -174,6 +178,9 @@ export const BookingCard = ({
   const StatusIcon = statusConfig.icon;
   const PaymentIcon = paymentConfig.icon;
 
+  console.log(booking.serviceName);
+  // console.log(nameService);
+
   return (
     <div className="group relative bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-lg transition-all duration-500 overflow-hidden">
       {/* Gradient header */}
@@ -189,7 +196,7 @@ export const BookingCard = ({
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-base md:text-lg font-semibold text-gray-900 tracking-tight truncate">
-                {nameOfService?.name_service}
+                {booking.serviceName}
               </h3>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-gray-500 mt-1">
                 <div className="flex items-center gap-1.5">
@@ -454,7 +461,7 @@ export const BookingCard = ({
         {booking.status !== "cancelled" && booking.status !== "completed" && (
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 pt-2 border-t border-gray-100">
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              {canMarkAsCompleted && (
+              {canMarkAsCompleted && company && (
                 <Button
                   onClick={() => onMarkAsCompleted(booking.id)}
                   variant="ghost"

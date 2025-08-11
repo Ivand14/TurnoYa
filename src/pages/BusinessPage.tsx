@@ -490,7 +490,7 @@ const BusinessPage = () => {
                 </motion.div>
 
                 {/* Booking Section */}
-                <div className="xl:col-span-3">
+                <div className="xl:col-span-2">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Calendar */}
                     <motion.div

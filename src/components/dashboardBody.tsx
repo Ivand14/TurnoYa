@@ -1,14 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
-import { BookingUserCard } from "@/components/BookingUserCard";
+import { BookingCard } from "@/components/BookingCard";
 import { Calendar } from "@/components/Calendar";
 import { Booking } from "@/types";
 import { es } from "date-fns/locale";
 import { Navbar } from "./Navbar";
 import StatsOverview from "./dashboarBusiness/StatsOverview";
 import { DashboardStats } from "@/types/dashboard";
-
+import { current_user } from "@/context/currentUser";
+import BookingUserCard from "./BookingUserCard";
 
 interface dashProps {
   upcomingBookings: Booking[];
@@ -31,6 +32,18 @@ function DashboardBody({
   bookingsForSelectedDate,
   handleCancelBooking,
 }: dashProps) {
+  const { user } = current_user();
+
+  const filterBook = bookingsForSelectedDate.filter(
+    (bk) => bk.userId === user.id
+  );
+
+  const filterPastBooks = pastBookings.filter((bk) => bk.userId === user.id);
+
+  const filterUpcomingBooks = upcomingBookings.filter(
+    (bk) => bk.userId === user.id
+  );
+
   return (
     <main className="flex-1 container mx-auto px-4 py-8">
       {/* <h1 className="text-3xl font-bold mb-6">Dashboard de {user.user_data.name}</h1> */}
@@ -69,10 +82,10 @@ function DashboardBody({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {bookingsForSelectedDate.length > 0 ? (
+              {filterBook.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {bookingsForSelectedDate.map((booking) => (
-                    <BookingUserCard
+                  {filterBook.map((booking) => (
+                    <BookingCard
                       key={booking.id}
                       booking={booking}
                       service={servicesUser[booking.id]}
@@ -104,10 +117,10 @@ function DashboardBody({
           </div>
 
           <TabsContent value="upcoming">
-            {upcomingBookings.length > 0 ? (
+            {filterUpcomingBooks.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {upcomingBookings.map((booking) => (
-                  <BookingUserCard
+                {filterUpcomingBooks.map((booking) => (
+                  <BookingCard
                     key={booking.id}
                     booking={booking}
                     service={servicesUser[booking.serviceId]}
@@ -123,10 +136,10 @@ function DashboardBody({
           </TabsContent>
 
           <TabsContent value="past">
-            {pastBookings.length > 0 ? (
+            {filterPastBooks.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {pastBookings.map((booking) => (
-                  <BookingUserCard
+                {filterPastBooks.map((booking) => (
+                  <BookingCard
                     key={booking.id}
                     booking={booking}
                     service={servicesUser[booking.serviceId]}
