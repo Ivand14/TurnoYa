@@ -14,6 +14,7 @@ import { useServicesContext } from "@/context/apisContext/servicesContext";
 import DashboardBody from "@/components/dashboardBody";
 import { getDashboardStats } from "@/utils/dashboardUtils";
 import { BookingCardSkeleton } from "@/components/BookingCardSkeleton";
+import { DashboardStats } from "@/types/dashboard";
 
 const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -91,8 +92,10 @@ const Dashboard = () => {
     }
   };
 
+  const filterUserBooking = userBooking.filter((bk) => bk.userId === user.id);
+
   // Resumen de estadísticas
-  const stats = getDashboardStats(userBooking, []);
+  const stats = getDashboardStats(filterUserBooking, []);
 
   if (!upcomingBookings || !pastBookings) {
     return <BookingCardSkeleton />;
