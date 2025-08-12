@@ -63,7 +63,7 @@ export const reactivateSubscription = async (
       businessId,
     });
     if (response.status === 200) {
-      toast.success(response.data.details);
+      toast.success("Subscripcion reactivada");
       return response;
     } else {
       toast("No se pudo cancelar la suscripción");
