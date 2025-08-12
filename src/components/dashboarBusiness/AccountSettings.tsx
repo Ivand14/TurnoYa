@@ -113,6 +113,8 @@ const AccountSettings = () => {
     { id: "subscription", label: "Suscripción", icon: Crown },
   ];
 
+  console.log(company);
+
   const handleSubscription = async () => {
     try {
       setIsLoading(true);
@@ -138,13 +140,18 @@ const AccountSettings = () => {
   }, [activeTab]);
 
   useEffect(() => {
-    if (preapproval_id) {
+    if (preapproval_id && company?.id) {
       const reSubscribe = async () => {
-        await reactivateSubscription(preapproval_id, company.id);
+        const subs = await reactivateSubscription(preapproval_id, company.id);
+        if (subs?.status === 200) {
+          const url = new URL(window.location.href);
+          url.searchParams.delete("preapproval_id");
+          window.location.href = url.toString();
+        }
       };
       reSubscribe();
     }
-  }, [preapproval_id]);
+  }, [preapproval_id, company?.id]);
 
   const renderProfileTab = () => (
     <div className="space-y-6">
@@ -559,9 +566,7 @@ const AccountSettings = () => {
               </p>
               <button
                 onClick={() =>
-                  cancelSubscription(
-                    subscriptionData?.preapproval_plan_id
-                  ).then(() => {
+                  cancelSubscription(company["preapproval_id"]).then(() => {
                     toast.success("Suscripción cancelada correctamente");
                     setSubscriptionData(null);
                   })
