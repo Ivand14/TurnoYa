@@ -54,14 +54,12 @@ socket.on("update_profile", ({ action, profile }) => {
 });
 
 socket.on("subscription_update", (newSubscription) => {
-  console.log(newSubscription);
   const company = compnay_logged.getState().company;
   const updateCompany = {
     ...company,
     mercado_pago_subscription: newSubscription.mercado_pago_subscription,
     preapproval_id: newSubscription.preapproval_id,
   };
-  console.log(updateCompany);
   compnay_logged.getState().setCompany(updateCompany);
 });
 
@@ -98,6 +96,7 @@ export const compnay_logged = create<current_company>((set) => ({
     }
   },
   fetchReactiveSubscription: async (preapproval_id, businessid) => {
+    console.log(preapproval_id);
     try {
       const response = await reactivateSubscription(preapproval_id, businessid);
       if (response.status === 200) {

@@ -62,13 +62,9 @@ export const reactivateSubscription = async (
       preapproval_id,
       businessId,
     });
-    if (response.status === 200) {
-      toast.success("Subscripcion reactivada");
-      return response;
-    } else {
-      toast("No se pudo cancelar la suscripción");
-    }
+    return response;
   } catch (error) {
+    toast.warning("Hubo un problema con la subscripcion");
     console.log(error);
   }
 };

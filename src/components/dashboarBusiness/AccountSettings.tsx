@@ -10,20 +10,17 @@ import {
   Eye,
   EyeOff,
   Crown,
-  SubscriptIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Company, compnay_logged } from "@/context/current_company";
+import { compnay_logged } from "@/context/current_company";
 import {
   cancelSubscription,
-  reactivateSubscription,
   subscripcionData,
 } from "@/apis/MercadoPagoApis/subscription";
 import ReactivateSubscription from "../subscriptions/reActivateSubscription";
 import { uploadLogoFile } from "@/utils/uploadFile";
 import { resetEmail, resetPassword } from "@/lib/utils";
 import { profileSettings } from "@/apis/config/businessConfig";
-import { useParams } from "react-router-dom";
 
 const AccountSettings = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -146,8 +143,6 @@ const AccountSettings = () => {
     }
   }, [activeTab]);
 
-  console.log(company);
-
   useEffect(() => {
     if (preapproval_id && company?.id) {
       const reSubscribe = async () => {
@@ -156,15 +151,13 @@ const AccountSettings = () => {
           company.id
         );
         console.log(subs);
-        if (company.mercado_pago_subscription.status === "cancelled") {
+        subs.mercado_pago_subscription.status === "authorized" &&
+          toast.success("Subscripcion activa");
+        company.mercado_pago_subscription.status === "cancelled" &&
           toast.warning("La subscripcion esta cancelada");
-        }
-        if (subs.mercado_pago_subscription.status === "authorized") {
-          const url = new URL(window.location.href);
-          url.searchParams.delete("preapproval_id");
-          window.location.href = url.toString();
-          toast.success("Subscripcion activa")
-        }
+        const url = new URL(window.location.href);
+        url.searchParams.delete("preapproval_id");
+        window.location.href = url.toString();
       };
       reSubscribe();
     }
