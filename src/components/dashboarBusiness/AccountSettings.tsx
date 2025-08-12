@@ -13,7 +13,7 @@ import {
   SubscriptIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { compnay_logged } from "@/context/current_company";
+import { Company, compnay_logged } from "@/context/current_company";
 import {
   cancelSubscription,
   reactivateSubscription,
@@ -31,12 +31,10 @@ const AccountSettings = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
-  const { company } = compnay_logged();
+  const { company, fetchReactiveSubscription } = compnay_logged();
   const [subscriptionData, setSubscriptionData] = useState(null);
   const params = new URLSearchParams(location.search);
   const preapproval_id = params.get("preapproval_id");
-
-  console.log(preapproval_id);
 
   // Estados del formulario
   const [form, setForm] = useState({
@@ -148,14 +146,24 @@ const AccountSettings = () => {
     }
   }, [activeTab]);
 
+  console.log(company);
+
   useEffect(() => {
     if (preapproval_id && company?.id) {
       const reSubscribe = async () => {
-        const subs = await reactivateSubscription(preapproval_id, company.id);
-        if (subs?.status === 200) {
+        const subs = await fetchReactiveSubscription(
+          preapproval_id,
+          company.id
+        );
+        console.log(subs);
+        if (company.mercado_pago_subscription.status === "cancelled") {
+          toast.warning("La subscripcion esta cancelada");
+        }
+        if (subs.mercado_pago_subscription.status === "authorized") {
           const url = new URL(window.location.href);
           url.searchParams.delete("preapproval_id");
           window.location.href = url.toString();
+          toast.success("Subscripcion activa")
         }
       };
       reSubscribe();
