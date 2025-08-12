@@ -16,13 +16,14 @@ import { toast } from "sonner";
 import { compnay_logged } from "@/context/current_company";
 import {
   cancelSubscription,
+  reactivateSubscription,
   subscripcionData,
 } from "@/apis/MercadoPagoApis/subscription";
 import ReactivateSubscription from "../subscriptions/reActivateSubscription";
 import { uploadLogoFile } from "@/utils/uploadFile";
-import { string } from "zod";
 import { resetEmail, resetPassword } from "@/lib/utils";
 import { profileSettings } from "@/apis/config/businessConfig";
+import { useParams } from "react-router-dom";
 
 const AccountSettings = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -32,6 +33,10 @@ const AccountSettings = () => {
   const [imagePreview, setImagePreview] = useState("");
   const { company } = compnay_logged();
   const [subscriptionData, setSubscriptionData] = useState(null);
+  const params = new URLSearchParams(location.search);
+  const preapproval_id = params.get("preapproval_id");
+
+  console.log(preapproval_id);
 
   // Estados del formulario
   const [form, setForm] = useState({
@@ -56,7 +61,7 @@ const AccountSettings = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageUpload = async(e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -64,12 +69,6 @@ const AccountSettings = () => {
     setImagePreview(imageUrl);
 
     setForm((prev) => ({ ...prev, logo: imageUrl }));
-
-    // const reader = new FileReader();
-    // reader.onload = () => {
-    //   setImagePreview(reader.result as string);
-    // };
-    // reader.readAsDataURL(file);
   };
 
   const resetForm = () => {
@@ -93,8 +92,9 @@ const AccountSettings = () => {
     try {
       // Aquí iría la lógica para guardar los cambios
       form.email && resetEmail(form.email);
-      await profileSettings(form, company.id)
-      form.currentPassword && resetPassword(form.currentPassword,form.newPassword);
+      await profileSettings(form, company.id);
+      form.currentPassword &&
+        resetPassword(form.currentPassword, form.newPassword);
       console.log("Guardando cambios:", form);
       toast.success("Configuración guardada exitosamente");
     } catch (error) {
@@ -120,9 +120,9 @@ const AccountSettings = () => {
         company["preapproval_id"]
       );
       const {
-        plan_info: { summarized, ...plan_info },
+        plan_info: { summarized, ...restPlanInfo },
       } = subscriptionResponse;
-      setSubscriptionData(plan_info);
+      setSubscriptionData(restPlanInfo);
     } catch (error) {
       console.log(error);
       toast.error("Error al iniciar la suscripción");
@@ -137,7 +137,12 @@ const AccountSettings = () => {
     }
   }, [activeTab]);
 
-  console.log(subscriptionData)
+  useEffect(() => {
+    const reSubscribe = async () => {
+      await reactivateSubscription(preapproval_id, company.id);
+    };
+    reSubscribe();
+  }, [preapproval_id]);
 
   const renderProfileTab = () => (
     <div className="space-y-6">
@@ -460,7 +465,7 @@ const AccountSettings = () => {
       </div>
 
       {/* Historial de facturación */}
-      {subscriptionData && (
+      {/* {subscriptionData && (
         <div className="bg-white p-6 rounded-lg border border-gray-200">
           <h3 className="font-medium text-gray-900 mb-4">
             Historial de Facturación
@@ -523,40 +528,50 @@ const AccountSettings = () => {
             </table>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Cancelar suscripción */}
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <div className="flex items-start space-x-3">
-          <div className="flex-shrink-0">
-            <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-              <span className="text-red-600 text-sm font-bold">!</span>
+      {subscriptionData?.status === "authorized" && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <div className="flex items-start space-x-3">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                <span className="text-red-600 text-sm font-bold">!</span>
+              </div>
             </div>
-          </div>
-          <div className="flex-1">
-            <h3 className="font-medium text-red-900 mb-2">
-              Cancelar Suscripción
-            </h3>
-            <p className="text-red-800 text-sm mb-4">
-              Si cancelas tu suscripción, perderás acceso a las funciones
-              premium al final del período de facturación actual (12 Feb 2024).
-            </p>
-            <button
-              onClick={() =>
-                cancelSubscription(subscriptionData?.preapproval_plan_id).then(
-                  () => {
+            <div className="flex-1">
+              <h3 className="font-medium text-red-900 mb-2">
+                Cancelar Suscripción
+              </h3>
+              <p className="text-red-800 text-sm mb-4">
+                Si cancelas tu suscripción, perderás acceso a las funciones
+                premium al final del período de facturación actual (
+                {new Date(
+                  subscriptionData?.next_payment_date
+                ).toLocaleDateString("es-ES", {
+                  day: "numeric",
+                  month: "numeric",
+                  year: "numeric",
+                })}
+                ).
+              </p>
+              <button
+                onClick={() =>
+                  cancelSubscription(
+                    subscriptionData?.preapproval_plan_id
+                  ).then(() => {
                     toast.success("Suscripción cancelada correctamente");
                     setSubscriptionData(null);
-                  }
-                )
-              }
-              className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
-            >
-              Cancelar Suscripción
-            </button>
+                  })
+                }
+                className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Cancelar Suscripción
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 

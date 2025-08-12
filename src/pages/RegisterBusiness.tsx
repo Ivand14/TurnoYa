@@ -35,6 +35,7 @@ const businessSchema = z
       .string()
       .min(6, "La contraseña debe tener al menos 6 caracteres"),
     confirmPassword: z.string(),
+
     subscriptionPlan: z
       .string()
       .min(1, "Debes seleccionar un plan de suscripción"),
@@ -100,9 +101,20 @@ const RegisterBusiness = () => {
     if (preapproval_id) {
       form.setValue("preapproval_id", preapproval_id);
 
-
       // Asegurarse que tiene los campos requeridos
-      const requiredFields = ["businessName", "email", "subscriptionPlan", "ownerName", "phone", "address", "businessType", "logo_url", "password", "confirmPassword", "preapproval_id"];
+      const requiredFields = [
+        "businessName",
+        "email",
+        "subscriptionPlan",
+        "ownerName",
+        "phone",
+        "address",
+        "businessType",
+        "logo_url",
+        "password",
+        "confirmPassword",
+        "preapproval_id",
+      ];
       const isReady = requiredFields.every((field) =>
         form.getValues(field as keyof BusinessFormValues)
       );
@@ -156,7 +168,6 @@ const RegisterBusiness = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     setCurrentStep(2);
   };
-
 
   const prevStep = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });

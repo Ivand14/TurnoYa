@@ -70,4 +70,5 @@ export interface subscriptionData {
   reason: string;
   free_trial: number;
   payer_email?: string;
+  pathname: string;
 }
