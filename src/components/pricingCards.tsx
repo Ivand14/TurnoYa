@@ -14,6 +14,9 @@ function PricingCards({
   businessRegister: businessRegister;
 }) {
   const navigate = useNavigate();
+  const pathname = window.location.pathname;
+
+  console.log(pathname);
 
   const plans = [
     {
@@ -73,6 +76,7 @@ function PricingCards({
         reason: plan.name,
         free_trial: plan.free_trial,
         payer_email: businessRegister.email,
+        pathname,
       },
     ]);
   };
