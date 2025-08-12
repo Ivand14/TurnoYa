@@ -138,10 +138,12 @@ const AccountSettings = () => {
   }, [activeTab]);
 
   useEffect(() => {
-    const reSubscribe = async () => {
-      await reactivateSubscription(preapproval_id, company.id);
-    };
-    reSubscribe();
+    if (preapproval_id) {
+      const reSubscribe = async () => {
+        await reactivateSubscription(preapproval_id, company.id);
+      };
+      reSubscribe();
+    }
   }, [preapproval_id]);
 
   const renderProfileTab = () => (
