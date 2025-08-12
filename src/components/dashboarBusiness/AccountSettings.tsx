@@ -89,14 +89,26 @@ const AccountSettings = () => {
     e.preventDefault();
     setIsLoading(true);
 
+    let somethingChanged = false; // bandera para saber si hubo cambios
+
     try {
-      // Aquí iría la lógica para guardar los cambios
-      form.email && resetEmail(form.email);
+      if (form.email) {
+        await resetEmail(form.email);
+        somethingChanged = true;
+      }
+
       await profileSettings(form, company.id);
-      form.currentPassword &&
-        resetPassword(form.currentPassword, form.newPassword);
-      console.log("Guardando cambios:", form);
-      toast.success("Configuración guardada exitosamente");
+      // Podrías verificar si profileSettings realmente cambió algo
+      somethingChanged = true;
+
+      if (form.currentPassword && form.newPassword) {
+        await resetPassword(form.currentPassword, form.newPassword);
+        somethingChanged = true;
+      }
+
+      if (somethingChanged) {
+        toast.success("Configuración guardada exitosamente");
+      }
     } catch (error) {
       console.log(error);
       toast.error("Error al guardar la configuración");
@@ -113,8 +125,6 @@ const AccountSettings = () => {
     { id: "subscription", label: "Suscripción", icon: Crown },
   ];
 
-  console.log(company);
-
   const handleSubscription = async () => {
     try {
       setIsLoading(true);
@@ -127,7 +137,6 @@ const AccountSettings = () => {
       setSubscriptionData(restPlanInfo);
     } catch (error) {
       console.log(error);
-      toast.error("Error al iniciar la suscripción");
     } finally {
       setIsLoading(false);
     }
