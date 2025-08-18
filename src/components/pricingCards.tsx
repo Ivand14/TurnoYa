@@ -22,9 +22,10 @@ function PricingCards({
     {
       name: "Básico",
       description: "Perfecto para pequeños negocios que inician",
-      monthlyPrice: 15,
+      monthlyPrice: 15000,
       features: [
         "Citas ilimitadas",
+        "Cobra señas para no perder dinero",
         "Elegi el porcentaje de adelanto que quieras",
         "Calendario avanzado",
         "Soporte básico",
@@ -37,7 +38,7 @@ function PricingCards({
       ],
       ctaText: "Probar 7 días gratis",
       ctaVariant: "secondary",
-      free_trial: 7,
+      free_trial: 30,
       isAvailable: true,
     },
     {

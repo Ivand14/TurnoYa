@@ -36,7 +36,7 @@ const ReactivateSubscription: React.FC<reactivateSubscriptionProps> = ({
     {
       name: "Básico",
       description: "Perfecto para pequeños negocios que inician",
-      monthlyPrice: 15,
+      monthlyPrice: 15000,
       ctaText: "Reactivar ahora",
       authText: "Plan Actual",
       free_trial: 0,
