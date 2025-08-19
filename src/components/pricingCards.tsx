@@ -107,7 +107,11 @@ function PricingCards({
                   ? "ring-2 ring-blue-500 scale-105"
                   : ""
               }`}
-              onClick={() => handleSubscription(plan)}
+              onClick={() => {
+                pathname === "/"
+                  ? navigate("/register-business")
+                  : handleSubscription(plan);
+              }}
             >
               {!plan.isAvailable && (
                 <div className="absolute top-4 right-4">
