@@ -36,7 +36,7 @@ function PricingCards({
         "Personaliza tu perfil de negocio",
         "Bloqueo de turnos por alta demanda",
       ],
-      ctaText: "Probar 7 días gratis",
+      ctaText: "Probar 30 días gratis",
       ctaVariant: "secondary",
       free_trial: 30,
       isAvailable: true,
