@@ -192,17 +192,7 @@ const BusinessDashboard = () => {
           {/* activeTab: Servicios */}
           {activeTab === "service" && (
             <div>
-              {/* <ServiceForm
-                onSubmit={fetchCreateService}
-                employees={allEmployees}
-                businessId={businessId}
-              />
-              <ServiceList
-                services={services}
-                onDelete={fetchDeleteService}
-                employees={allEmployees}
-                onEdit={fetchPatchService}
-              /> */}
+
               <ServiceManagement
                 services={services}
                 onDelete={fetchDeleteService}
