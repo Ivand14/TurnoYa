@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Service } from "@/types";
 import { current_user } from "@/context/currentUser";
 import MercadoPagoButton from "./mercadopagoComponents/MercadoPagoButton";
+import GoogleButton from "./ui/GoogleButton";
 
 interface PaymentData {
   preferenceId: string;
@@ -116,9 +117,9 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
               bookingId={bookingId}
             />
           ) : (
-            <div className="flex items-center justify-center bg-red-200 p-4 rounded-2xl m-3">
-              <AlertCircleIcon />
+            <div className="flex flex-col gap-3 items-center justify-center p-4 rounded-2xl m-3">
               <p className="ml-2">Para poder reservar inicia sesión</p>
+              <GoogleButton />
             </div>
           )}
 

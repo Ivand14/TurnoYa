@@ -11,7 +11,7 @@ function PricingCards({
 }: {
   onPlanSelect?: (planId: string) => void;
   selectedPlan?: string;
-  businessRegister: businessRegister;
+  businessRegister?: businessRegister;
 }) {
   const navigate = useNavigate();
   const pathname = window.location.pathname;

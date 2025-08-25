@@ -72,17 +72,17 @@ export const BookingControls: React.FC<BookingControlsProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <Button variant="outline" size="sm" onClick={refreshBookingsData}>
+      {/* <Button variant="outline" size="sm" onClick={refreshBookingsData}>
         <RefreshCw className="w-4 h-4" />
-      </Button>
+      </Button> */}
 
-      <Button
+      {/* <Button
         variant="outline"
         size="sm"
         onClick={() => exportBookingsData(processedBookings)}
       >
         <Download className="w-4 h-4" />
-      </Button>
+      </Button> */}
     </div>
   );
 };
